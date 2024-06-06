@@ -23,7 +23,7 @@ class Chat extends StatelessWidget {
                     Message(
                       isMe: false,
                       message:
-                          'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
+                          'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
                     ),
                     Message(
                       isMe: true,
