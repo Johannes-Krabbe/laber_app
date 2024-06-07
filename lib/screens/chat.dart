@@ -22,58 +22,60 @@ class _ChatState extends State<Chat> {
               Expanded(
                 child: ListView(
                   reverse: true,
-                  children: const [
-                    Message(
+                  children: [
+                    AnimatedSize(
+                      curve: Curves.easeIn,
+                      duration: const Duration(milliseconds: 100),
+                      child: SizedBox(height: renderedHeight - 20),
+                    ),
+                    const Message(
                       isMe: true,
                       message: 'Hello',
                     ),
-                    Message(
+                    const Message(
                       isMe: false,
                       message:
                           'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
                     ),
-                    Message(
+                    const Message(
                       isMe: true,
                       message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
                     ),
-                    Message(
+                    const Message(
                       isMe: false,
                       message:
                           'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
                     ),
-                    Message(
+                    const Message(
                       isMe: true,
                       message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
                     ),
-                    Message(
+                    const Message(
                       isMe: true,
                       message: 'Hello',
                     ),
-                    Message(
+                    const Message(
                       isMe: false,
                       message:
                           'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
                     ),
-                    Message(
+                    const Message(
                       isMe: true,
                       message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
                     ),
-                    Message(
+                    const Message(
                       isMe: false,
                       message:
                           'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
                     ),
-                    Message(
+                    const Message(
                       isMe: true,
                       message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
                     ),
+                    const SizedBox(height: 250),
                   ],
                 ),
               ),
-              AnimatedSize(
-                  curve: Curves.easeIn,
-                  duration: const Duration(milliseconds: 100),
-                  child: SizedBox(height: renderedHeight + 20)),
             ],
           ),
           Positioned(
@@ -108,22 +110,22 @@ class _ChatState extends State<Chat> {
                   child: AnimatedSize(
                     curve: Curves.easeIn,
                     duration: const Duration(milliseconds: 100),
-                    child: SafeArea(
-                      top: false,
-                      child: Builder(builder: (context) {
+                    child: Builder(
+                      builder: (context) {
                         return NotificationListener(
-                            onNotification: (notification) {
-                              if (notification is ScrollMetricsNotification) {
-                                if (context.size!.height != renderedHeight) {
-                                  setState(() {
-                                    renderedHeight = context.size!.height;
-                                  });
-                                }
+                          onNotification: (notification) {
+                            if (notification is ScrollMetricsNotification) {
+                              if (context.size!.height != renderedHeight) {
+                                setState(() {
+                                  renderedHeight = context.size!.height;
+                                });
                               }
-                              return true;
-                            },
-                            child: const ChatInput());
-                      }),
+                            }
+                            return true;
+                          },
+                          child: const ChatInput(),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -194,37 +196,40 @@ class ChatInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10, bottom: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const SizedBox(width: 10),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[900],
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: const TextField(
-                  maxLines: 4,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
+    return SafeArea(
+      top: false,
+      child: Container(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: const TextField(
+                    maxLines: 4,
+                    minLines: 1,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            IconButton(
-              icon: const Icon(Icons.send),
-              onPressed: () {},
-            ),
-            const SizedBox(width: 10),
-          ],
+              const SizedBox(width: 10),
+              IconButton(
+                icon: const Icon(Icons.send),
+                onPressed: () {},
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
         ),
       ),
     );

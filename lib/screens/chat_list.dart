@@ -13,52 +13,47 @@ class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            ListView(
-              children: chatListItems,
-            ),
-            Positioned(
-              bottom: -10,
-              left: 0,
-              right: 0,
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withOpacity(0.5),
-                    ),
-                    child: BottomNavigationBar(
-                      currentIndex: 0,
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      items: const <BottomNavigationBarItem>[
-                        BottomNavigationBarItem(
-                          icon: Icon(Icons.chat),
-                          label: 'Chat',
-                        ),
-                        BottomNavigationBarItem(
-                          icon: Icon(Icons.people_alt),
-                          label: 'Contacts',
-                        ),
-                        BottomNavigationBarItem(
-                          icon: Icon(Icons.settings),
-                          label: 'Settings',
-                        ),
-                      ],
-                    ),
+      body: Stack(
+        children: [
+          ListView(
+            children: chatListItems,
+          ),
+          Positioned(
+            bottom: -10,
+            left: 0,
+            right: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                  ),
+                  child: BottomNavigationBar(
+                    currentIndex: 0,
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.chat),
+                        label: 'Chat',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.people_alt),
+                        label: 'Contacts',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.settings),
+                        label: 'Settings',
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
