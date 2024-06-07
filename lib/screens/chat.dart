@@ -2,8 +2,15 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-class Chat extends StatelessWidget {
+class Chat extends StatefulWidget {
   const Chat({super.key});
+
+  @override
+  State<Chat> createState() => _ChatState();
+}
+
+class _ChatState extends State<Chat> {
+  double renderedHeight = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +36,44 @@ class Chat extends StatelessWidget {
                       isMe: true,
                       message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
                     ),
+                    Message(
+                      isMe: false,
+                      message:
+                          'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
+                    ),
+                    Message(
+                      isMe: true,
+                      message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
+                    ),
+                    Message(
+                      isMe: true,
+                      message: 'Hello',
+                    ),
+                    Message(
+                      isMe: false,
+                      message:
+                          'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
+                    ),
+                    Message(
+                      isMe: true,
+                      message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
+                    ),
+                    Message(
+                      isMe: false,
+                      message:
+                          'Hellosdf asd asd;lfkHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello ',
+                    ),
+                    Message(
+                      isMe: true,
+                      message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 70),
+              AnimatedSize(
+                  curve: Curves.easeIn,
+                  duration: const Duration(milliseconds: 100),
+                  child: SizedBox(height: renderedHeight + 20)),
             ],
           ),
           Positioned(
@@ -64,7 +105,27 @@ class Chat extends StatelessWidget {
                     color:
                         Theme.of(context).colorScheme.surface.withOpacity(0.5),
                   ),
-                  child: const ChatInput(),
+                  child: AnimatedSize(
+                    curve: Curves.easeIn,
+                    duration: const Duration(milliseconds: 100),
+                    child: SafeArea(
+                      top: false,
+                      child: Builder(builder: (context) {
+                        return NotificationListener(
+                            onNotification: (notification) {
+                              if (notification is ScrollMetricsNotification) {
+                                if (context.size!.height != renderedHeight) {
+                                  setState(() {
+                                    renderedHeight = context.size!.height;
+                                  });
+                                }
+                              }
+                              return true;
+                            },
+                            child: const ChatInput());
+                      }),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -135,39 +196,36 @@ class ChatInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.transparent,
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: const TextField(
-                    maxLines: 4,
-                    minLines: 1,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                    ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10, bottom: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const SizedBox(width: 10),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const TextField(
+                  maxLines: 4,
+                  minLines: 1,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: () {},
-              ),
-              const SizedBox(width: 10),
-            ],
-          ),
-          const SizedBox(height: 40),
-        ],
+            ),
+            const SizedBox(width: 10),
+            IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: () {},
+            ),
+            const SizedBox(width: 10),
+          ],
+        ),
       ),
     );
   }
