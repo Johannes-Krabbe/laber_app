@@ -29,7 +29,7 @@ class ChatTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              // backgroundImage: NetworkImage(avatarUrl),
+              backgroundImage: NetworkImage(avatarUrl),
             ),
             const SizedBox(width: 10),
             Expanded(

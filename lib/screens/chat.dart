@@ -26,7 +26,9 @@ class _ChatState extends State<Chat> {
                     AnimatedSize(
                       curve: Curves.easeIn,
                       duration: const Duration(milliseconds: 100),
-                      child: SizedBox(height: renderedHeight - 20),
+                      child: SizedBox(
+                          height:
+                              renderedHeight < 20 ? 20 : renderedHeight - 20),
                     ),
                     const Message(
                       isMe: true,
