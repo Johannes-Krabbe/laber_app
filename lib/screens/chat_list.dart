@@ -15,8 +15,39 @@ class _ChatListState extends State<ChatList> {
     return Scaffold(
       body: Stack(
         children: [
+            // todo: add sized boxed to top and bottom of list.
           ListView(
             children: chatListItems,
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                  ),
+                  child: Column(
+                    children: [
+                      SafeArea(
+                        bottom: false,
+                        child: Text(
+                          "Chats",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
           Positioned(
             bottom: -10,
