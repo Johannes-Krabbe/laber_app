@@ -29,4 +29,14 @@ class Ed25519Util {
     );
     return isVerified;
   }
+
+  static Future<String> keyPairToString(SimpleKeyPair keyPair) async {
+    final keyPairData = await keyPair.extractPrivateKeyBytes();
+    return base64Encode(keyPairData);
+  }
+
+  static Future<SimpleKeyPair> stringToKeyPair(String keyPairString) async {
+    final keyPairData = base64Decode(keyPairString);
+    return flutterEd25519.newKeyPairFromSeed(keyPairData);
+  }
 }

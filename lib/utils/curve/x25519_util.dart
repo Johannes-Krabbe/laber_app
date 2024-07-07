@@ -54,4 +54,15 @@ class X25519Util {
 
     return key.extractBytes();
   }
+
+  static Future<String> keyPairToString(SimpleKeyPair keyPair) async {
+    final keyPairData = await keyPair.extractPrivateKeyBytes();
+    return base64Encode(keyPairData);
+  }
+
+  static Future<SimpleKeyPair> stringToKeyPair(String keyPairString) async {
+    final keyPairData = base64Decode(keyPairString);
+    return flutterX25519.newKeyPairFromSeed(keyPairData);
+  }
+
 }
