@@ -29,8 +29,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginAuthEvent>((event, emit) async {
       await _onLogin(event, emit);
     });
+    on<AppStartedAuthEvent>((event, emit) async {
+      await _onAppStarted(event, emit);
+    });
   }
 
   _onLogin(LoginAuthEvent event, Emitter<AuthState> emit) async {}
 
+  _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
+    // is there a local token?
+
+    // if so, try to fetch me
+
+    // if not, emit none
+
+    emit(state.copyWith(state: AuthStateEnum.loading));
+    await Future.delayed(const Duration(seconds: 0));
+    emit(state.copyWith(state: AuthStateEnum.none));
+
+  }
 }

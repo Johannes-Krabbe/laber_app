@@ -39,6 +39,8 @@ dependencies:
   cryptography_flutter: ^2.3.2
   cryptography: ^2.7.0
   flutter_secure_storage: ^9.2.2
+  intl_phone_number_input: ^0.7.4
+  flutter_otp_text_field: ^1.1.3+2
 
 dev_dependencies:
   flutter_test:

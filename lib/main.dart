@@ -1,16 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/components/loading.dart';
+import 'package:laber_app/screens/auth/login.dart';
 import 'package:laber_app/screens/chat_list.dart';
+import 'package:laber_app/state/bloc/auth_bloc.dart';
+import 'package:laber_app/state/types/auth_state.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        lazy: false,
+        create: (_) => AuthBloc(),
+      ),
+    ],
+    child: const MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    // WidgetsBinding.instance.addObserver(this);
+    var authBloc = context.read<AuthBloc>();
+    authBloc.add(AppStartedAuthEvent());
+
+    super.initState();
+  }
+
+/*
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Respond to lifecycle changes by checking the state
+    print("Current state: $state");
+  }
+*/
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    var authBloc = context.watch<AuthBloc>();
+
+    Widget currentRenderedPage;
+
+    switch (authBloc.state.state) {
+      case AuthStateEnum.none:
+        currentRenderedPage = Login();
+        break;
+      case AuthStateEnum.loggedIn:
+        currentRenderedPage = const ChatList();
+        break;
+      default:
+        // AuthStateEnum.loading
+        currentRenderedPage = const Loading();
+    }
+
     return MaterialApp(
       title: 'Machen',
       debugShowCheckedModeBanner: false,
@@ -27,7 +84,7 @@ class MyApp extends StatelessWidget {
         splashColor: Colors.transparent,
       ),
       themeMode: ThemeMode.dark,
-      home: const ChatList(),
+      home: currentRenderedPage,
     );
   }
 }

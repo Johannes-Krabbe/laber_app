@@ -1,4 +1,7 @@
-enum AuthStateEnum { none, initializing, loading, failure, success }
+// none = no token, no error
+// loading = loading
+// loggedIn = token, no error
+enum AuthStateEnum { none, loading, loggedIn }
 
 class AuthState {
   final AuthStateEnum state;
@@ -7,7 +10,7 @@ class AuthState {
   final String token;
 
   const AuthState({
-    this.state = AuthStateEnum.initializing,
+    this.state = AuthStateEnum.none,
     this.error,
     this.token = '',
   });
