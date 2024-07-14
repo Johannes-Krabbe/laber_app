@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:laber_app/screens/auth/verify_otp.dart';
+import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -11,10 +13,16 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   final TextEditingController controller = TextEditingController();
   String initialCountry = 'DE';
   PhoneNumber number = PhoneNumber(isoCode: 'DE');
+  late AuthFlowBloc authFlowBloc;
+
+  @override
+  void initState() {
+    authFlowBloc = context.read<AuthFlowBloc>();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,22 +64,26 @@ class _LoginState extends State<Login> {
                       const TextInputType.numberWithOptions(decimal: true),
                   inputBorder: null,
                   onSaved: (PhoneNumber number) {
-                    print('On Saved: $number');
+                    var isValid = formKey.currentState?.validate();
+                    if (isValid == true) {
+                      authFlowBloc.add(EnterPhoneNumberAuthFlowEvent(number));
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider.value(
+                            value: authFlowBloc,
+                            child: const VerifyOtp(),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
               ),
               const Spacer(),
               TextButton(
                 onPressed: () {
-                  var isValid = formKey.currentState?.validate();
-                  if (isValid == true) {
-                    // TODO send request
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const VerifyOtp(),
-                      ),
-                    );
-                  }
+                  formKey.currentState?.save();
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -91,34 +103,11 @@ class _LoginState extends State<Login> {
                   ),
                 ),
               ),
-              /*
-              ElevatedButton(
-                onPressed: () {
-                  getPhoneNumber('+15417543010');
-                },
-                child: const Text('Update'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  formKey.currentState?.save();
-                },
-                child: const Text('Save'),
-              ),
-              */
             ],
           ),
         ),
       ),
     );
-  }
-
-  void getPhoneNumber(String phoneNumber) async {
-    PhoneNumber number =
-        await PhoneNumber.getRegionInfoFromPhoneNumber(phoneNumber, 'US');
-
-    setState(() {
-      this.number = number;
-    });
   }
 
   @override

@@ -3,19 +3,11 @@ import 'package:laber_app/state/types/auth_state.dart';
 
 sealed class AuthEvent {}
 
-final class LoginAuthEvent extends AuthEvent {
-  final String emailOrUsername;
-  final String password;
+final class LoggedInAuthEvent extends AuthEvent {
+  final String phoneNumber;
+  final String token;
 
-  LoginAuthEvent(this.emailOrUsername, this.password);
-}
-
-final class SignupAuthEvent extends AuthEvent {
-  final String username;
-  final String email;
-  final String password;
-
-  SignupAuthEvent(this.username, this.email, this.password);
+  LoggedInAuthEvent(this.phoneNumber, this.token);
 }
 
 final class LogoutAuthEvent extends AuthEvent {}
@@ -26,7 +18,7 @@ final class FetchMeAuthEvent extends AuthEvent {}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(const AuthState()) {
-    on<LoginAuthEvent>((event, emit) async {
+    on<LoggedInAuthEvent>((event, emit) async {
       await _onLogin(event, emit);
     });
     on<AppStartedAuthEvent>((event, emit) async {
@@ -34,7 +26,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  _onLogin(LoginAuthEvent event, Emitter<AuthState> emit) async {}
+  _onLogin(LoggedInAuthEvent event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(state: AuthStateEnum.loggedIn));
+  }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
     // is there a local token?

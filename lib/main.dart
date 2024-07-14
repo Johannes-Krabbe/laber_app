@@ -4,6 +4,7 @@ import 'package:laber_app/components/loading.dart';
 import 'package:laber_app/screens/auth/login.dart';
 import 'package:laber_app/screens/chat_list.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
+import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 
 void main() {
@@ -58,7 +59,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     switch (authBloc.state.state) {
       case AuthStateEnum.none:
-        currentRenderedPage = Login();
+        currentRenderedPage = BlocProvider(
+          create: (_) => AuthFlowBloc(),
+          child: const Login(),
+        );
         break;
       case AuthStateEnum.loggedIn:
         currentRenderedPage = const ChatList();
