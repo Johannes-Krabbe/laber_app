@@ -4,7 +4,8 @@ enum AuthFlowStateEnum {
   none,
   loading,
   error,
-  success,
+  successPhone,
+  successOtp,
 }
 
 class AuthFlowState {
@@ -12,12 +13,14 @@ class AuthFlowState {
   final String? error;
   final PhoneNumber? phoneNumber;
   final String? otp;
+  final String? token;
 
   const AuthFlowState({
     this.state = AuthFlowStateEnum.none,
     this.error,
     this.phoneNumber,
     this.otp,
+    this.token,
   });
 
   AuthFlowState copyWith({
@@ -25,12 +28,14 @@ class AuthFlowState {
     String? error,
     PhoneNumber? phoneNumber,
     String? otp,
+    String? token,
   }) {
     return AuthFlowState(
       state: state ?? this.state,
       error: error ?? this.error,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       otp: otp ?? this.otp,
+      token: token ?? this.token,
     );
   }
 }

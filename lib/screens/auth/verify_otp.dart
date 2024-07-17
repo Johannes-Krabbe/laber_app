@@ -28,16 +28,23 @@ class _VerifyOtpState extends State<VerifyOtp> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     authBloc = context.read<AuthBloc>();
-    authFlowBloc = context.read<AuthFlowBloc>();
+    authFlowBloc = context.watch<AuthFlowBloc>();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthFlowBloc, AuthFlowState>(
       listener: (context, state) {
-        if (state.state == AuthFlowStateEnum.success) {
-          authBloc.add(LoggedInAuthEvent(state.phoneNumber!.phoneNumber!, ""));
+        if (state.state == AuthFlowStateEnum.successOtp &&
+            state.token?.isNotEmpty == true) {
+          authBloc.add(
+              LoggedInAuthEvent(state.phoneNumber!.phoneNumber!, state.token!));
           Navigator.of(context).popUntil((route) => route.isFirst);
         }
       },
@@ -50,7 +57,8 @@ class _VerifyOtpState extends State<VerifyOtp> {
               const SizedBox(height: 20),
               Text(
                 'Code send to ${authFlowBloc.state.phoneNumber?.phoneNumber}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 30),
               OtpTextField(
@@ -77,7 +85,6 @@ class _VerifyOtpState extends State<VerifyOtp> {
                     clearText = true;
                   });
                   //navigate to different screen code goes here
-                  print('Code entered is $verificationCode');
                   authFlowBloc.add(VerifyOtpAuthFlowEvent(verificationCode));
                 }, // end onSubmit
               ),
