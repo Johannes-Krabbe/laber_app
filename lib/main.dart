@@ -57,6 +57,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     Widget currentRenderedPage;
 
+    authBloc.add(LoggedInAuthEvent("1234", "1234"));
+
     switch (authBloc.state.state) {
       case AuthStateEnum.none:
         currentRenderedPage = BlocProvider(
