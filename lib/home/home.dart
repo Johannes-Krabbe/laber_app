@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/components/blur_background.dart';
 import 'dart:ui';
 
 import 'package:laber_app/screens/chat_list.dart';
@@ -54,42 +55,34 @@ class _HomeState extends State<Home> {
       extendBodyBehindAppBar: true,
       extendBody: true,
       body: currentPage,
-      bottomNavigationBar: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-            ),
-            child: BottomNavigationBar(
-                currentIndex: currentIndex,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.chat),
-                    label: 'Chat',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.people_alt),
-                    label: 'Contacts',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.settings),
-                    label: 'Settings',
-                  ),
-                ],
-                onTap: (index) {
-                  if (index == currentIndex) {
-                    return;
-                  } else {
-                    setState(() {
-                      currentIndex = index;
-                    });
-                  }
-                }),
-          ),
-        ),
+      bottomNavigationBar: BlurBackground(
+        child: BottomNavigationBar(
+            currentIndex: currentIndex,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.chat),
+                label: 'Chat',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.people_alt),
+                label: 'Contacts',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'Settings',
+              ),
+            ],
+            onTap: (index) {
+              if (index == currentIndex) {
+                return;
+              } else {
+                setState(() {
+                  currentIndex = index;
+                });
+              }
+            }),
       ),
     );
   }

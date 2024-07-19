@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/components/chat_tile.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
 
@@ -61,50 +61,42 @@ class _ChatListState extends State<ChatList> {
       extendBody: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(50),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-              ),
-              child: Column(
-                children: [
-                  SafeArea(
-                    bottom: false,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.more_horiz),
-                            onPressed: () {},
-                          ),
-                          SizedBox(
-                            height: 50,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: appBarTitle,
-                            ),
-                          ),
-                          IconButton(
-                              icon: const Icon(Icons.search),
-                              onPressed: () {
-                                showSearch(
-                                  context: context,
-                                  delegate: ChatSearchDelegate(
-                                    contactsBloc: contactsBloc,
-                                  ),
-                                );
-                              }),
-                        ],
+        child: BlurBackground(
+          child: Column(
+            children: [
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.more_horiz),
+                        onPressed: () {},
                       ),
-                    ),
+                      SizedBox(
+                        height: 50,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: appBarTitle,
+                        ),
+                      ),
+                      IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            showSearch(
+                              context: context,
+                              delegate: ChatSearchDelegate(
+                                contactsBloc: contactsBloc,
+                              ),
+                            );
+                          }),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

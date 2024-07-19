@@ -1,6 +1,6 @@
-import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:laber_app/state/types/contacts_state.dart';
 
@@ -29,17 +29,9 @@ class _ChatScreenState extends State<ChatScreen> {
       extendBody: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-              ),
-              child: ChatHead(
-                  contact: contactsBloc.state.getById(widget.contactId)!),
-            ),
-          ),
+        child: BlurBackground(
+          child:
+              ChatHead(contact: contactsBloc.state.getById(widget.contactId)!),
         ),
       ),
       body: ListView.builder(
@@ -59,34 +51,9 @@ class _ChatScreenState extends State<ChatScreen> {
           );
         },
       ),
-      bottomNavigationBar: AnimatedSize(
-        curve: Curves.easeIn,
-        duration: const Duration(milliseconds: 100),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-            child: Builder(
-              builder: (context) {
-                return NotificationListener(
-                  onNotification: (notification) {
-                    if (notification is ScrollMetricsNotification) {
-                      if (context.size!.height != renderedHeight) {
-                        setState(() {
-                          renderedHeight = context.size!.height;
-                        });
-                      }
-                    }
-                    return true;
-                  },
-                  child: ChatInput(
-                      contactsBloc: contactsBloc,
-                      contact: contactsBloc.state.getById(widget.contactId)!),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: ChatInput(
+          contactsBloc: contactsBloc,
+          contact: contactsBloc.state.getById(widget.contactId)!),
     );
   }
 }
@@ -155,47 +122,51 @@ class ChatInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: TextField(
-                    controller: controller,
-                    maxLines: 4,
-                    minLines: 1,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
+    return BlurBackground(
+      child: SafeArea(
+        top: false,
+        child: Container(
+          color: Colors.transparent,
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: TextField(
+                      controller: controller,
+                      maxLines: 4,
+                      minLines: 1,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: () {
-                  if(controller.text.isEmpty) {
-                    return;
-                  }
-                  contactsBloc.add(
-                      SendMessageContactsEvent(contact.id, controller.text));
-                  controller.clear();
-                },
-              ),
-              const SizedBox(width: 10),
-            ],
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: () {
+                    if (controller.text.isEmpty) {
+                      return;
+                    }
+                    contactsBloc.add(
+                        SendMessageContactsEvent(contact.id, controller.text));
+                    controller.clear();
+                  },
+                ),
+                const SizedBox(width: 10),
+              ],
+            ),
           ),
         ),
       ),
