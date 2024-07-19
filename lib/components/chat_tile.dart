@@ -38,20 +38,29 @@ class ChatTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 5),
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(time),
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(message, overflow: TextOverflow.ellipsis, maxLines: 2),
                 ],
               ),
             ),
-            const SizedBox(width: 10),
-            Text(time),
           ],
         ),
       ),
