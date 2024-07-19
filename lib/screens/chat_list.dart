@@ -216,7 +216,7 @@ class ChatSearchDelegate extends SearchDelegate<String> {
         return ChatTile(
           contact: searchResult[index],
           message:
-              searchResult[index].latestMessage?.message ?? "NO MESSAGE YET",
+              searchResult[index].latestMessage?.message ?? searchResult[index].phoneNumber,
           time: searchResult[index].latestMessage?.formattedLongTime ?? "",
         );
       },
