@@ -5,6 +5,7 @@ import 'package:laber_app/home/home.dart';
 import 'package:laber_app/screens/auth/login.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
+import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 
 void main() {
@@ -13,6 +14,10 @@ void main() {
       BlocProvider(
         lazy: false,
         create: (_) => AuthBloc(),
+      ),
+      BlocProvider(
+        lazy: false,
+        create: (_) => ContactsBloc(),
       ),
     ],
     child: const MyApp(),

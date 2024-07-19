@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:laber_app/screens/chat.dart';
+import 'package:laber_app/state/types/contacts_state.dart';
 
 class ChatTile extends StatelessWidget {
-  final String name;
-  final String message;
-  final String time;
-  final String avatarUrl;
+  final Contact contact;
+  final String? message;
+  final String? time;
 
   const ChatTile({
     super.key,
-    required this.name,
-    required this.message,
-    required this.time,
-    required this.avatarUrl,
+    required this.contact,
+    this.message,
+    this.time,
   });
 
   @override
@@ -20,7 +19,9 @@ class ChatTile extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const Chat()),
+          MaterialPageRoute(builder: (context) => ChatScreen(
+            contactId: contact.id,
+          )),
         );
       },
       child: Container(
@@ -29,7 +30,7 @@ class ChatTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage(avatarUrl),
+              backgroundImage: NetworkImage(contact.profilePicture),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -43,7 +44,7 @@ class ChatTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          name,
+                          contact.name,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -53,11 +54,25 @@ class ChatTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Text(time),
+                      Builder(
+                        builder: (context) {
+                          if(time == null) {
+                            return const SizedBox();
+                          }
+                          return Text(time!);
+                        }
+                      ),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(message, overflow: TextOverflow.ellipsis, maxLines: 2),
+                  Builder(
+                    builder: (context) {
+                      if(message == null) {
+                        return const SizedBox();
+                      }
+                      return Text(message!, overflow: TextOverflow.ellipsis, maxLines: 2);
+                    }
+                  ),
                 ],
               ),
             ),

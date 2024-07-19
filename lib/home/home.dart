@@ -3,8 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 
 import 'package:laber_app/screens/chat_list.dart';
+import 'package:laber_app/screens/contacts.dart';
 import 'package:laber_app/screens/settings.dart';
-import 'package:laber_app/state/bloc/chat_list_bloc.dart';
+import 'package:laber_app/state/bloc/contacts_bloc.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -19,20 +20,28 @@ class _HomeState extends State<Home> {
   int currentIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    var contactsBloc = context.read<ContactsBloc>();
+    contactsBloc.add(FetchContactsContactsEvent());
+
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget currentPage;
 
     switch (currentIndex) {
       case 0:
-        currentPage = BlocProvider(
-          create: (_) => ChatListBloc(),
-          child: const ChatList(),
-        );
+        currentPage = const ChatList();
         break;
       case 1:
-        currentPage = Container(
-          child: const Placeholder(),
-        );
+        currentPage = const Contacts();
         break;
       case 2:
         currentPage = const Settings();

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/api/models/types/private_user.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 import 'package:laber_app/utils/secure_storage_repository.dart';
 
@@ -7,8 +8,9 @@ sealed class AuthEvent {}
 final class LoggedInAuthEvent extends AuthEvent {
   final String phoneNumber;
   final String token;
+  final PrivateUser meUser;
 
-  LoggedInAuthEvent(this.phoneNumber, this.token);
+  LoggedInAuthEvent(this.phoneNumber, this.token, this.meUser);
 }
 
 final class LogoutAuthEvent extends AuthEvent {}
@@ -32,7 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   _onLogin(LoggedInAuthEvent event, Emitter<AuthState> emit) async {
     await SecureStorageRepository().write('token', event.token);
-    emit(state.copyWith(state: AuthStateEnum.loggedIn));
+    emit(state.copyWith(state: AuthStateEnum.loggedIn, meUser: event.meUser, token: event.token));
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {

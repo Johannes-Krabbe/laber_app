@@ -1,16 +1,26 @@
 import 'dart:ui';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:laber_app/state/bloc/contacts_bloc.dart';
+import 'package:laber_app/state/types/contacts_state.dart';
 
-class Chat extends StatefulWidget {
-  const Chat({super.key});
+class ChatScreen extends StatefulWidget {
+  final String contactId;
+  const ChatScreen({super.key, required this.contactId});
 
   @override
-  State<Chat> createState() => _ChatState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatState extends State<Chat> {
+class _ChatScreenState extends State<ChatScreen> {
   double renderedHeight = 0;
+  late ContactsBloc contactsBloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    contactsBloc = context.watch<ContactsBloc>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,63 +36,28 @@ class _ChatState extends State<Chat> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
               ),
-              child: const ChatHead(),
+              child: ChatHead(
+                  contact: contactsBloc.state.getById(widget.contactId)!),
             ),
           ),
         ),
       ),
-      body: ListView(
+      body: ListView.builder(
         reverse: true,
-        children: const [
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-          Message(
-            isMe: true,
-            message: 'Hello Hello Hello Hello Hello HelloHello aaaaa',
-          ),
-        ],
+        itemCount:
+            contactsBloc.state.getById(widget.contactId)!.messages.length,
+        itemBuilder: (context, index) {
+          return MessageWidget(
+            message: contactsBloc.state
+                .getById(widget.contactId)!
+                .sortedMessages[index],
+            isMe: contactsBloc.state
+                    .getById(widget.contactId)!
+                    .sortedMessages[index]
+                    .senderId !=
+                contactsBloc.state.getById(widget.contactId)!.id,
+          );
+        },
       ),
       bottomNavigationBar: AnimatedSize(
         curve: Curves.easeIn,
@@ -103,7 +78,9 @@ class _ChatState extends State<Chat> {
                     }
                     return true;
                   },
-                  child: const ChatInput(),
+                  child: ChatInput(
+                      contactsBloc: contactsBloc,
+                      contact: contactsBloc.state.getById(widget.contactId)!),
                 );
               },
             ),
@@ -114,11 +91,11 @@ class _ChatState extends State<Chat> {
   }
 }
 
-class Message extends StatelessWidget {
-  final String message;
+class MessageWidget extends StatelessWidget {
+  final Message message;
   final bool isMe;
 
-  const Message({
+  const MessageWidget({
     required this.message,
     required this.isMe,
     super.key,
@@ -153,7 +130,7 @@ class Message extends StatelessWidget {
             const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         child: Text(
-          message,
+          message.message,
           softWrap: true,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
@@ -166,8 +143,14 @@ class Message extends StatelessWidget {
 }
 
 class ChatInput extends StatelessWidget {
-  const ChatInput({
+  final ContactsBloc contactsBloc;
+  final Contact contact;
+  final TextEditingController controller = TextEditingController();
+
+  ChatInput({
     super.key,
+    required this.contactsBloc,
+    required this.contact,
   });
 
   @override
@@ -189,10 +172,11 @@ class ChatInput extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: const TextField(
+                  child: TextField(
+                    controller: controller,
                     maxLines: 4,
                     minLines: 1,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: InputBorder.none,
                     ),
                   ),
@@ -201,7 +185,14 @@ class ChatInput extends StatelessWidget {
               const SizedBox(width: 10),
               IconButton(
                 icon: const Icon(Icons.send),
-                onPressed: () {},
+                onPressed: () {
+                  if(controller.text.isEmpty) {
+                    return;
+                  }
+                  contactsBloc.add(
+                      SendMessageContactsEvent(contact.id, controller.text));
+                  controller.clear();
+                },
               ),
               const SizedBox(width: 10),
             ],
@@ -213,7 +204,10 @@ class ChatInput extends StatelessWidget {
 }
 
 class ChatHead extends StatelessWidget {
+  final Contact contact;
+
   const ChatHead({
+    required this.contact,
     super.key,
   });
 
@@ -237,25 +231,25 @@ class ChatHead extends StatelessWidget {
                 },
               ),
               const SizedBox(width: 10),
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 20,
-                backgroundImage: NetworkImage(
-                    'https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes.png'),
+                backgroundImage: NetworkImage(contact.profilePicture),
               ),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'John Doe',
-                      style: TextStyle(
+                      contact.name,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
                     ),
-                    Text('Active now'),
+                    // TODO add last seen
+                    const Text('Active now'),
                   ],
                 ),
               ),

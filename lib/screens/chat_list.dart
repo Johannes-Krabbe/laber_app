@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/chat_tile.dart';
-
-import 'package:laber_app/state/bloc/chat_list_bloc.dart';
+import 'package:laber_app/state/bloc/contacts_bloc.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({super.key});
@@ -17,15 +16,12 @@ class _ChatListState extends State<ChatList> {
       ScrollController(initialScrollOffset: 0);
   double scrollPosition = 0;
   Widget? appBarTitle;
-  late ChatListBloc chatListBloc;
+  late ContactsBloc contactsBloc;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
-
-    chatListBloc = context.read<ChatListBloc>(); // Add the line here
-    chatListBloc.add((FetchChatsChatListEvent()));
   }
 
   @override
@@ -38,7 +34,7 @@ class _ChatListState extends State<ChatList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    chatListBloc = context.watch<ChatListBloc>(); // Add the line here
+    contactsBloc = context.watch<ContactsBloc>();
   }
 
   void _scrollListener() {
@@ -98,7 +94,7 @@ class _ChatListState extends State<ChatList> {
                                 showSearch(
                                   context: context,
                                   delegate: ChatSearchDelegate(
-                                    chatListBloc: chatListBloc,
+                                    contactsBloc: contactsBloc,
                                   ),
                                 );
                               }),
@@ -145,18 +141,25 @@ class _ChatListState extends State<ChatList> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  return chatListBloc.state.chats != null
+                  return contactsBloc.state.contacts != null
                       ? ChatTile(
-                          name: chatListBloc.state.chats![index].name,
-                          message: chatListBloc
-                              .state.chats![index].latestMessage.message,
-                          time: chatListBloc
-                              .state.chats![index].latestMessage.formattedTime,
-                          avatarUrl: chatListBloc.state.chats![index].avatarUrl,
+                          contact: contactsBloc
+                              .state.sortedContactsByLastMessage[index],
+                          message: contactsBloc
+                              .state
+                              .sortedContactsByLastMessage[index]
+                              .latestMessage
+                              ?.message,
+                          time: contactsBloc
+                              .state
+                              .sortedContactsByLastMessage[index]
+                              .latestMessage
+                              ?.formattedLongTime,
                         )
                       : const SizedBox();
                 },
-                childCount: chatListBloc.state.chats?.length ?? 0,
+                childCount:
+                    contactsBloc.state.sortedContactsByLastMessage.length,
               ),
             ),
           ),
@@ -167,9 +170,9 @@ class _ChatListState extends State<ChatList> {
 }
 
 class ChatSearchDelegate extends SearchDelegate<String> {
-  final ChatListBloc chatListBloc;
+  final ContactsBloc contactsBloc;
 
-  ChatSearchDelegate({required this.chatListBloc});
+  ChatSearchDelegate({required this.contactsBloc});
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -209,16 +212,20 @@ class ChatSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     return ListView.builder(
-      itemCount: chatListBloc.state.searchByName(query).length,
+      itemCount: contactsBloc.state.search(query).length,
       itemBuilder: (BuildContext context, int index) {
-        var searchResult = chatListBloc.state.searchByName(query);
-        searchResult.sort((a, b) =>
-            a.latestMessage.unixTime.compareTo(b.latestMessage.unixTime));
+        var searchResult = contactsBloc.state.search(query);
+        searchResult.sort((a, b) {
+          if (a.latestMessage == null) return 1;
+          if (b.latestMessage == null) return -1;
+          return a.latestMessage!.unixTime
+              .compareTo(b.latestMessage!.unixTime * -1);
+        });
         return ChatTile(
-          name: searchResult[index].name,
-          message: searchResult[index].latestMessage.message,
-          time: searchResult[index].latestMessage.formattedTime,
-          avatarUrl: searchResult[index].avatarUrl,
+          contact: searchResult[index],
+          message:
+              searchResult[index].latestMessage?.message ?? "NO MESSAGE YET",
+          time: searchResult[index].latestMessage?.formattedLongTime ?? "",
         );
       },
     );

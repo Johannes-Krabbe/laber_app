@@ -76,10 +76,10 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       emit(state.copyWith(
         state: AuthFlowStateEnum.successOtp,
         token: res.body?.token,
+        meUser: res.body?.user,
         error: null,
       ));
     } else {
-      print(res.body?.message);
       emit(state.copyWith(
           state: AuthFlowStateEnum.error,
           error: res.body?.message ?? 'Invalid OTP'));

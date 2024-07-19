@@ -44,7 +44,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
         if (state.state == AuthFlowStateEnum.successOtp &&
             state.token?.isNotEmpty == true) {
           authBloc.add(
-              LoggedInAuthEvent(state.phoneNumber!.phoneNumber!, state.token!));
+              LoggedInAuthEvent(state.phoneNumber!.phoneNumber!, state.token!, state.meUser!));
           Navigator.of(context).popUntil((route) => route.isFirst);
         }
       },
