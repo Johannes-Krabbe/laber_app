@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/loading.dart';
+import 'package:laber_app/home/home.dart';
 import 'package:laber_app/screens/auth/login.dart';
-import 'package:laber_app/screens/chat_list.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
-import 'package:laber_app/state/bloc/chat_list_bloc.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 
 void main() {
@@ -58,8 +57,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     Widget currentRenderedPage;
 
-    authBloc.add(LoggedInAuthEvent("1234", "1234"));
-
     switch (authBloc.state.state) {
       case AuthStateEnum.none:
         currentRenderedPage = BlocProvider(
@@ -68,10 +65,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         );
         break;
       case AuthStateEnum.loggedIn:
-        currentRenderedPage = BlocProvider(
-          create: (_) => ChatListBloc(),
-          child: const ChatList(),
-        );
+        currentRenderedPage = const Home();
         break;
       default:
         // AuthStateEnum.loading

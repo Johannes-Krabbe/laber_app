@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:laber_app/components/chat_tile.dart';
 
 import 'package:laber_app/state/bloc/chat_list_bloc.dart';
@@ -86,9 +85,12 @@ class _ChatListState extends State<ChatList> {
                             icon: const Icon(Icons.more_horiz),
                             onPressed: () {},
                           ),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: appBarTitle,
+                          SizedBox(
+                            height: 50,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: appBarTitle,
+                            ),
                           ),
                           IconButton(
                               icon: const Icon(Icons.search),
@@ -160,35 +162,6 @@ class _ChatListState extends State<ChatList> {
           ),
         ],
       ),
-      bottomNavigationBar: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-            ),
-            child: BottomNavigationBar(
-              currentIndex: 0,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.chat),
-                  label: 'Chat',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.people_alt),
-                  label: 'Contacts',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.settings),
-                  label: 'Settings',
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -201,20 +174,18 @@ class ChatSearchDelegate extends SearchDelegate<String> {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
-      Builder(
-        builder: (context) {
-          if(query.isNotEmpty) {
-            return IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                query = '';
-              },
-            );
-          } else {
-            return const SizedBox();
-          }
+      Builder(builder: (context) {
+        if (query.isNotEmpty) {
+          return IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: () {
+              query = '';
+            },
+          );
+        } else {
+          return const SizedBox();
         }
-      ),
+      }),
     ];
   }
 

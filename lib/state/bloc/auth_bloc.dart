@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/state/types/auth_state.dart';
+import 'package:laber_app/utils/secure_storage_repository.dart';
 
 sealed class AuthEvent {}
 
@@ -24,22 +25,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AppStartedAuthEvent>((event, emit) async {
       await _onAppStarted(event, emit);
     });
+    on<LogoutAuthEvent>((event, emit) async {
+      await _onLogout(event, emit);
+    });
   }
 
   _onLogin(LoggedInAuthEvent event, Emitter<AuthState> emit) async {
+    await SecureStorageRepository().write('token', event.token);
     emit(state.copyWith(state: AuthStateEnum.loggedIn));
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
-    // is there a local token?
+    var exisingToken = await SecureStorageRepository().read('token');
 
-    // if so, try to fetch me
+    if (exisingToken != null) {
+      // TODO fetchme to check if token is valid
+      emit(state.copyWith(state: AuthStateEnum.loggedIn));
+    } else {
+      emit(state.copyWith(state: AuthStateEnum.none));
+    }
+  }
 
-    // if not, emit none
-
-    emit(state.copyWith(state: AuthStateEnum.loading));
-    await Future.delayed(const Duration(seconds: 0));
+  _onLogout(LogoutAuthEvent event, Emitter<AuthState> emit) async {
+    await SecureStorageRepository().delete('token');
     emit(state.copyWith(state: AuthStateEnum.none));
-
   }
 }
