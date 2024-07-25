@@ -16,7 +16,7 @@ class _SettingsState extends State<Settings> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    authBloc = context.read<AuthBloc>();
+    authBloc = context.watch<AuthBloc>();
   }
 
   @override
@@ -79,18 +79,17 @@ class _SettingsState extends State<Settings> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              const Text(
-                                "John Doe",
+                              Text(
+                                authBloc.state.meUser?.name ?? authBloc.state.meUser?.phoneNumber ?? "ERROR",
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                // still overflowing
                                 "Hello there I'm using LaberApp!",
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,

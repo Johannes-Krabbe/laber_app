@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/api/models/types/private_user.dart';
+import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 import 'package:laber_app/utils/secure_storage_repository.dart';
 
@@ -8,7 +9,7 @@ sealed class AuthEvent {}
 final class LoggedInAuthEvent extends AuthEvent {
   final String phoneNumber;
   final String token;
-  final PrivateUser meUser;
+  final ApiPrivateUser meUser;
 
   LoggedInAuthEvent(this.phoneNumber, this.token, this.meUser);
 }
@@ -34,15 +35,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   _onLogin(LoggedInAuthEvent event, Emitter<AuthState> emit) async {
     await SecureStorageRepository().write('token', event.token);
-    emit(state.copyWith(state: AuthStateEnum.loggedIn, meUser: event.meUser, token: event.token));
+    emit(state.copyWith(
+        state: AuthStateEnum.loggedIn,
+        meUser: event.meUser,
+        token: event.token));
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
     var exisingToken = await SecureStorageRepository().read('token');
 
     if (exisingToken != null) {
-      // TODO fetchme to check if token is valid
-      emit(state.copyWith(state: AuthStateEnum.loggedIn));
+      var response = await AuthRepository().fetchMe(exisingToken);
+
+      if (response.status == 200) {
+        emit(state.copyWith(
+            state: AuthStateEnum.loggedIn,
+            meUser: response.body!.user,
+            token: exisingToken));
+      } else {
+        emit(state.copyWith(state: AuthStateEnum.none));
+      }
     } else {
       emit(state.copyWith(state: AuthStateEnum.none));
     }

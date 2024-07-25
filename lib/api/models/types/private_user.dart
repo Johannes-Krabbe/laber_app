@@ -1,25 +1,28 @@
 // generated with https://javiercbk.github.io/json_to_dart/
 
-class PrivateUser {
+class ApiPrivateUser {
   String? id;
   String? phoneNumber;
-  int? createdAt;
+  int? unixCreatedAt;
   bool? onboardingCompleted;
   String? profilePicture;
+  String? name;
 
-  PrivateUser({
+  ApiPrivateUser({
     this.id,
     this.phoneNumber,
-    this.createdAt,
+    this.unixCreatedAt,
     this.onboardingCompleted,
     this.profilePicture,
+    this.name,
   });
 
-  PrivateUser.fromJson(Map<String, dynamic> json) {
+  ApiPrivateUser.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     phoneNumber = json['phoneNumber'];
-    createdAt = json['createdAt'];
+    unixCreatedAt = json['unixCreatedAt'];
     onboardingCompleted = json['onboardingCompleted'];
     profilePicture = json['profilePicture'];
+    name = json['name'];
   }
 }

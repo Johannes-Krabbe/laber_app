@@ -39,4 +39,9 @@ class Ed25519Util {
     final keyPairData = base64Decode(keyPairString);
     return flutterEd25519.newKeyPairFromSeed(keyPairData);
   }
+
+  static Future<String> publicKeyToString(SimplePublicKey publicKey) async {
+    final publicKeyData = publicKey.bytes;
+    return base64Encode(publicKeyData);
+  }
 }

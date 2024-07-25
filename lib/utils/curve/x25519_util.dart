@@ -38,7 +38,8 @@ class X25519Util {
     final hashAlgorithm = Sha256();
     final salt = Uint8List(
         32); // Zero-filled byte sequence with length of 32 bytes for SHA-256
-    final info = Uint8List.fromList(utf8.encode("LABER_APP")); // Convert infoString to byte array
+    final info = Uint8List.fromList(
+        utf8.encode("LABER_APP")); // Convert infoString to byte array
 
     // Derive key using HKDF
     final hkdf = Hkdf(
@@ -65,4 +66,8 @@ class X25519Util {
     return flutterX25519.newKeyPairFromSeed(keyPairData);
   }
 
+  static Future<String> publicKeyToString(SimplePublicKey publicKey) async {
+    final publicKeyData = publicKey.bytes;
+    return base64Encode(publicKeyData);
+  }
 }

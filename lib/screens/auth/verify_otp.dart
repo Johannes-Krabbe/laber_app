@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:laber_app/screens/auth/create_device.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
@@ -11,13 +12,6 @@ class VerifyOtp extends StatefulWidget {
   @override
   State<VerifyOtp> createState() => _VerifyOtpState();
 }
-
-const Color primaryColor = Color(0xFF121212);
-const Color accentPurpleColor = Color(0xFF6A53A1);
-const Color accentPinkColor = Color(0xFFF99BBD);
-const Color accentDarkGreenColor = Color(0xFF115C49);
-const Color accentYellowColor = Color(0xFFFFB612);
-const Color accentOrangeColor = Color(0xFFEA7A3B);
 
 class _VerifyOtpState extends State<VerifyOtp> {
   late AuthBloc authBloc;
@@ -43,9 +37,19 @@ class _VerifyOtpState extends State<VerifyOtp> {
       listener: (context, state) {
         if (state.state == AuthFlowStateEnum.successOtp &&
             state.token?.isNotEmpty == true) {
+          /*
           authBloc.add(
               LoggedInAuthEvent(state.phoneNumber!.phoneNumber!, state.token!, state.meUser!));
           Navigator.of(context).popUntil((route) => route.isFirst);
+          */
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => BlocProvider.value(
+                value: authFlowBloc,
+                child: CreateDevice(),
+              ),
+            ),
+          );
         }
       },
       child: Scaffold(

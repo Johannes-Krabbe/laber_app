@@ -2,9 +2,11 @@ import 'package:dio/dio.dart';
 export 'api_provider.dart';
 
 abstract class ApiProvider {
-  final Dio dio = Dio(BaseOptions(
-    baseUrl: 'http://localhost:8080',
-  ));
+  final Dio dio = Dio(
+    BaseOptions(
+      baseUrl: 'http://localhost:8080',
+    ),
+  );
 }
 
 class ApiRepositoryResponse<B> {
@@ -12,4 +14,11 @@ class ApiRepositoryResponse<B> {
   int status;
 
   ApiRepositoryResponse({this.body, required this.status});
+}
+
+class ApiRepositoryResponseError {
+  String message;
+  int status;
+
+  ApiRepositoryResponseError({required this.message, required this.status});
 }

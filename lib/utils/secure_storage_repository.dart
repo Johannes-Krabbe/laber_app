@@ -4,6 +4,7 @@ class SecureStorageRepository {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<void> write(String key, String value) async {
+    await _secureStorage.delete(key: key);
     await _secureStorage.write(key: key, value: value);
   }
 

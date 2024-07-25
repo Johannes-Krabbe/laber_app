@@ -1,68 +1,178 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
-import 'package:laber_app/utils/id_generator.dart';
+import 'package:laber_app/utils/curve/x25519_util.dart';
 import 'package:laber_app/utils/secure_storage_repository.dart';
 import 'dart:convert';
+
+enum SecureStorageType {
+  identityKeyPair,
+  onetimePreKeyPairs,
+  signedPreKeyPairs
+}
 
 class CryptoRepository {
   final secureStorage = SecureStorageRepository();
 
-  Future<SimpleKeyPair> getIdentityKeyPair() async {
-    const name = 'identityKeyPair';
-    final identityKeyPairString = await secureStorage.read(name);
+  // ==== Identity Key Pair ====
+
+  Future<SimpleKeyPair> getIdentityKeyPair(String accountId) async {
+    final secureStorageIdentifyer =
+        "${SecureStorageType.identityKeyPair}-$accountId";
+    final identityKeyPairString =
+        await secureStorage.read(secureStorageIdentifyer);
 
     if (identityKeyPairString != null) {
       return Ed25519Util.stringToKeyPair(identityKeyPairString);
     } else {
       final keyPair = await Ed25519Util.generateKeyPair();
-      secureStorage.write(name, await Ed25519Util.keyPairToString(keyPair));
+      secureStorage.write(
+          secureStorageIdentifyer, await Ed25519Util.keyPairToString(keyPair));
       return keyPair;
     }
   }
 
-  Future<List<SignedPreKeyPair>> getSignedPreKeyPairs() async {
-    const name = 'signedPreKeyPair';
-    final signedPreKeyPairString = await secureStorage.read(name);
+  // ==== Onetime Pre Key Pair ====
 
-    if (signedPreKeyPairString != null) {
-      var keypairs = json.decode(signedPreKeyPairString);
+  Future<List<OnetimePreKeyPair>> getOnetimePreKeyPairs(
+      String accountId) async {
+    final secureStorageIdentifyer =
+        "${SecureStorageType.onetimePreKeyPairs}-$accountId";
+    final onetimePreKeyPairsString =
+        await secureStorage.read(secureStorageIdentifyer);
+
+    if (onetimePreKeyPairsString != null) {
+      var keypairs = json.decode(onetimePreKeyPairsString);
+      List<OnetimePreKeyPair> onetimePreKeyPairs = [];
+      for (var keypair in keypairs) {
+        onetimePreKeyPairs.add(await OnetimePreKeyPair.fromJson(keypair));
+      }
+      return onetimePreKeyPairs;
+    } else {
+      return [];
+    }
+  }
+
+  // Create keypairs, but don't save them, because we need the ID from the server
+  Future<List<OnetimePreKeyPair>> createOnetimePreKeyPairs(
+      String accountId, int count) async {
+    var onetimePreKeyPairs = await getOnetimePreKeyPairs(accountId);
+    for (var i = 0; i < count; i++) {
+      final keyPair = await Ed25519Util.generateKeyPair();
+      onetimePreKeyPairs.add(OnetimePreKeyPair(keyPair, ''));
+    }
+    return onetimePreKeyPairs;
+  }
+
+  Future<List<OnetimePreKeyPair>> saveOnetimePreKeyPairs(
+      String accountId, List<OnetimePreKeyPair> onetimePreKeyPairs) async {
+    final secureStorageIdentifyer =
+        "${SecureStorageType.onetimePreKeyPairs}-$accountId";
+    var jsonStrings = onetimePreKeyPairs.map((keyPair) {
+      return OnetimePreKeyPair.toJson(keyPair);
+    }).toList();
+    secureStorage.write(
+        secureStorageIdentifyer, json.encode(jsonStrings.toString()));
+    return onetimePreKeyPairs;
+  }
+
+  // ==== Signed Pre Key Pair ====
+
+  Future<List<SignedPreKeyPair>> getSignedPreKeyPairs(String accountId) async {
+    final secureStorageIdentifyer =
+        "${SecureStorageType.signedPreKeyPairs}-$accountId";
+    final signedPreKeyPairsString =
+        await secureStorage.read(secureStorageIdentifyer);
+
+    if (signedPreKeyPairsString != null) {
+      var keypairs = json.decode(signedPreKeyPairsString);
       List<SignedPreKeyPair> signedPreKeyPairs = [];
       for (var keypair in keypairs) {
         signedPreKeyPairs.add(await SignedPreKeyPair.fromJson(keypair));
       }
       return signedPreKeyPairs;
     } else {
-      final keyPair = await Ed25519Util.generateKeyPair();
-      return [SignedPreKeyPair(keyPair, newCuid())];
+      return [];
     }
   }
 
-  Future<List<SignedPreKeyPair>> addSignedPreKeyPairs(int count) async {
-    List<SignedPreKeyPair> signedPreKeyPairs = [];
-    for (var i = 0; i < count; i++) {
-      final keyPair = await Ed25519Util.generateKeyPair();
-      signedPreKeyPairs.add(SignedPreKeyPair(keyPair, newCuid()));
-    }
+  Future<List<SignedPreKeyPair>> saveSignedPreKeyPairs(
+      String accountId, List<SignedPreKeyPair> signedPreKeyPairs) async {
+    final secureStorageIdentifyer =
+        "${SecureStorageType.signedPreKeyPairs}-$accountId";
+    var jsonStrings = signedPreKeyPairs.map((keyPair) {
+      return SignedPreKeyPair.toJson(keyPair);
+    }).toList();
+    secureStorage.write(
+        secureStorageIdentifyer, json.encode(jsonStrings.toString()));
     return signedPreKeyPairs;
+  }
+
+  Future<SignedPreKeyPair> createNewSignedPreKeyPair(String accountId) async {
+    final unsignedPreKey = await Ed25519Util.generateKeyPair();
+    final identityKeyPair = await getIdentityKeyPair(accountId);
+
+    final base64UnsignedPublicKey = await X25519Util.publicKeyToString(
+        await unsignedPreKey.extractPublicKey());
+
+    final signature =
+        await Ed25519Util.sign(identityKeyPair, base64UnsignedPublicKey);
+    final base64Signature = base64Encode(signature.bytes);
+
+    final newSignedPreKeyPair =
+        SignedPreKeyPair(unsignedPreKey, '', base64Signature);
+    return newSignedPreKeyPair;
+  }
+}
+
+// ==== Key Pair Classes ====
+
+class OnetimePreKeyPair {
+  final SimpleKeyPair keyPair;
+  int unixCreatedAt;
+  String id;
+
+  OnetimePreKeyPair(this.keyPair, this.id, {int? unixCreatedAt})
+      : unixCreatedAt =
+            unixCreatedAt ?? DateTime.now().millisecondsSinceEpoch;
+
+  static Future<OnetimePreKeyPair> fromJson(Map<String, dynamic> json) async {
+    final keyPair = await Ed25519Util.stringToKeyPair(json['keyPair']);
+    final id = json['id'];
+    final unixCreatedAt = json['unixCreatedAt'];
+    final onetimePreKeyPair =
+        OnetimePreKeyPair(keyPair, id, unixCreatedAt: unixCreatedAt);
+    return onetimePreKeyPair;
+  }
+
+  static String toJson(OnetimePreKeyPair onetimePreKeyPair) {
+    return '''
+    {
+      "keyPair": "${Ed25519Util.keyPairToString(onetimePreKeyPair.keyPair)}",
+      "id": "${onetimePreKeyPair.id}",
+      "unixCreatedAt": "${onetimePreKeyPair.unixCreatedAt}"
+    }
+    ''';
   }
 }
 
 class SignedPreKeyPair {
   final SimpleKeyPair keyPair;
-  DateTime timestamp;
-  String id;
+  final String id;
+  final int unixCreatedAt;
+  final String signature;
 
-  SignedPreKeyPair(this.keyPair, this.id, {DateTime? timestamp})
-      : timestamp = timestamp ?? DateTime.now();
-
-  setId(String id) => {this.id = id};
+  SignedPreKeyPair(this.keyPair, this.id, this.signature,
+      {int? unixCreatedAt})
+      : unixCreatedAt =
+            unixCreatedAt ?? DateTime.now().millisecondsSinceEpoch;
 
   static Future<SignedPreKeyPair> fromJson(Map<String, dynamic> json) async {
     final keyPair = await Ed25519Util.stringToKeyPair(json['keyPair']);
     final id = json['id'];
-    final timestamp = DateTime.parse(json['timestamp']);
+    final signature = json['signature'];
+    final unixCreatedAt = json['unixCreatedAt'];
     final signedPreKeyPair =
-        SignedPreKeyPair(keyPair, id, timestamp: timestamp);
+        SignedPreKeyPair(keyPair, id, signature, unixCreatedAt: unixCreatedAt);
     return signedPreKeyPair;
   }
 
@@ -71,7 +181,8 @@ class SignedPreKeyPair {
     {
       "keyPair": "${Ed25519Util.keyPairToString(signedPreKeyPair.keyPair)}",
       "id": "${signedPreKeyPair.id}",
-      "timestamp": "${signedPreKeyPair.timestamp.toIso8601String()}"
+      "signature": "${signedPreKeyPair.signature}",
+      "unixCreatedAt": "${signedPreKeyPair.unixCreatedAt}"
     }
     ''';
   }

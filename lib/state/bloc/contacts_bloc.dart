@@ -50,7 +50,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
           status: faker.lorem.word(),
           unixLastSeen: unix,
           profilePicture:
-              "https://randomuser.me/api/portraits/med/men/${i.toString()}.jpg",
+              "https://randomuser.me/api/portraits/med/women/${i.toString()}.jpg",
         ),
       );
     }

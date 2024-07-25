@@ -10,7 +10,7 @@ class AuthState {
   final String? error;
 
   final String? token;
-  final PrivateUser? meUser;
+  final ApiPrivateUser? meUser;
 
   const AuthState({
     this.state = AuthStateEnum.none,
@@ -24,7 +24,7 @@ class AuthState {
     AuthStateEnum? state,
     String? error,
     String? token,
-    PrivateUser? meUser,
+    ApiPrivateUser? meUser,
   }) {
     return AuthState(
       state: state ?? this.state,

@@ -1,9 +1,9 @@
-class LoginResponse {
+class AuthLoginResponse {
   String? message;
 
-  LoginResponse({this.message});
+  AuthLoginResponse({this.message});
 
-  LoginResponse.fromJson(Map<String, dynamic> json) {
+  AuthLoginResponse.fromJson(Map<String, dynamic> json) {
     message = json['message'];
   }
 }

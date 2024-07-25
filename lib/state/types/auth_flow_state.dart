@@ -7,6 +7,7 @@ enum AuthFlowStateEnum {
   error,
   successPhone,
   successOtp,
+  successDevice,
 }
 
 class AuthFlowState {
@@ -15,7 +16,8 @@ class AuthFlowState {
   final PhoneNumber? phoneNumber;
   final String? otp;
   final String? token;
-  final PrivateUser? meUser;
+  final ApiPrivateUser? meUser;
+  final String? deviceName;
 
   const AuthFlowState({
     this.state = AuthFlowStateEnum.none,
@@ -24,6 +26,7 @@ class AuthFlowState {
     this.otp,
     this.token,
     this.meUser,
+    this.deviceName,
   });
 
   AuthFlowState copyWith({
@@ -32,7 +35,8 @@ class AuthFlowState {
     PhoneNumber? phoneNumber,
     String? otp,
     String? token,
-    PrivateUser? meUser,
+    ApiPrivateUser? meUser,
+    String? deviceName,
   }) {
     return AuthFlowState(
       state: state ?? this.state,
@@ -41,6 +45,7 @@ class AuthFlowState {
       otp: otp ?? this.otp,
       token: token ?? this.token,
       meUser: meUser ?? this.meUser,
+      deviceName: deviceName ?? this.deviceName,
     );
   }
 }
