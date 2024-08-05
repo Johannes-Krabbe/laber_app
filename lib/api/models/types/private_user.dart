@@ -25,4 +25,15 @@ class ApiPrivateUser {
     profilePicture = json['profilePicture'];
     name = json['name'];
   }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['phoneNumber'] = phoneNumber;
+    data['unixCreatedAt'] = unixCreatedAt;
+    data['onboardingCompleted'] = onboardingCompleted;
+    data['profilePicture'] = profilePicture;
+    data['name'] = name;
+    return data;
+  }
 }

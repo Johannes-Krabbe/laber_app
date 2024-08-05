@@ -12,16 +12,18 @@ class DeviceRepository extends ApiProvider {
     required List<String> oneTimePreKeys,
   }) async {
     try {
-      final response = await dio.post(
-        '/device',
-        data: {
-          'deviceName': deviceName,
-          'identityKey': identityKey,
-          'signedPreKey': signedPreKey,
-          'oneTimePreKeys': oneTimePreKeys,
-        },
-        options: Options(headers: {"authorization": "Bearer $token"}),
-      );
+      final response = await dio.post('/device',
+          data: {
+            'deviceName': deviceName,
+            'identityKey': identityKey,
+            'signedPreKey': signedPreKey,
+            'oneTimePreKeys': oneTimePreKeys,
+          },
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          ));
 
       return ApiRepositoryResponse<DeviceCreateResponse>(
         body: DeviceCreateResponse.fromJson(response.data),
@@ -42,7 +44,7 @@ class DeviceRepository extends ApiProvider {
 
   Future<ApiRepositoryResponse<DeviceGetAllResponse>> getAll() async {
     try {
-      final response = await dio.get('/device');
+      final response = await dioAuth.get('/device/all');
 
       return ApiRepositoryResponse<DeviceGetAllResponse>(
         body: DeviceGetAllResponse.fromJson(response.data),

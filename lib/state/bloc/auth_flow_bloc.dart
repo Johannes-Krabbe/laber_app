@@ -24,9 +24,10 @@ final class VerifyOtpAuthFlowEvent extends AuthFlowEvent {
 final class ResendOtpAuthFlowEvent extends AuthFlowEvent {}
 
 final class CreateDeviceAuthFlowEvent extends AuthFlowEvent {
+  final String token;
   final String deviceName;
 
-  CreateDeviceAuthFlowEvent(this.deviceName);
+  CreateDeviceAuthFlowEvent(this.token, this.deviceName);
 }
 
 class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
@@ -50,7 +51,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     emit(state.copyWith(
       state: AuthFlowStateEnum.loading,
       phoneNumber: event.phoneNumber,
-      error: null,
+      error: '',
     ));
 
     if (event.phoneNumber.phoneNumber?.isEmpty == true) {
@@ -65,12 +66,14 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     if (res.status == 200 || res.status == 201) {
       emit(state.copyWith(
         state: AuthFlowStateEnum.successPhone,
-        error: null,
+        error: '',
       ));
     } else {
-      emit(state.copyWith(
-          state: AuthFlowStateEnum.error,
-          error: res.body?.message ?? 'Invalid phone number, CODE:2'));
+      emit(
+        state.copyWith(
+            state: AuthFlowStateEnum.error,
+            error: res.body?.message ?? 'Invalid phone number, CODE:2'),
+      );
     }
   }
 
@@ -79,7 +82,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     emit(state.copyWith(
       state: AuthFlowStateEnum.loading,
       otp: event.otp,
-      error: null,
+      error: '',
     ));
 
     final res = await AuthRepository()
@@ -91,7 +94,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
         state: AuthFlowStateEnum.successOtp,
         token: res.body?.token,
         meUser: res.body?.user,
-        error: null,
+        error: '',
       ));
     } else {
       emit(state.copyWith(
@@ -112,7 +115,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     emit(state.copyWith(
       state: AuthFlowStateEnum.loading,
       deviceName: event.deviceName,
-      error: null,
+      error: '',
     ));
 
     if (state.meUser?.id?.isNotEmpty != true) {
@@ -146,7 +149,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     }
 
     final res = await DeviceRepository().create(
-      state.token!,
+      event.token,
       deviceName: event.deviceName,
       identityKey: base64PublicIdentityKey,
       signedPreKey: {
@@ -159,7 +162,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     if (res.status == 200 || res.status == 201) {
       final apiDevice = res.body!.device!;
 
-      if(res.body?.device?.signedPreKey?.key == null) {
+      if (res.body?.device?.signedPreKey?.key == null) {
         emit(
           state.copyWith(
             state: AuthFlowStateEnum.error,
@@ -206,7 +209,8 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       emit(
         state.copyWith(
           state: AuthFlowStateEnum.successDevice,
-          error: null,
+          meDevice: apiDevice,
+          error: '',
         ),
       );
     } else {

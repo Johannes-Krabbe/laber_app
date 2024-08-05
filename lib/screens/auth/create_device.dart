@@ -35,9 +35,17 @@ class _CreateDeviceState extends State<CreateDevice> {
     return BlocListener<AuthFlowBloc, AuthFlowState>(
       listener: (context, state) {
         if (state.state == AuthFlowStateEnum.successDevice &&
-            state.token?.isNotEmpty == true) {
-          authBloc.add(LoggedInAuthEvent(
-              state.phoneNumber!.phoneNumber!, state.token!, state.meUser!));
+            state.token?.isNotEmpty == true &&
+            state.meUser != null &&
+            state.meDevice != null) {
+          authBloc.add(
+            LoggedInAuthEvent(
+              state.phoneNumber!.phoneNumber!,
+              state.token!,
+              state.meUser!,
+              state.meDevice!,
+            ),
+          );
           Navigator.of(context).popUntil((route) => route.isFirst);
         }
       },
@@ -66,8 +74,9 @@ class _CreateDeviceState extends State<CreateDevice> {
               Text(authFlowBloc.state.error ?? ''),
               TextButton(
                 onPressed: () {
-                  if(controller.text.isNotEmpty) {
-                    authFlowBloc.add(CreateDeviceAuthFlowEvent(controller.text));
+                  if (controller.text.isNotEmpty) {
+                    authFlowBloc.add(CreateDeviceAuthFlowEvent(
+                        authFlowBloc.state.token!, controller.text));
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

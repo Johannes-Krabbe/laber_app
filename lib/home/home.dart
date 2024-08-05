@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
-import 'dart:ui';
-
 import 'package:laber_app/screens/chat_list.dart';
 import 'package:laber_app/screens/contacts.dart';
-import 'package:laber_app/screens/settings.dart';
+import 'package:laber_app/screens/settings/settings.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
+import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -25,7 +24,6 @@ class _HomeState extends State<Home> {
     super.initState();
     var contactsBloc = context.read<ContactsBloc>();
     contactsBloc.add(FetchContactsContactsEvent());
-
   }
 
   @override
@@ -60,17 +58,35 @@ class _HomeState extends State<Home> {
             currentIndex: currentIndex,
             backgroundColor: Colors.transparent,
             elevation: 0,
-            items: const <BottomNavigationBarItem>[
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.grey[800],
+            selectedIconTheme: const IconThemeData(color: Colors.white),
+            unselectedIconTheme: IconThemeData(color: Colors.grey[800]),
+            selectedFontSize: 14,
+            unselectedFontSize: 14,
+            items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(Icons.chat),
+                icon: Icon(
+                  (currentIndex == 0
+                      ? IconoirIconsBold.chatLines
+                      : IconoirIcons.chatLines),
+                ),
                 label: 'Chat',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.people_alt),
+                icon: Icon(
+                  (currentIndex == 0
+                      ? IconoirIconsBold.group
+                      : IconoirIcons.group),
+                ),
                 label: 'Contacts',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
+                icon: Icon(
+                  (currentIndex == 0
+                      ? IconoirIconsBold.settings
+                      : IconoirIcons.settings),
+                ),
                 label: 'Settings',
               ),
             ],

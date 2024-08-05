@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
+import 'package:laber_app/screens/settings/devices.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
+import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -80,7 +82,9 @@ class _SettingsState extends State<Settings> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                authBloc.state.meUser?.name ?? authBloc.state.meUser?.phoneNumber ?? "ERROR",
+                                authBloc.state.meUser?.name ??
+                                    authBloc.state.meUser?.phoneNumber ??
+                                    "ERROR",
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: const TextStyle(
@@ -105,10 +109,59 @@ class _SettingsState extends State<Settings> {
                     ],
                   ),
                 ),
-                Divider(
-                  color: Colors.grey[700],
-                  height: 0,
-                  thickness: 0.5,
+                Padding(
+                  padding: const EdgeInsets.only(left: 15, right: 15),
+                  child: Divider(
+                    color: Colors.grey[700],
+                    height: 0,
+                    thickness: 0.5,
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const Devices(),
+                      ),
+                    );
+                  },
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            IconoirIcons.computer,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 20),
+                          const Text(
+                            "Devices",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.grey[400],
+                            size: 14,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15, right: 15),
+                  child: Divider(
+                    color: Colors.grey[700],
+                    height: 0,
+                    thickness: 0.5,
+                  ),
                 ),
                 InkWell(
                   onTap: () {
@@ -116,7 +169,8 @@ class _SettingsState extends State<Settings> {
                         context: context,
                         builder: (_) => AlertDialog(
                               title: const Text("Logout"),
-                              content: const Text("Are you sure you want to logout?"),
+                              content: const Text(
+                                  "Are you sure you want to logout?"),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () {
@@ -140,12 +194,27 @@ class _SettingsState extends State<Settings> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 15, vertical: 10),
                       alignment: Alignment.center,
-                      child: const Text(
-                        "Logout",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
-                        ),
+                      child:  const Row(
+                        children: [
+                          Icon(
+                            IconoirIcons.logOut,
+                            color: Colors.red,
+                          ),
+                          SizedBox(width: 20),
+                          Text(
+                            "Logout",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Spacer(),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.red,
+                            size: 14,
+                          ),
+                        ],
                       ),
                     ),
                   ),

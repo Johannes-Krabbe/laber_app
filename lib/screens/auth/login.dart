@@ -35,7 +35,7 @@ class _LoginState extends State<Login> {
     return BlocListener<AuthFlowBloc, AuthFlowState>(
       listener: (context, state) {
         if (state.state == AuthFlowStateEnum.successPhone &&
-            (state.error == null || state.error!.isEmpty)) {
+            (state.error.isEmpty)) {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => BlocProvider.value(
@@ -90,9 +90,9 @@ class _LoginState extends State<Login> {
                 const SizedBox(height: 20),
                 Builder(
                   builder: (context) {
-                    if (authFlowBloc.state.error != null) {
+                    if (authFlowBloc.state.error.isNotEmpty) {
                       return Text(
-                        authFlowBloc.state.error!,
+                        authFlowBloc.state.error,
                         style: const TextStyle(
                           color: Colors.red,
                           fontSize: 16,

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/api/models/types/private_device.dart';
 import 'package:laber_app/api/models/types/private_user.dart';
 import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/state/types/auth_state.dart';
@@ -10,8 +11,9 @@ final class LoggedInAuthEvent extends AuthEvent {
   final String phoneNumber;
   final String token;
   final ApiPrivateUser meUser;
+  final ApiPrivateDevice meDevice;
 
-  LoggedInAuthEvent(this.phoneNumber, this.token, this.meUser);
+  LoggedInAuthEvent(this.phoneNumber, this.token, this.meUser, this.meDevice);
 }
 
 final class LogoutAuthEvent extends AuthEvent {}
@@ -35,10 +37,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   _onLogin(LoggedInAuthEvent event, Emitter<AuthState> emit) async {
     await SecureStorageRepository().write('token', event.token);
-    emit(state.copyWith(
+    emit(
+      state.copyWith(
         state: AuthStateEnum.loggedIn,
         meUser: event.meUser,
-        token: event.token));
+        token: event.token,
+        meDevice: event.meDevice,
+      ),
+    );
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
@@ -49,9 +55,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       if (response.status == 200) {
         emit(state.copyWith(
-            state: AuthStateEnum.loggedIn,
-            meUser: response.body!.user,
-            token: exisingToken));
+          state: AuthStateEnum.loggedIn,
+          meUser: response.body!.user,
+          token: exisingToken,
+        ));
       } else {
         emit(state.copyWith(state: AuthStateEnum.none));
       }
