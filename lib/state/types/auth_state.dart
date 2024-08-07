@@ -1,18 +1,18 @@
 // none = no token, no error
 // loading = loading
 // loggedIn = token, no error
-import 'package:laber_app/api/models/types/private_device.dart';
-import 'package:laber_app/api/models/types/private_user.dart';
+import 'package:laber_app/types/client_me_device.dart';
+import 'package:laber_app/types/client_me_user.dart';
 
-enum AuthStateEnum { none, loading, loggedIn }
+enum AuthStateEnum { none, loading, loggedIn, error }
 
 class AuthState {
   final AuthStateEnum state;
   final String? error;
 
   final String? token;
-  final ApiPrivateUser? meUser;
-  final ApiPrivateDevice? meDevice;
+  final ClientMeUser? meUser;
+  final ClientMeDevice? meDevice;
 
   const AuthState({
     this.state = AuthStateEnum.none,
@@ -27,8 +27,8 @@ class AuthState {
     AuthStateEnum? state,
     String? error,
     String? token,
-    ApiPrivateUser? meUser,
-    ApiPrivateDevice? meDevice,
+    ClientMeUser? meUser,
+    ClientMeDevice? meDevice,
   }) {
     return AuthState(
       state: state ?? this.state,

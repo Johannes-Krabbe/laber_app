@@ -35,16 +35,9 @@ class _CreateDeviceState extends State<CreateDevice> {
     return BlocListener<AuthFlowBloc, AuthFlowState>(
       listener: (context, state) {
         if (state.state == AuthFlowStateEnum.successDevice &&
-            state.token?.isNotEmpty == true &&
-            state.meUser != null &&
-            state.meDevice != null) {
+            state.authStateStore != null) {
           authBloc.add(
-            LoggedInAuthEvent(
-              state.phoneNumber!.phoneNumber!,
-              state.token!,
-              state.meUser!,
-              state.meDevice!,
-            ),
+            LoggedInAuthEvent(state.authStateStore!),
           );
           Navigator.of(context).popUntil((route) => route.isFirst);
         }

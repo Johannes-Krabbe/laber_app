@@ -3,17 +3,17 @@ import 'package:laber_app/api/models/types/private_device.dart';
 import 'package:laber_app/api/models/types/private_user.dart';
 import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/state/types/auth_state.dart';
+import 'package:laber_app/types/client_me_device.dart';
+import 'package:laber_app/types/client_me_user.dart';
+import 'package:laber_app/utils/auth_store_repository.dart';
 import 'package:laber_app/utils/secure_storage_repository.dart';
 
 sealed class AuthEvent {}
 
 final class LoggedInAuthEvent extends AuthEvent {
-  final String phoneNumber;
-  final String token;
-  final ApiPrivateUser meUser;
-  final ApiPrivateDevice meDevice;
+  AuthStateStore authStateStore;
 
-  LoggedInAuthEvent(this.phoneNumber, this.token, this.meUser, this.meDevice);
+  LoggedInAuthEvent(this.authStateStore);
 }
 
 final class LogoutAuthEvent extends AuthEvent {}
@@ -36,39 +36,57 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   _onLogin(LoggedInAuthEvent event, Emitter<AuthState> emit) async {
-    await SecureStorageRepository().write('token', event.token);
     emit(
       state.copyWith(
         state: AuthStateEnum.loggedIn,
-        meUser: event.meUser,
-        token: event.token,
-        meDevice: event.meDevice,
+        token: event.authStateStore.token,
+        meUser: event.authStateStore.meUser,
+        meDevice: event.authStateStore.meDevice,
       ),
     );
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
-    var exisingToken = await SecureStorageRepository().read('token');
+    final authStateStore = await AuthStateStore.getCurrentFromSecureStorage();
 
-    if (exisingToken != null) {
-      var response = await AuthRepository().fetchMe(exisingToken);
+    if (authStateStore == null) {
+      state.copyWith(
+        state: AuthStateEnum.error,
+        error: 'Something went wrong',
+      );
+    }
+
+    if (authStateStore != null) {
+      var response = await AuthRepository().fetchMe(authStateStore.token);
 
       if (response.status == 200) {
+        final clientMeUserFromApi =
+            ClientMeUser.fromApiPrivateMeUser(response.body!.user!);
+
+        if (clientMeUserFromApi != authStateStore.meUser) {
+          await AuthStateStore.updateInSecureStorageByUserId(AuthStateStore(
+            authStateStore.token,
+            clientMeUserFromApi,
+            authStateStore.meDevice,
+          ));
+        }
+
         emit(state.copyWith(
           state: AuthStateEnum.loggedIn,
-          meUser: response.body!.user,
-          token: exisingToken,
+          meUser: clientMeUserFromApi,
+          meDevice: authStateStore.meDevice,
+          token: authStateStore.token,
         ));
-      } else {
-        emit(state.copyWith(state: AuthStateEnum.none));
+
+        return;
       }
-    } else {
-      emit(state.copyWith(state: AuthStateEnum.none));
     }
+
+    emit(state.copyWith(state: AuthStateEnum.none));
   }
 
   _onLogout(LogoutAuthEvent event, Emitter<AuthState> emit) async {
-    await SecureStorageRepository().delete('token');
+    AuthStateStore.deleteCurrentFromSecureStorage();
     emit(state.copyWith(state: AuthStateEnum.none));
   }
 }

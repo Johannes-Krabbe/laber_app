@@ -1,8 +1,12 @@
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/api/repositories/device_repository.dart';
 import 'package:laber_app/state/types/auth_flow_state.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:laber_app/types/client_me_device.dart';
+import 'package:laber_app/types/client_me_user.dart';
+import 'package:laber_app/utils/auth_store_repository.dart';
 import 'package:laber_app/utils/crypto_reopsitory.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
@@ -126,27 +130,34 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
 
     final cryptoRepository = CryptoRepository();
 
-    final identityKey =
-        await cryptoRepository.getIdentityKeyPair(state.meUser!.id!);
+
+    // --- Identity Key ---
+    final identityKeyPair = await Ed25519Util.generateKeyPair();
     final base64PublicIdentityKey = await Ed25519Util.publicKeyToString(
-        await identityKey.extractPublicKey());
+        await identityKeyPair.extractPublicKey());
 
+    // --- Signed Pre Key ---
     final signedPreKey =
-        await cryptoRepository.createNewSignedPreKeyPair(state.meUser!.id!);
-
+        await cryptoRepository.createNewSignedPreKeyPair(identityKeyPair);
     final base64UnsignedPublicKey = await X25519Util.publicKeyToString(
         await signedPreKey.keyPair.extractPublicKey());
 
-    final oneTimePreKeys =
-        await cryptoRepository.createOnetimePreKeyPairs(state.meUser!.id!, 10);
+    // --- One Time Pre Keys ---
+    final List<SimpleKeyPair> oneTimePreKeys = [];
+    for (var i = 0; i < 10; i++) {
+      final keyPair = await Ed25519Util.generateKeyPair();
+      oneTimePreKeys.add(keyPair);
+    }
 
     final List<String> oneTimePrePublicPreKeyStrings = [];
     for (var key in oneTimePreKeys) {
-      final keyPair = key.keyPair;
+      final keyPair = key;
       final base64PublicKey =
           await X25519Util.publicKeyToString(await keyPair.extractPublicKey());
       oneTimePrePublicPreKeyStrings.add(base64PublicKey);
     }
+
+    // --- Create Device ---
 
     final res = await DeviceRepository().create(
       event.token,
@@ -162,6 +173,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     if (res.status == 200 || res.status == 201) {
       final apiDevice = res.body!.device!;
 
+      // --- Signed Pre Key ---
       if (res.body?.device?.signedPreKey?.key == null) {
         emit(
           state.copyWith(
@@ -172,22 +184,30 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
         return;
       }
 
-      final apiSignedPreKey = SignedPreKeyPair(
+      final clientSignedPreKeyPair = ClientSignedPreKeyPair(
         signedPreKey.keyPair,
-        res.body!.device!.signedPreKey!.key!,
+        res.body!.device!.signedPreKey!.id!,
         apiDevice.signedPreKey!.signature!,
+        unixCreatedAt: res.body!.device!.signedPreKey!.unixCreatedAt!,
       );
 
-      await cryptoRepository
-          .saveSignedPreKeyPairs(state.meUser!.id!, [apiSignedPreKey]);
+      final clientSignedPreKeyPairList = [clientSignedPreKeyPair];
 
-      final apiOneTimePreKeys = <OnetimePreKeyPair>[];
+      // --- Identity Key ---
+
+      final clientIdentityKeyPair = ClientIdentityKeyPair(
+        identityKeyPair,
+      );
+
+      // --- One Time Pre Keys ---
+
+      final clientOneTimePreKeys = <ClientOnetimePreKeyPair>[];
 
       for (var apiKey in apiDevice.oneTimePreKeys!) {
-        OnetimePreKeyPair? foundCreatedKeyPair;
+        SimpleKeyPair? foundCreatedKeyPair;
 
         for (var key in oneTimePreKeys) {
-          final keyPair = key.keyPair;
+          final keyPair = key;
           final base64PublicKey = await X25519Util.publicKeyToString(
               await keyPair.extractPublicKey());
 
@@ -197,19 +217,40 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
           }
         }
 
-        final keyPair = OnetimePreKeyPair(
-          foundCreatedKeyPair!.keyPair,
+        if(foundCreatedKeyPair == null){
+          throw Exception('One time pre key not found');
+        }
+
+        final keyPair = ClientOnetimePreKeyPair(
+          foundCreatedKeyPair,
           apiKey.id!,
           unixCreatedAt: apiKey.unixCreatedAt!,
         );
 
-        apiOneTimePreKeys.add(keyPair);
+        clientOneTimePreKeys.add(keyPair);
       }
+
+      // store
+
+      final clientMeUser = ClientMeUser.fromApiPrivateMeUser(state.meUser!);
+      final authStateStore = AuthStateStore(
+          state.token!,
+          clientMeUser,
+          ClientMeDevice(
+            apiDevice.id!,
+            apiDevice.deviceName!,
+            clientIdentityKeyPair,
+            clientOneTimePreKeys,
+            clientSignedPreKeyPairList,
+          ),
+        );
+      await AuthStateStore.saveAsCurrentToSecureStorage(authStateStore);
 
       emit(
         state.copyWith(
           state: AuthFlowStateEnum.successDevice,
           meDevice: apiDevice,
+          authStateStore: authStateStore,
           error: '',
         ),
       );

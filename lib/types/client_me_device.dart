@@ -4,55 +4,71 @@ import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
 class ClientMeDevice {
+  final String id;
+  final String name;
   final ClientIdentityKeyPair identityKeyPair;
   final List<ClientOnetimePreKeyPair> onetimePreKeyPairs;
   final List<ClientSignedPreKeyPair> signedPreKeyPairs;
 
   ClientMeDevice(
+    this.id,
+    this.name,
     this.identityKeyPair,
     this.onetimePreKeyPairs,
     this.signedPreKeyPairs,
   );
 
-  String toJsonString() {
+  Future<String> toJsonString() async {
     return jsonEncode({
-      'identityKeyPair': identityKeyPair.toJson(),
-      'onetimePreKeyPairs':
-          onetimePreKeyPairs.map((pair) => pair.toJson()).toList(),
-      'signedPreKeyPairs':
-          signedPreKeyPairs.map((pair) => pair.toJson()).toList(),
+      'id': id,
+      'name': name,
+      'identityKeyPair': await identityKeyPair.toJson(),
+      'onetimePreKeyPairs': await Future.wait(
+          onetimePreKeyPairs.map((pair) => pair.toJson()).toList()),
+      'signedPreKeyPairs': await Future.wait(
+          signedPreKeyPairs.map((pair) => pair.toJson()).toList()),
     });
   }
 
   static Future<ClientMeDevice> fromJsonString(String jsonString) async {
     final json = jsonDecode(jsonString);
+    List<ClientOnetimePreKeyPair> oneTimePreKeyPairs = [];
+    for (var pairString in json['onetimePreKeyPairs']) {
+      oneTimePreKeyPairs
+          .add(await ClientOnetimePreKeyPair.fromJson(pairString));
+    }
+
+    List<ClientSignedPreKeyPair> signedPreKeyPairs = [];
+    for (var pairString in json['signedPreKeyPairs']) {
+      signedPreKeyPairs
+          .add(await ClientSignedPreKeyPair.fromJson(pairString));
+    }
+
     return ClientMeDevice(
+      json['id'],
+      json['name'],
       await ClientIdentityKeyPair.fromJson(json['identityKeyPair']),
-      await Future.wait(
-          json['onetimePreKeyPairs'].map((pair) => ClientOnetimePreKeyPair.fromJson(pair))),
-      await Future.wait(
-          json['signedPreKeyPairs'].map((pair) => ClientSignedPreKeyPair.fromJson(pair))),
+      oneTimePreKeyPairs,
+      signedPreKeyPairs
     );
   }
 }
 
 class ClientIdentityKeyPair {
   final SimpleKeyPair keyPair;
-  final String id;
 
-  ClientIdentityKeyPair(this.keyPair, this.id);
+  ClientIdentityKeyPair(this.keyPair);
 
-  Map<String, dynamic> toJson() {
+  Future<Map<String, dynamic>> toJson() async {
     return {
-      'keyPair': X25519Util.keyPairToString(keyPair),
-      'id': id,
+      'keyPair': await X25519Util.keyPairToString(keyPair),
     };
   }
 
-  static Future<ClientIdentityKeyPair> fromJson(Map<String, dynamic> json) async {
+  static Future<ClientIdentityKeyPair> fromJson(
+      Map<String, dynamic> json) async {
     return ClientIdentityKeyPair(
       await Ed25519Util.stringToKeyPair(json['keyPair']),
-      json['id'],
     );
   }
 }
@@ -73,7 +89,8 @@ class ClientOnetimePreKeyPair {
     };
   }
 
-  static Future<ClientOnetimePreKeyPair> fromJson(Map<String, dynamic> json) async {
+  static Future<ClientOnetimePreKeyPair> fromJson(
+      Map<String, dynamic> json) async {
     return ClientOnetimePreKeyPair(
       await Ed25519Util.stringToKeyPair(json['keyPair']),
       json['id'],
@@ -101,7 +118,8 @@ class ClientSignedPreKeyPair {
     };
   }
 
-  static Future<ClientSignedPreKeyPair> fromJson(Map<String, dynamic> json) async {
+  static Future<ClientSignedPreKeyPair> fromJson(
+      Map<String, dynamic> json) async {
     return ClientSignedPreKeyPair(
       await Ed25519Util.stringToKeyPair(json['keyPair']),
       json['id'],

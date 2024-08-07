@@ -1,30 +1,41 @@
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:laber_app/api/models/types/private_user.dart';
 
-class ClientMeUser {
-  String? id;
-  String? phoneNumber;
-  int? unixCreatedAt;
-  bool? onboardingCompleted;
-  String? profilePicture;
-  String? name;
+class ClientMeUser extends Equatable {
+  final String id;
+  final String phoneNumber;
+  final int unixCreatedAt;
+  final bool onboardingCompleted;
+  final String? profilePicture;
+  final String? name;
 
-  ClientMeUser({
-    this.id,
-    this.phoneNumber,
-    this.unixCreatedAt,
-    this.onboardingCompleted,
+  const ClientMeUser({
+    required this.id,
+    required this.phoneNumber,
+    required this.unixCreatedAt,
+    required this.onboardingCompleted,
     this.profilePicture,
     this.name,
   });
 
+  @override
+  List<Object?> get props => [
+        id,
+        phoneNumber,
+        unixCreatedAt,
+        onboardingCompleted,
+        profilePicture,
+        name,
+      ];
+
   factory ClientMeUser.fromApiPrivateMeUser(ApiPrivateUser apiPrivateUser) {
     return ClientMeUser(
-      id: apiPrivateUser.id,
-      phoneNumber: apiPrivateUser.phoneNumber,
-      unixCreatedAt: apiPrivateUser.unixCreatedAt,
-      onboardingCompleted: apiPrivateUser.onboardingCompleted,
+      id: apiPrivateUser.id!,
+      phoneNumber: apiPrivateUser.phoneNumber!,
+      unixCreatedAt: apiPrivateUser.unixCreatedAt!,
+      onboardingCompleted: apiPrivateUser.onboardingCompleted!,
       profilePicture: apiPrivateUser.profilePicture,
       name: apiPrivateUser.name,
     );
@@ -54,5 +65,4 @@ class ClientMeUser {
       name: jsonMap['name'],
     );
   }
-
 }
