@@ -1,8 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:laber_app/components/blur_background.dart';
+import 'package:laber_app/components/chat_message_widget.dart';
+import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:laber_app/state/types/contacts_state.dart';
+import 'package:laber_app/types/client_message.dart';
 
 class ChatScreen extends StatefulWidget {
   final String contactId;
@@ -15,11 +18,13 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   double renderedHeight = 0;
   late ContactsBloc contactsBloc;
+  late AuthBloc authBloc;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     contactsBloc = context.watch<ContactsBloc>();
+    authBloc = context.watch<AuthBloc>();
   }
 
   @override
@@ -35,6 +40,34 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
       body: ListView.builder(
+          reverse: true,
+          itemCount: 2,
+          itemBuilder: (context, index) {
+            return MessageWidget(
+              message: ClientParsedMessage(
+                id: "id",
+                unixTime: 12345,
+                type: ParsedMessageTypes.textMessage,
+                userId:
+                    index == 0 ? (authBloc.state.meUser?.id ?? '123') : '123',
+                content:
+                    "TEST with index asd adsf   asdf asdf asdf asd f : $index",
+                reactions: [
+                  
+                  ClientReaction(
+                    emoji: "🚀",
+                    userId: contactsBloc.state.getById(widget.contactId)?.id ??
+                        "123",
+                    unixTime: 12345567,
+                  ),
+                ],
+                relatedMessageIds: ["id"],
+              ),
+            );
+          }),
+
+      /*
+      body: ListView.builder(
         reverse: true,
         itemCount:
             contactsBloc.state.getById(widget.contactId)!.messages.length,
@@ -43,68 +76,13 @@ class _ChatScreenState extends State<ChatScreen> {
             message: contactsBloc.state
                 .getById(widget.contactId)!
                 .sortedMessages[index],
-            isMe: contactsBloc.state
-                    .getById(widget.contactId)!
-                    .sortedMessages[index]
-                    .senderId !=
-                contactsBloc.state.getById(widget.contactId)!.id,
           );
         },
       ),
+      */
       bottomNavigationBar: ChatInput(
           contactsBloc: contactsBloc,
           contact: contactsBloc.state.getById(widget.contactId)!),
-    );
-  }
-}
-
-class MessageWidget extends StatelessWidget {
-  final Message message;
-  final bool isMe;
-
-  const MessageWidget({
-    required this.message,
-    required this.isMe,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final borderRadius = isMe
-        ? const BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-            bottomLeft: Radius.circular(15),
-          )
-        : const BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-            bottomRight: Radius.circular(15),
-          );
-
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.85,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          color:
-              isMe ? Theme.of(context).colorScheme.primary : Colors.grey[900],
-        ),
-        padding:
-            const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        child: Text(
-          message.message,
-          softWrap: true,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 14,
-          ),
-        ),
-      ),
     );
   }
 }
