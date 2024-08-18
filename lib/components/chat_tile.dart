@@ -44,7 +44,7 @@ class ChatTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          contact.name ?? contact.phoneNumber,
+                          contact.name ?? 'NO NAME',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,

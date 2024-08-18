@@ -40,6 +40,7 @@ class _AddByPhoneState extends State<AddByPhone> {
               builder: (context) {
                 return AddToContacts(
                   user: state.contact!,
+                  phoneNumber: state.phoneNumber,
                 );
               },
             ),

@@ -24,4 +24,5 @@ class SecureStorageRepository {
 enum SecureStorageKeys {
   authStateStore,
   authCurrentUserId,
+  contactsStore,
 }

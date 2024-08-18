@@ -58,10 +58,11 @@ class DiscoverPhoneNumberBloc
       return;
     }
 
-    if (event.contactsBloc.state.contacts?.isNotEmpty == true &&
-        event.contactsBloc.state.contacts?.firstWhere(
-                (contact) => contact.phoneNumber == cleanedPhoneNumber) !=
-            null) {
+    var foundContact = event.contactsBloc.state.contacts?.where((contact) {
+      return contact.phoneNumber == cleanedPhoneNumber;
+    }).toList();
+
+    if (foundContact?.isNotEmpty == true) {
       emit(state.copyWith(
         state: DiscoverPhoneNumberStateEnum.error,
         error: 'This contact is already in your contacts',

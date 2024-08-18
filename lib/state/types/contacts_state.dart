@@ -8,21 +8,26 @@ class ContactsState {
   final String? error;
   final List<ClientContact>? contacts;
 
+  final String? userId;
+
   const ContactsState({
     this.state = ContactsStateEnum.none,
     this.error,
     this.contacts,
+    this.userId,
   });
 
   ContactsState copyWith({
     ContactsStateEnum? state,
     String? error,
     List<ClientContact>? contacts,
+    String? userId,
   }) {
     return ContactsState(
       state: state ?? this.state,
       error: error ?? this.error,
       contacts: contacts ?? this.contacts,
+      userId: userId ?? this.userId,
     );
   }
 
@@ -30,8 +35,10 @@ class ContactsState {
     if (contacts == null) return [];
 
     return contacts!.where((contact) {
-      return contact.name?.toLowerCase().contains(query.toLowerCase()) == true ||
-          contact.phoneNumber.toLowerCase().contains(query.toLowerCase());
+      return contact.name?.toLowerCase().contains(query.toLowerCase()) ==
+              true ||
+          contact.phoneNumber?.toLowerCase().contains(query.toLowerCase()) ==
+              true;
     }).toList();
   }
 
@@ -42,7 +49,6 @@ class ContactsState {
       if (b.chat == null) return -1;
       return a.chat!.latestMessage!.unixTime
           .compareTo(b.chat!.latestMessage!.unixTime * -1);
-
     });
     return contacts!;
   }

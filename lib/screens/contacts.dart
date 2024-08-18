@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
-import 'package:laber_app/components/discover.dart';
 import 'package:laber_app/screens/chat.dart';
 import 'package:laber_app/screens/contacts/add_by_phone.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
@@ -87,27 +85,31 @@ class _ContactsState extends State<Contacts> {
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: contactsBloc.state.sortedContacts.length,
-        itemBuilder: (context, index) {
-          var contact = contactsBloc.state.sortedContacts[index];
-          return ListTile(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(
-                    contactId: contact.id,
-                  ),
+      body: Builder(
+        builder: (context) {
+          final contacts = contactsBloc.state.sortedContacts;
+          return ListView.builder(
+            itemCount: contactsBloc.state.sortedContacts.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        contactId: contacts[index].id,
+                      ),
+                    ),
+                  );
+                },
+                title: Text(contacts[index].name ?? 'NO NAME'),
+                subtitle: Text(contacts[index].phoneNumber ?? 'NO PHONE NUMBER'),
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(contacts[index].profilePicture ?? ''),
                 ),
               );
             },
-            title: Text(contact.name ?? contact.phoneNumber),
-            subtitle: Text(contact.phoneNumber),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(contact.profilePicture ?? ''),
-            ),
           );
-        },
+        }
       ),
     );
   }

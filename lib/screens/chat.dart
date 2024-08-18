@@ -5,7 +5,6 @@ import 'package:laber_app/components/chat_message_widget.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:laber_app/types/client_contact.dart';
-import 'package:laber_app/types/client_message.dart';
 
 class ChatScreen extends StatefulWidget {
   final String contactId;
@@ -39,31 +38,22 @@ class _ChatScreenState extends State<ChatScreen> {
               ChatHead(contact: contactsBloc.state.getById(widget.contactId)!),
         ),
       ),
-      body: ListView.builder(
-          reverse: true,
-          itemCount: 2,
-          itemBuilder: (context, index) {
-            return MessageWidget(
-              message: ClientParsedMessage(
-                id: "id",
-                unixTime: 12345,
-                type: ParsedMessageTypes.textMessage,
-                userId:
-                    index == 0 ? (authBloc.state.meUser?.id ?? '123') : '123',
-                content:
-                    "TEST with index asd adsf   asdf asdf asdf asd f : $index",
-                reactions: [
-                  ClientReaction(
-                    emoji: "🚀",
-                    userId: contactsBloc.state.getById(widget.contactId)?.id ??
-                        "123",
-                    unixTime: 12345567,
-                  ),
-                ],
-                relatedMessageIds: ["id"],
-              ),
-            );
-          }),
+      body: Builder(builder: (context) {
+        final chat = contactsBloc.state.getById(widget.contactId)!.chat;
+
+        if (chat == null) {
+          return const Center(child: Text('No messages'));
+        }
+
+        return ListView.builder(
+            reverse: true,
+            itemCount: chat.sortedParsedMessages.length,
+            itemBuilder: (context, index) {
+              return MessageWidget(
+                message: chat.sortedParsedMessages[index],
+              );
+            });
+      }),
 
       /*
       body: ListView.builder(
@@ -137,7 +127,8 @@ class ChatInput extends StatelessWidget {
                       return;
                     }
                     contactsBloc.add(
-                        SendMessageContactsEvent(contact.id, controller.text));
+                      SendMessageContactsEvent(contact.id, controller.text),
+                    );
                     controller.clear();
                   },
                 ),
@@ -190,7 +181,7 @@ class ChatHead extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      contact.name ?? contact.phoneNumber,
+                      contact.name ?? contact.phoneNumber ?? 'NO NAME',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,

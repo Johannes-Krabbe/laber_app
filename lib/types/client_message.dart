@@ -7,7 +7,7 @@ class ClientRawMessage {
   final Map<String, String> content;
   final RawMessageTypes type;
   final String senderUserId;
-  final String relatedMessageId;
+  final String? relatedMessageId;
   final int unixTime;
   final String chatId;
 
@@ -16,7 +16,7 @@ class ClientRawMessage {
     required this.content,
     required this.type,
     required this.senderUserId,
-    required this.relatedMessageId,
+    this.relatedMessageId,
     required this.unixTime,
     required this.chatId,
   });
@@ -31,6 +31,28 @@ class ClientRawMessage {
       'unixTime': unixTime,
       'chatId': chatId,
     });
+  }
+
+  static Future<ClientRawMessage> fromJsonString(String jsonString) async {
+    final json = jsonDecode(jsonString);
+
+    final rawContent = json['content'];
+
+    final stringContent = <String, String>{};
+
+    for (var key in rawContent.keys) {
+      stringContent[key] = rawContent[key].toString();
+    }
+
+    return ClientRawMessage(
+      id: json['id'],
+      content: stringContent,
+      type: RawMessageTypes.values[json['type']],
+      senderUserId: json['senderUserId'],
+      relatedMessageId: json['relatedMessageId'],
+      unixTime: json['unixTime'],
+      chatId: json['chatId'],
+    );
   }
 
   String get formattedLongTime {
@@ -49,17 +71,15 @@ class ClientRawMessage {
   }
 
   String get previewString {
-      switch (type) {
-        case RawMessageTypes.textMessage:
-          return content['message']!;
-        case RawMessageTypes.reaction:
-          return 'Reaction';
-        default:
-          return 'Unknown';
+    switch (type) {
+      case RawMessageTypes.textMessage:
+        return content['message']!;
+      case RawMessageTypes.reaction:
+        return 'Reaction';
+      default:
+        return 'Unknown';
+    }
   }
-  }
-
-
 }
 
 enum RawMessageTypes {
@@ -67,7 +87,7 @@ enum RawMessageTypes {
   reaction,
 }
 
-class ClientParsedMessage{
+class ClientParsedMessage {
   final String content;
   final String id;
   final String userId;
@@ -87,9 +107,7 @@ class ClientParsedMessage{
   });
 }
 
-enum ParsedMessageTypes {
-  textMessage
-}
+enum ParsedMessageTypes { textMessage }
 
 class ClientReaction {
   final String emoji;
@@ -103,10 +121,8 @@ class ClientReaction {
   });
 }
 
-
 int calculateDayDifference(DateTime date) {
   DateTime now = DateTime.now();
   DateTime dateToCompare = DateTime(date.year, date.month, date.day);
   return now.difference(dateToCompare).inDays;
 }
-

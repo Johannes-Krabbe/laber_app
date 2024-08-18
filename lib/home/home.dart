@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/screens/chat_list.dart';
 import 'package:laber_app/screens/contacts.dart';
 import 'package:laber_app/screens/settings/settings.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
 
 class Home extends StatefulWidget {
@@ -18,18 +16,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    var contactsBloc = context.read<ContactsBloc>();
-    contactsBloc.add(LoadContactsContactsEvent());
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
 
   @override
   Widget build(BuildContext context) {

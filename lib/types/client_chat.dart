@@ -40,6 +40,12 @@ class ClientChat {
     return sortedMessages.toList();
   }
 
+  List<ClientParsedMessage> get sortedParsedMessages {
+    List<ClientParsedMessage> sortedMessages = parsedMessages;
+    sortedMessages.sort((a, b) => a.unixTime.compareTo(b.unixTime));
+    return sortedMessages.reversed.toList();
+  }
+
   List<ClientParsedMessage> get parsedMessages {
     List<ClientParsedMessage> parsedMessages = [];
 
@@ -72,5 +78,23 @@ class ClientChat {
     }
 
     return parsedMessages;
+  }
+
+  static Future<ClientChat> fromJsonString(String jsonString) async {
+    final json = jsonDecode(jsonString);
+    List<ClientRawMessage> rawMessages = [];
+    for (var rawMessage in json['rawMessages']) {
+      rawMessages.add(await ClientRawMessage.fromJsonString(rawMessage));
+    }
+
+    return ClientChat(
+      rawMessages: rawMessages,
+    );
+  }
+
+  static Future<ClientChat> addMessage(ClientChat chat,ClientRawMessage message, String senderId) {
+    return Future.value(chat.copyWith(
+      rawMessages: [...chat.rawMessages, message],
+    ));
   }
 }

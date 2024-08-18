@@ -32,37 +32,25 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  late AuthBloc authBloc;
+
   @override
   void initState() {
-    // WidgetsBinding.instance.addObserver(this);
     var authBloc = context.read<AuthBloc>();
     authBloc.add(AppStartedAuthEvent());
-
     super.initState();
   }
 
-/*
   @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    authBloc = context.watch<AuthBloc>();
   }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Respond to lifecycle changes by checking the state
-    print("Current state: $state");
-  }
-*/
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // TODO change to did change dependencies
-    var authBloc = context.watch<AuthBloc>();
-
     Widget currentRenderedPage;
-
     switch (authBloc.state.state) {
       case AuthStateEnum.none:
         currentRenderedPage = BlocProvider(
@@ -94,7 +82,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         splashColor: Colors.transparent,
       ),
       themeMode: ThemeMode.dark,
-      home: currentRenderedPage,
+      home: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.state == AuthStateEnum.loggedIn) {
+              context.read<ContactsBloc>().add(
+                    LoadContactsContactsEvent(
+                      authBloc.state.meUser!.id,
+                    ),
+                  );
+            }
+          },
+          child: currentRenderedPage),
     );
   }
 }

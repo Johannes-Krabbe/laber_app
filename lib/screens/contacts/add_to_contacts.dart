@@ -5,8 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddToContacts extends StatefulWidget {
   final ApiPublicUser user;
+  final String? phoneNumber;
 
-  const AddToContacts({super.key, required this.user});
+  const AddToContacts({super.key, required this.user, this.phoneNumber});
 
   @override
   State<AddToContacts> createState() => _AddToContactsState();
@@ -40,10 +41,12 @@ class _AddToContactsState extends State<AddToContacts> {
             Text('Add ${widget.user.name} to contacts?'),
             ElevatedButton(
               onPressed: () {
-                contactsBloc.add(AddContactEvent(widget.user));
+                contactsBloc.add(
+                  AddContactEvent(widget.user, widget.phoneNumber),
+                );
                 Navigator.of(context).pop();
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         ),
