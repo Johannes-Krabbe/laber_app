@@ -1,17 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:laber_app/api/models/types/private_device.dart';
-import 'package:laber_app/api/models/types/private_user.dart';
 import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/state/types/auth_state.dart';
-import 'package:laber_app/types/client_me_device.dart';
 import 'package:laber_app/types/client_me_user.dart';
 import 'package:laber_app/utils/auth_store_repository.dart';
-import 'package:laber_app/utils/secure_storage_repository.dart';
 
 sealed class AuthEvent {}
 
 final class LoggedInAuthEvent extends AuthEvent {
-  AuthStateStore authStateStore;
+  AuthStateStoreRepository authStateStore;
 
   LoggedInAuthEvent(this.authStateStore);
 }
@@ -47,7 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
-    final authStateStore = await AuthStateStore.getCurrentFromSecureStorage();
+    final authStateStore = await AuthStateStoreRepository.getCurrentFromSecureStorage();
 
     if (authStateStore == null) {
       state.copyWith(
@@ -64,7 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ClientMeUser.fromApiPrivateMeUser(response.body!.user!);
 
         if (clientMeUserFromApi != authStateStore.meUser) {
-          await AuthStateStore.updateInSecureStorageByUserId(AuthStateStore(
+          await AuthStateStoreRepository.updateInSecureStorageByUserId(AuthStateStoreRepository(
             authStateStore.token,
             clientMeUserFromApi,
             authStateStore.meDevice,
@@ -86,7 +82,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   _onLogout(LogoutAuthEvent event, Emitter<AuthState> emit) async {
-    AuthStateStore.deleteCurrentFromSecureStorage();
+    AuthStateStoreRepository.deleteCurrentFromSecureStorage();
     emit(state.copyWith(state: AuthStateEnum.none));
   }
 }

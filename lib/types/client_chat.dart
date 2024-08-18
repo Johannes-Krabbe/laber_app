@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:laber_app/types/client_message.dart';
 
 class ClientChat {
@@ -15,13 +17,22 @@ class ClientChat {
     );
   }
 
-  /*
-  Message? get latestMessage {
+  Future<String> toJson() async {
+    List<String> chatMessagesJson = [];
+    for(var rawMessage in rawMessages) {
+      chatMessagesJson.add(await rawMessage.toJson());
+    }
+
+    return jsonEncode({
+      'rawMessages': chatMessagesJson,
+    });
+  }
+
+  ClientRawMessage? get latestMessage {
     if(rawMessages.isEmpty) return null;
     rawMessages.sort((a, b) => a.unixTime.compareTo(b.unixTime));
     return rawMessages.last;
   }
-  */
 
   List<ClientRawMessage> get sortedRawMessages {
     List<ClientRawMessage> sortedMessages = rawMessages;

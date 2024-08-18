@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:laber_app/screens/chat.dart';
-import 'package:laber_app/state/types/contacts_state.dart';
+import 'package:laber_app/types/client_contact.dart';
 
 class ChatTile extends StatelessWidget {
-  final Contact contact;
+  final ClientContact contact;
   final String? message;
   final String? time;
 
@@ -30,7 +30,7 @@ class ChatTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage(contact.profilePicture),
+              backgroundImage: NetworkImage(contact.profilePicture ?? ''),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -44,7 +44,7 @@ class ChatTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          contact.name,
+                          contact.name ?? contact.phoneNumber,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,

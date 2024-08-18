@@ -1,22 +1,22 @@
+import 'dart:convert';
+
 import 'package:laber_app/types/client_chat.dart';
 
 class ClientContact {
   final String id;
-  final String name;
+  final String? name;
   final String phoneNumber;
-  final String profilePicture;
-  final String status;
-  final int unixLastSeen;
+  final String? profilePicture;
+  final String? status;
 
   ClientChat? chat;
 
-   ClientContact({
+  ClientContact({
     required this.id,
-    required this.name,
+    this.name,
     required this.phoneNumber,
-    required this.profilePicture,
-    required this.status,
-    required this.unixLastSeen,
+    this.profilePicture,
+    this.status,
     this.chat,
   });
 
@@ -35,8 +35,18 @@ class ClientContact {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       profilePicture: profilePicture ?? this.profilePicture,
       status: status ?? this.status,
-      unixLastSeen: unixLastSeen ?? this.unixLastSeen,
       chat: chat ?? this.chat,
     );
+  }
+
+  Future<String> toJson() async {
+    return jsonEncode({
+      'id': id,
+      'name': name,
+      'phoneNumber': phoneNumber,
+      'profilePicture': profilePicture,
+      'status': status,
+      'chat': await chat?.toJson(),
+    });
   }
 }

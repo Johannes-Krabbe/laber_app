@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:intl/intl.dart';
+
 class ClientRawMessage {
   final String id;
   final Map<String, String> content;
@@ -16,6 +20,46 @@ class ClientRawMessage {
     required this.unixTime,
     required this.chatId,
   });
+
+  Future<String> toJson() async {
+    return jsonEncode({
+      'id': id,
+      'content': content,
+      'type': type.index,
+      'senderUserId': senderUserId,
+      'relatedMessageId': relatedMessageId,
+      'unixTime': unixTime,
+      'chatId': chatId,
+    });
+  }
+
+  String get formattedLongTime {
+    var time = DateTime.fromMillisecondsSinceEpoch(unixTime);
+    var timediff = calculateDayDifference(time);
+
+    if (timediff == 0) {
+      return DateFormat('HH:mm').format(time);
+    } else if (timediff == 1) {
+      return 'Yesterday';
+    } else if (timediff < 5) {
+      return DateFormat('EEEE').format(time);
+    } else {
+      return DateFormat('dd.MM.yyyy').format(time);
+    }
+  }
+
+  String get previewString {
+      switch (type) {
+        case RawMessageTypes.textMessage:
+          return content['message']!;
+        case RawMessageTypes.reaction:
+          return 'Reaction';
+        default:
+          return 'Unknown';
+  }
+  }
+
+
 }
 
 enum RawMessageTypes {
@@ -58,3 +102,11 @@ class ClientReaction {
     required this.unixTime,
   });
 }
+
+
+int calculateDayDifference(DateTime date) {
+  DateTime now = DateTime.now();
+  DateTime dateToCompare = DateTime(date.year, date.month, date.day);
+  return now.difference(dateToCompare).inDays;
+}
+

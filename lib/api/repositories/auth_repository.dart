@@ -8,9 +8,12 @@ class AuthRepository extends ApiProvider {
   Future<ApiRepositoryResponse<AuthLoginResponse>> login(
       String phoneNumber) async {
     try {
-      final response = await dio.post('/auth/login', data: {
-        'phoneNumber': phoneNumber,
-      });
+      final response = await dio.post(
+        '/auth/login',
+        data: {
+          'phoneNumber': phoneNumber,
+        },
+      );
 
       return ApiRepositoryResponse<AuthLoginResponse>(
         body: AuthLoginResponse.fromJson(response.data),

@@ -1,11 +1,11 @@
-import 'package:faker/faker.dart';
+import 'package:laber_app/api/models/types/public_user.dart';
 import 'package:laber_app/state/types/contacts_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:laber_app/utils/id_generator.dart';
+import 'package:laber_app/types/client_contact.dart';
 
 sealed class ContactsEvent {}
 
-final class FetchContactsContactsEvent extends ContactsEvent {}
+final class LoadContactsContactsEvent extends ContactsEvent {}
 
 final class FetchSingleContactByIdContactsEvent extends ContactsEvent {
   final String id;
@@ -20,10 +20,16 @@ final class SendMessageContactsEvent extends ContactsEvent {
   SendMessageContactsEvent(this.contactId, this.message);
 }
 
+final class AddContactEvent extends ContactsEvent {
+  final ApiPublicUser contact;
+
+  AddContactEvent(this.contact);
+}
+
 class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
   ContactsBloc() : super(const ContactsState()) {
-    on<FetchContactsContactsEvent>((event, emit) async {
-      await _onFetchContacts(event, emit);
+    on<LoadContactsContactsEvent>((event, emit) async {
+      await _onLoadContacts(event, emit);
     });
     on<FetchSingleContactByIdContactsEvent>((event, emit) async {
       await _onFetchSingleContactById(event, emit);
@@ -31,29 +37,17 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<SendMessageContactsEvent>((event, emit) async {
       await _onSendMessage(event, emit);
     });
+    on<AddContactEvent>((event, emit) async {
+      await _onAddContact(event, emit);
+    });
   }
 
-  _onFetchContacts(
-      FetchContactsContactsEvent event, Emitter<ContactsState> emit) async {
+  _onLoadContacts(
+      LoadContactsContactsEvent event, Emitter<ContactsState> emit) async {
     emit(state.copyWith(state: ContactsStateEnum.loading, error: null));
 
-    var contacts = <Contact>[];
-
-    for (var i = 0; i < 10; i++) {
-      var unix = DateTime(2024, 07, 10, 10, 10).millisecondsSinceEpoch;
-
-      contacts.add(
-        Contact(
-          id: newCuid(),
-          name: faker.person.name(),
-          phoneNumber: faker.phoneNumber.de(),
-          status: faker.lorem.word(),
-          unixLastSeen: unix,
-          profilePicture:
-              "https://randomuser.me/api/portraits/med/women/${i.toString()}.jpg",
-        ),
-      );
-    }
+    // TODO
+    var contacts = <ClientContact>[];
 
     emit(state.copyWith(
       state: ContactsStateEnum.success,
@@ -74,19 +68,12 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
       if (foundContacts.length == 1) {
         emit(state.copyWith(state: ContactsStateEnum.success, error: null));
       } else if (foundContacts.isEmpty) {
-        var contact = Contact(
-          id: newCuid(),
-          name: faker.person.name(),
-          phoneNumber: faker.phoneNumber.us(),
-          status: faker.lorem.word(),
-          unixLastSeen: DateTime(2024, 07, 10, 10, 10).millisecondsSinceEpoch,
-          profilePicture: "https://randomuser.me/api/portraits/med/men/2.jpg",
-        );
+        // TODO
 
         emit(state.copyWith(
           state: ContactsStateEnum.success,
           error: null,
-          contacts: [...(state.contacts ?? []), contact],
+          contacts: [...(state.contacts ?? [])],
         ));
       } else {
         throw Exception("More than one contact found with the same id");
@@ -102,31 +89,38 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
       if (foundContacts.length == 1) {
         var contact = foundContacts.first;
-        var message = Message(
-          receiverId: contact.id,
-          senderId: "",
-          message: event.message,
-          unixTime: DateTime.now().millisecondsSinceEpoch,
-        );
-
-        List<Message> newMessages = [message, ...(contact.messages ?? [])];
-
-        var newContact = contact.copyWith(messages: newMessages);
-
-        var newContacts = state.contacts!.map((c) {
-          if (c.id == contact.id) {
-            return newContact;
-          }
-          return c;
-        }).toList();
 
         emit(state.copyWith(
           state: ContactsStateEnum.success,
           error: null,
-          contacts: newContacts,
         ));
       } else {
         throw Exception("Contact not found");
+      }
+    }
+  }
+
+  _onAddContact(AddContactEvent event, Emitter<ContactsState> emit) {
+    if (state.contacts != null) {
+      var foundContacts = state.contacts!.where((contact) {
+        return contact.id == event.contact.id;
+      });
+
+      if (foundContacts.isEmpty) {
+        var newContact = ClientContact(
+          profilePicture: event.contact.profilePicture,
+          id: event.contact.id!,
+          name: event.contact.name,
+          phoneNumber: event.contact.phoneNumberHash!,
+        );
+
+        emit(state.copyWith(
+          state: ContactsStateEnum.success,
+          error: null,
+          contacts: [...(state.contacts ?? []), newContact],
+        ));
+      } else {
+        throw Exception("Contact already exists");
       }
     }
   }

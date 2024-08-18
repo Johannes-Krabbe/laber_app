@@ -4,7 +4,7 @@ import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/components/chat_message_widget.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
-import 'package:laber_app/state/types/contacts_state.dart';
+import 'package:laber_app/types/client_contact.dart';
 import 'package:laber_app/types/client_message.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -53,7 +53,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 content:
                     "TEST with index asd adsf   asdf asdf asdf asd f : $index",
                 reactions: [
-                  
                   ClientReaction(
                     emoji: "🚀",
                     userId: contactsBloc.state.getById(widget.contactId)?.id ??
@@ -89,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 class ChatInput extends StatelessWidget {
   final ContactsBloc contactsBloc;
-  final Contact contact;
+  final ClientContact contact;
   final TextEditingController controller = TextEditingController();
 
   ChatInput({
@@ -153,7 +152,7 @@ class ChatInput extends StatelessWidget {
 }
 
 class ChatHead extends StatelessWidget {
-  final Contact contact;
+  final ClientContact contact;
 
   const ChatHead({
     required this.contact,
@@ -182,7 +181,7 @@ class ChatHead extends StatelessWidget {
               const SizedBox(width: 10),
               CircleAvatar(
                 radius: 20,
-                backgroundImage: NetworkImage(contact.profilePicture),
+                backgroundImage: NetworkImage(contact.profilePicture ?? ''),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -191,7 +190,7 @@ class ChatHead extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      contact.name,
+                      contact.name ?? contact.phoneNumber,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,

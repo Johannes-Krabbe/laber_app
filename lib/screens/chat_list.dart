@@ -140,12 +140,14 @@ class _ChatListState extends State<ChatList> {
                           message: contactsBloc
                               .state
                               .sortedContactsByLastMessage[index]
-                              .latestMessage
-                              ?.message,
+                              .chat
+                              ?.latestMessage
+                              ?.previewString,
                           time: contactsBloc
                               .state
                               .sortedContactsByLastMessage[index]
-                              .latestMessage
+                              .chat
+                              ?.latestMessage
                               ?.formattedLongTime,
                         )
                       : const SizedBox();
@@ -208,16 +210,16 @@ class ChatSearchDelegate extends SearchDelegate<String> {
       itemBuilder: (BuildContext context, int index) {
         var searchResult = contactsBloc.state.search(query);
         searchResult.sort((a, b) {
-          if (a.latestMessage == null) return 1;
-          if (b.latestMessage == null) return -1;
-          return a.latestMessage!.unixTime
-              .compareTo(b.latestMessage!.unixTime * -1);
+          if (a.chat?.latestMessage == null) return 1;
+          if (b.chat?.latestMessage == null) return -1;
+          return a.chat!.latestMessage!.unixTime
+              .compareTo(b.chat!.latestMessage!.unixTime * -1);
         });
         return ChatTile(
           contact: searchResult[index],
           message:
-              searchResult[index].latestMessage?.message ?? searchResult[index].phoneNumber,
-          time: searchResult[index].latestMessage?.formattedLongTime ?? "",
+              searchResult[index].chat?.latestMessage?.previewString ?? searchResult[index].phoneNumber,
+          time: searchResult[index].chat?.latestMessage?.formattedLongTime ?? "",
         );
       },
     );

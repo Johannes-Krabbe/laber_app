@@ -22,7 +22,7 @@ class AuthFlowState {
   final String? deviceName;
   final ApiPrivateDevice? meDevice;
 
-  final AuthStateStore? authStateStore;
+  final AuthStateStoreRepository? authStateStore;
 
   const AuthFlowState({
     this.state = AuthFlowStateEnum.none,
@@ -45,7 +45,7 @@ class AuthFlowState {
     ApiPrivateUser? meUser,
     String? deviceName,
     ApiPrivateDevice? meDevice,
-    AuthStateStore? authStateStore,
+    AuthStateStoreRepository? authStateStore,
   }) {
     return AuthFlowState(
       state: state ?? this.state,

@@ -233,7 +233,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       // store
 
       final clientMeUser = ClientMeUser.fromApiPrivateMeUser(state.meUser!);
-      final authStateStore = AuthStateStore(
+      final authStateStore = AuthStateStoreRepository(
           state.token!,
           clientMeUser,
           ClientMeDevice(
@@ -244,7 +244,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
             clientSignedPreKeyPairList,
           ),
         );
-      await AuthStateStore.saveAsCurrentToSecureStorage(authStateStore);
+      await AuthStateStoreRepository.saveAsCurrentToSecureStorage(authStateStore);
 
       emit(
         state.copyWith(

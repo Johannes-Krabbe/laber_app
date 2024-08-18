@@ -16,7 +16,6 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController controller = TextEditingController();
-  String initialCountry = 'DE';
   PhoneNumber number = PhoneNumber(isoCode: 'DE');
   late AuthFlowBloc authFlowBloc;
 
@@ -28,7 +27,7 @@ class _LoginState extends State<Login> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    authFlowBloc = context.watch<AuthFlowBloc>(); // Add the line here
+    authFlowBloc = context.watch<AuthFlowBloc>();
   }
 
   @override

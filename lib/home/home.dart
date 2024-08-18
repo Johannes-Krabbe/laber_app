@@ -23,7 +23,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     var contactsBloc = context.read<ContactsBloc>();
-    contactsBloc.add(FetchContactsContactsEvent());
+    contactsBloc.add(LoadContactsContactsEvent());
   }
 
   @override

@@ -4,12 +4,12 @@ import 'dart:convert';
 
 import 'package:laber_app/utils/secure_storage_repository.dart';
 
-class AuthStateStore {
+class AuthStateStoreRepository {
   final String token;
   final ClientMeUser meUser;
   final ClientMeDevice meDevice;
 
-  AuthStateStore(this.token, this.meUser, this.meDevice);
+  AuthStateStoreRepository(this.token, this.meUser, this.meDevice);
 
   Future<String> toJsonString() async {
     return jsonEncode({
@@ -19,16 +19,16 @@ class AuthStateStore {
     });
   }
 
-  static Future<AuthStateStore> fromJsonString(String jsonString) async {
+  static Future<AuthStateStoreRepository> fromJsonString(String jsonString) async {
     final json = jsonDecode(jsonString);
-    return AuthStateStore(
+    return AuthStateStoreRepository(
       json['token'],
       ClientMeUser.fromJsonString(json['meUser']),
       await ClientMeDevice.fromJsonString(json['meDevice']),
     );
   }
 
-  static Future<List<AuthStateStore>> getAllFromSecureStorage() async {
+  static Future<List<AuthStateStoreRepository>> getAllFromSecureStorage() async {
     final secureStorage = SecureStorageRepository();
 
     final authStateStoreString =
@@ -39,15 +39,15 @@ class AuthStateStore {
 
     final authStateStoreArray = jsonDecode(authStateStoreString);
 
-    final List<AuthStateStore> authStateStores = [];
+    final List<AuthStateStoreRepository> authStateStores = [];
     for (final authStateStore in authStateStoreArray) {
-      authStateStores.add(await AuthStateStore.fromJsonString(authStateStore));
+      authStateStores.add(await AuthStateStoreRepository.fromJsonString(authStateStore));
     }
 
     return authStateStores;
   }
 
-  static Future<void> saveToSecureStorage(AuthStateStore authStateStore) async {
+  static Future<void> saveToSecureStorage(AuthStateStoreRepository authStateStore) async {
     final secureStorage = SecureStorageRepository();
 
     final authStateStores = await getAllFromSecureStorage();
@@ -61,16 +61,16 @@ class AuthStateStore {
   }
 
   static Future<void> saveAsCurrentToSecureStorage(
-      AuthStateStore authStateStore) async {
+      AuthStateStoreRepository authStateStore) async {
     final secureStorage = SecureStorageRepository();
 
-    await AuthStateStore.saveToSecureStorage(authStateStore);
+    await AuthStateStoreRepository.saveToSecureStorage(authStateStore);
 
     await secureStorage.write(
         SecureStorageKeys.authCurrentUserId, authStateStore.meUser.id);
   }
 
-  static Future<AuthStateStore?> getCurrentFromSecureStorage() async {
+  static Future<AuthStateStoreRepository?> getCurrentFromSecureStorage() async {
     final secureStorage = SecureStorageRepository();
 
     final authStateStoreString =
@@ -125,7 +125,7 @@ class AuthStateStore {
   }
 
   static Future<void> updateInSecureStorageByUserId(
-      AuthStateStore authStateStore) async {
+      AuthStateStoreRepository authStateStore) async {
     deleteFromSecureStorage(authStateStore.meUser.id);
     saveToSecureStorage(authStateStore);
   }

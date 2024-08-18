@@ -1,11 +1,12 @@
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
+import 'package:laber_app/types/client_contact.dart';
 
 enum ContactsStateEnum { loading, none, success }
 
 class ContactsState {
   final ContactsStateEnum state;
   final String? error;
-  final List<Contact>? contacts;
+  final List<ClientContact>? contacts;
 
   const ContactsState({
     this.state = ContactsStateEnum.none,
@@ -16,7 +17,7 @@ class ContactsState {
   ContactsState copyWith({
     ContactsStateEnum? state,
     String? error,
-    List<Contact>? contacts,
+    List<ClientContact>? contacts,
   }) {
     return ContactsState(
       state: state ?? this.state,
@@ -25,41 +26,61 @@ class ContactsState {
     );
   }
 
-  List<Contact> search(String query) {
+  List<ClientContact> search(String query) {
     if (contacts == null) return [];
 
     return contacts!.where((contact) {
-      return contact.name.toLowerCase().contains(query.toLowerCase()) ||
+      return contact.name?.toLowerCase().contains(query.toLowerCase()) == true ||
           contact.phoneNumber.toLowerCase().contains(query.toLowerCase());
     }).toList();
   }
 
-  List<Contact> get sortedContacts {
+  List<ClientContact> get sortedContacts {
     if (contacts == null) return [];
-    contacts!.sort((a, b) => a.name.compareTo(b.name));
+    contacts!.sort((a, b) {
+      if (a.chat == null) return 1;
+      if (b.chat == null) return -1;
+      return a.chat!.latestMessage!.unixTime
+          .compareTo(b.chat!.latestMessage!.unixTime * -1);
+
+    });
     return contacts!;
   }
 
-  List<Contact> get sortedContactsByLastMessage {
+  List<ClientContact> get sortedContactsByLastMessage {
     if (contacts == null) return [];
-    List<Contact> contactsWithMessages = contacts!.where((contact) => contact.messages.isNotEmpty).toList();
+    List<ClientContact> contactsWithMessages = contacts!
+        .where((contact) => contact.chat?.rawMessages.isNotEmpty == true)
+        .toList();
     contactsWithMessages.sort((a, b) {
-      if (a.latestMessage == null) return 1;
-      if (b.latestMessage == null) return -1;
-      return a.latestMessage!.unixTime.compareTo(b.latestMessage!.unixTime * -1);
+      if (a.chat == null) return 1;
+      if (b.chat == null) return -1;
+      return a.chat!.latestMessage!.unixTime
+          .compareTo(b.chat!.latestMessage!.unixTime * -1);
     });
     return contactsWithMessages;
   }
 
-  Contact? getById(String id) {
+  ClientContact? getById(String id) {
     if (contacts == null) return null;
     var foundContacts = contacts!.where((contact) => contact.id == id);
     if (foundContacts.isEmpty) return null;
     if (foundContacts.length > 1) return null;
     return foundContacts.first;
   }
+
+  ClientContact? getByPhoneNumber(String phoneNumber) {
+    if (contacts == null) return null;
+    var foundContacts = contacts!.where((contact) {
+      return contact.phoneNumber == phoneNumber;
+    });
+    if (foundContacts.isEmpty) return null;
+    if (foundContacts.length > 1) return null;
+    return foundContacts.first;
+  }
 }
 
+/*
 class Contact {
   final String id;
   final String name;
@@ -161,3 +182,4 @@ int calculateDayDifference(DateTime date) {
   DateTime dateToCompare = DateTime(date.year, date.month, date.day);
   return now.difference(dateToCompare).inDays;
 }
+*/

@@ -3,8 +3,11 @@ import 'package:laber_app/components/blur_background.dart';
 
 class BlurAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final Widget? leading;
+  final Widget? trailing;
 
-  const BlurAppBar({super.key, required this.title});
+  const BlurAppBar(
+      {super.key, required this.title, this.leading, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +25,16 @@ class BlurAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
+                      Builder(builder: (context) {
+                        if (trailing != null) {
+                          return trailing!;
+                        }
+                        return IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            });
+                      }),
                       Expanded(
                         child: Center(
                           child: Text(
@@ -41,12 +48,12 @@ class BlurAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ),
                       // Add a placeholder to balance the layout
-                      IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
+                      Builder(builder: (context) {
+                        if (trailing != null) {
+                          return trailing!;
+                        }
+                        return const SizedBox(width: 48);
+                      }),
                     ],
                   ),
                 ),

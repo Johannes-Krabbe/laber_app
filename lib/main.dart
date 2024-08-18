@@ -58,6 +58,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // TODO change to did change dependencies
     var authBloc = context.watch<AuthBloc>();
 
     Widget currentRenderedPage;
