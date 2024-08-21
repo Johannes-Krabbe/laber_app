@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/user/discover/phone_number.dart';
+import 'package:laber_app/api/models/responses/user/get_by_id.dart';
 
 class UserRepository extends ApiProvider {
   Future<ApiRepositoryResponse<UserDiscoverPhoneNumberResponse>>
@@ -28,6 +27,30 @@ class UserRepository extends ApiProvider {
         );
       }
       return ApiRepositoryResponse<UserDiscoverPhoneNumberResponse>(
+        status: 500,
+      );
+    }
+  }
+
+  Future<ApiRepositoryResponse<UserGetByIdResponse>> getIdNumber(
+      String userId) async {
+    try {
+      final response = await dioAuth.get(
+        '/user/$userId',
+      );
+
+      return ApiRepositoryResponse<UserGetByIdResponse>(
+        body: UserGetByIdResponse.fromJson(response.data),
+        status: response.statusCode!,
+      );
+    } catch (e) {
+      if (e is DioException) {
+        return ApiRepositoryResponse<UserGetByIdResponse>(
+          body: UserGetByIdResponse.fromJson(e.response?.data ?? {}),
+          status: e.response?.statusCode ?? 500,
+        );
+      }
+      return ApiRepositoryResponse<UserGetByIdResponse>(
         status: 500,
       );
     }

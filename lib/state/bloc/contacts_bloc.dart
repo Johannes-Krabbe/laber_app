@@ -1,4 +1,5 @@
 import 'package:laber_app/api/models/types/public_user.dart';
+import 'package:laber_app/api/repositories/user_repository.dart';
 import 'package:laber_app/state/types/contacts_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/types/client_contact.dart';
@@ -34,6 +35,8 @@ final class AddContactEvent extends ContactsEvent {
 
 final class SaveAllContactEvent extends ContactsEvent {}
 
+final class RefetchAllContactsEvent extends ContactsEvent {}
+
 class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
   ContactsBloc() : super(const ContactsState()) {
     on<LoadContactsContactsEvent>((event, emit) async {
@@ -51,11 +54,16 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<SaveAllContactEvent>((event, emit) async {
       await _onSaveAllContact(event, emit);
     });
+    on<RefetchAllContactsEvent>((event, emit) async {
+      await _onRefetchAllContacts(event, emit);
+    });
   }
 
   _onLoadContacts(
       LoadContactsContactsEvent event, Emitter<ContactsState> emit) async {
-    emit(state.copyWith(state: ContactsStateEnum.loading, error: null, userId: event.userId));
+    emit(state.copyWith(
+        state: ContactsStateEnum.loading, error: null, userId: event.userId));
+
     final contactsStore =
         await ContactsStoreRepository.getContactsStore(event.userId);
 
@@ -91,7 +99,8 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     }
   }
 
-  _onSendMessage(SendMessageContactsEvent event, Emitter<ContactsState> emit) async {
+  _onSendMessage(
+      SendMessageContactsEvent event, Emitter<ContactsState> emit) async {
     if (state.contacts != null) {
       var foundContacts = state.contacts!.where((contact) {
         return contact.id == event.contactId;
@@ -100,11 +109,12 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
       if (foundContacts.length == 1) {
         var contact = foundContacts.first;
 
-        if(state.userId == null) {
+        if (state.userId == null) {
           throw Exception("User id is null");
         }
 
-        contact = await ClientContact.sendMessage(contact, event.message, state.userId!);
+        contact = await ClientContact.sendMessage(
+            contact, event.message, state.userId!);
 
         List<ClientContact> newContacts = [];
 
@@ -159,8 +169,9 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     }
   }
 
-  _onSaveAllContact(SaveAllContactEvent event, Emitter<ContactsState> emit) async {
-    if(state.userId == null) {
+  _onSaveAllContact(
+      SaveAllContactEvent event, Emitter<ContactsState> emit) async {
+    if (state.userId == null) {
       throw Exception("User id is null");
     }
 
@@ -173,5 +184,35 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
   _saveAll(String userId, List<ClientContact> contacts) async {
     await ContactsStoreRepository.store(userId, contacts);
+  }
+
+  _onRefetchAllContacts(
+      RefetchAllContactsEvent event, Emitter<ContactsState> emit) async {
+    emit(state.copyWith(state: ContactsStateEnum.loading, error: null));
+
+    final contactsStore =
+        await ContactsStoreRepository.getContactsStore(state.userId);
+
+    var newContacts = <ClientContact>[];
+
+    for (var contact in contactsStore.contacts) {
+      final userResponse =
+          await UserRepository().getIdNumber(contact.id);
+
+      newContacts.add(contact.copyWith(
+        name: userResponse.body?.user?.name,
+        profilePicture: userResponse.body?.user?.profilePicture,
+        username: userResponse.body?.user?.username,
+        // status: userResponse.body?.user?.status,
+      ));
+    }
+
+    emit(state.copyWith(
+      contacts: newContacts,
+      state: ContactsStateEnum.success,
+      error: null,
+    ));
+
+    add(SaveAllContactEvent());
   }
 }

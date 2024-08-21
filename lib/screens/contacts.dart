@@ -7,6 +7,7 @@ import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/contacts/discover_phone_number_bloc.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
+import 'package:laber_app/state/types/contacts_state.dart';
 
 class Contacts extends StatefulWidget {
   const Contacts({super.key});
@@ -66,7 +67,7 @@ class _ContactsState extends State<Contacts> {
                               showModalBottomSheet(
                                 context: context,
                                 builder: (context) {
-                                  return NewWidget();
+                                  return const NewWidget();
                                 },
                               );
                             },
@@ -85,8 +86,21 @@ class _ContactsState extends State<Contacts> {
           ),
         ),
       ),
-      body: Builder(
-        builder: (context) {
+      body: RefreshIndicator(
+        onRefresh: () async {
+          contactsBloc.add(RefetchAllContactsEvent());
+          return () async {
+            var loopCount = 0;
+            do {
+              await Future.delayed(const Duration(milliseconds: 100));
+              if (++loopCount > 30) break;
+            } while (contactsBloc.state.state == ContactsStateEnum.loading);
+            return;
+          }();
+        },
+        color: Colors.white,
+        edgeOffset: 100,
+        child: Builder(builder: (context) {
           final contacts = contactsBloc.state.sortedContacts;
           return ListView.builder(
             itemCount: contactsBloc.state.sortedContacts.length,
@@ -101,15 +115,17 @@ class _ContactsState extends State<Contacts> {
                     ),
                   );
                 },
-                title: Text(contacts[index].name ?? 'NO NAME'),
-                subtitle: Text(contacts[index].phoneNumber ?? 'NO PHONE NUMBER'),
+                title: Text(contacts[index].name ?? contacts[index].username ?? 'no name/username'),
+                subtitle:
+                    Text(contacts[index].phoneNumber ?? contacts[index].username ?? 'no phone number/username'),
                 leading: CircleAvatar(
-                  backgroundImage: NetworkImage(contacts[index].profilePicture ?? ''),
+                  backgroundImage:
+                      NetworkImage(contacts[index].profilePicture ?? ''),
                 ),
               );
             },
           );
-        }
+        }),
       ),
     );
   }

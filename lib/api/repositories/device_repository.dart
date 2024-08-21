@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/device/create.dart';
-import 'package:laber_app/api/models/responses/device/getAll.dart';
+import 'package:laber_app/api/models/responses/device/get_all.dart';
+import 'package:laber_app/api/models/responses/device/get_ids.dart';
+import 'package:laber_app/api/models/responses/device/get_key_bundle.dart';
 
 class DeviceRepository extends ApiProvider {
   Future<ApiRepositoryResponse<DeviceCreateResponse>> create(
@@ -52,6 +54,39 @@ class DeviceRepository extends ApiProvider {
       );
     } catch (e) {
       return ApiRepositoryResponse<DeviceGetAllResponse>(
+        status: 500,
+      );
+    }
+  }
+
+  Future<ApiRepositoryResponse<DeviceGetKeyBundleResponse>> getKeyBundle(
+      String deviceId) async {
+    try {
+      final response =
+          await dioAuth.get('/device/key-bundle?deviceId=$deviceId');
+
+      return ApiRepositoryResponse<DeviceGetKeyBundleResponse>(
+        body: DeviceGetKeyBundleResponse.fromJson(response.data),
+        status: response.statusCode!,
+      );
+    } catch (e) {
+      return ApiRepositoryResponse<DeviceGetKeyBundleResponse>(
+        status: 500,
+      );
+    }
+  }
+
+  Future<ApiRepositoryResponse<DeviceGetIdsResponse>> getIds(
+      String username) async {
+    try {
+      final response = await dioAuth.get('/device/ids?username=$username');
+
+      return ApiRepositoryResponse<DeviceGetIdsResponse>(
+        body: DeviceGetIdsResponse.fromJson(response.data),
+        status: response.statusCode!,
+      );
+    } catch (e) {
+      return ApiRepositoryResponse<DeviceGetIdsResponse>(
         status: 500,
       );
     }

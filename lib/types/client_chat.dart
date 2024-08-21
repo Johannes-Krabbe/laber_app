@@ -4,9 +4,11 @@ import 'package:laber_app/types/client_message.dart';
 
 class ClientChat {
   final List<ClientRawMessage> rawMessages;
+  final List<ClientDevice> devices;
 
   ClientChat({
     this.rawMessages = const [],
+    this.device = const [],
   });
 
   ClientChat copyWith({

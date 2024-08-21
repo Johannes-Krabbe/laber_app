@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:laber_app/api/models/types/public_user.dart';
 import 'package:laber_app/api/repositories/user_repository.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';

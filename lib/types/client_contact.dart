@@ -6,6 +6,7 @@ import 'package:laber_app/types/client_message.dart';
 class ClientContact {
   final String id;
   final String? name;
+  final String? username;
   final String? phoneNumber;
   final String? profilePicture;
   final String? status;
@@ -15,6 +16,7 @@ class ClientContact {
   ClientContact({
     required this.id,
     this.name,
+    this.username,
     this.phoneNumber,
     this.profilePicture,
     this.status,
@@ -24,6 +26,7 @@ class ClientContact {
   ClientContact copyWith({
     String? id,
     String? name,
+    String? username,
     String? phoneNumber,
     String? profilePicture,
     String? status,
@@ -33,6 +36,7 @@ class ClientContact {
     return ClientContact(
       id: id ?? this.id,
       name: name ?? this.name,
+      username: username ?? this.username,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       profilePicture: profilePicture ?? this.profilePicture,
       status: status ?? this.status,
@@ -41,6 +45,7 @@ class ClientContact {
   }
 
   static Future<ClientContact> createChat(ClientContact contact) async {
+    // TODO continue here => init chat
     return contact.copyWith(
       chat: contact.chat ?? ClientChat(rawMessages: []),
     );
@@ -71,6 +76,7 @@ class ClientContact {
     return jsonEncode({
       'id': id,
       'name': name,
+      'username': username,
       'phoneNumber': phoneNumber,
       'profilePicture': profilePicture,
       'status': status,
@@ -84,6 +90,7 @@ class ClientContact {
     return ClientContact(
       id: json['id'],
       name: json['name'],
+      username: json['username'],
       phoneNumber: json['phoneNumber'],
       profilePicture: json['profilePicture'],
       status: json['status'],
