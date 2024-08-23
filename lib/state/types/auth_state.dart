@@ -4,7 +4,7 @@
 import 'package:laber_app/types/client_me_device.dart';
 import 'package:laber_app/types/client_me_user.dart';
 
-enum AuthStateEnum { none, loading, loggedIn, error }
+enum AuthStateEnum { initial, loading, loggedIn, loggedOut, error }
 
 class AuthState {
   final AuthStateEnum state;
@@ -15,11 +15,11 @@ class AuthState {
   final ClientMeDevice? meDevice;
 
   const AuthState({
-    this.state = AuthStateEnum.none,
+    this.state = AuthStateEnum.initial,
     this.error,
     this.token,
     this.meUser,
-    this.meDevice
+    this.meDevice,
   });
 
   // copy with

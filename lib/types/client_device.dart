@@ -1,4 +1,4 @@
-
+import 'dart:convert';
 
 class ClientDevice {
   final String id;
@@ -18,7 +18,7 @@ class ClientDevice {
   }
 
   //to json
-  Future<String> toJson() {
+  Future<String> toJson() async {
     return jsonEncode({
       'id': id,
       'sharedSecret': sharedSecret,

@@ -18,6 +18,12 @@ final class AppStartedAuthEvent extends AuthEvent {}
 
 final class FetchMeAuthEvent extends AuthEvent {}
 
+final class SelectSignedInUserAuthEvent extends AuthEvent {
+  final String userId;
+
+  SelectSignedInUserAuthEvent(this.userId);
+}
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(const AuthState()) {
     on<LoggedInAuthEvent>((event, emit) async {
@@ -28,6 +34,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
     on<LogoutAuthEvent>((event, emit) async {
       await _onLogout(event, emit);
+    });
+    on<SelectSignedInUserAuthEvent>((event, emit) async {
+      await _onSelectSignedInUser(event, emit);
     });
   }
 
@@ -43,7 +52,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
-    final authStateStore = await AuthStateStoreRepository.getCurrentFromSecureStorage();
+    final authStateStore =
+        await AuthStateStoreRepository.getCurrentFromSecureStorage();
 
     if (authStateStore == null) {
       state.copyWith(
@@ -60,7 +70,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ClientMeUser.fromApiPrivateMeUser(response.body!.user!);
 
         if (clientMeUserFromApi != authStateStore.meUser) {
-          await AuthStateStoreRepository.updateInSecureStorageByUserId(AuthStateStoreRepository(
+          await AuthStateStoreRepository.updateInSecureStorageByUserId(
+              AuthStateStoreRepository(
             authStateStore.token,
             clientMeUserFromApi,
             authStateStore.meDevice,
@@ -78,11 +89,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     }
 
-    emit(state.copyWith(state: AuthStateEnum.none));
+    emit(state.copyWith(state: AuthStateEnum.loggedOut));
   }
 
   _onLogout(LogoutAuthEvent event, Emitter<AuthState> emit) async {
     AuthStateStoreRepository.deleteCurrentFromSecureStorage();
-    emit(state.copyWith(state: AuthStateEnum.none));
+    emit(state.copyWith(state: AuthStateEnum.loggedOut));
+  }
+
+  _onSelectSignedInUser(
+      SelectSignedInUserAuthEvent event, Emitter<AuthState> emit) async {
+    final foundUser = (await AuthStateStoreRepository.getAllFromSecureStorage())
+        .where((element) => element.meUser.id == event.userId);
+
+    if (foundUser.isEmpty) {
+      emit(state.copyWith(
+        state: AuthStateEnum.error,
+        error: 'Something went wrong',
+      ));
+    } else {
+      await AuthStateStoreRepository.selectFromSecureStorage(event.userId);
+      add(AppStartedAuthEvent());
+    }
   }
 }

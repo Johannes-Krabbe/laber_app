@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/loading.dart';
 import 'package:laber_app/home/home.dart';
-import 'package:laber_app/screens/auth/login.dart';
+import 'package:laber_app/screens/auth/welcome.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
@@ -52,17 +52,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     Widget currentRenderedPage;
     switch (authBloc.state.state) {
-      case AuthStateEnum.none:
+      case AuthStateEnum.loading || AuthStateEnum.initial:
+        currentRenderedPage = const Loading();
+      case AuthStateEnum.loggedOut:
         currentRenderedPage = BlocProvider(
           create: (_) => AuthFlowBloc(),
-          child: const Login(),
+          child: const Welcome(),
         );
         break;
       case AuthStateEnum.loggedIn:
         currentRenderedPage = const Home();
         break;
       default:
-        // AuthStateEnum.loading
         currentRenderedPage = const Loading();
     }
 

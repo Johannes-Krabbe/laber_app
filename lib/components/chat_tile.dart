@@ -26,6 +26,8 @@ class ChatTile extends StatelessWidget {
       },
       child: Container(
         padding: const EdgeInsets.all(10),
+        // set a color for the gesture detector to work
+        color: Colors.transparent,
         child: Row(
           children: [
             CircleAvatar(

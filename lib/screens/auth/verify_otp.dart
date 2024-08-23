@@ -20,11 +20,6 @@ class _VerifyOtpState extends State<VerifyOtp> {
   bool clearText = false;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     authBloc = context.read<AuthBloc>();

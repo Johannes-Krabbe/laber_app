@@ -104,6 +104,12 @@ class AuthStateStoreRepository {
     );
   }
 
+  static Future<void> selectFromSecureStorage(String userId) async {
+    final secureStorage = SecureStorageRepository();
+
+    await secureStorage.write(SecureStorageKeys.authCurrentUserId, userId);
+  } 
+
   static Future<void> deleteCurrentFromSecureStorageWithStore() async {
     final secureStorage = SecureStorageRepository();
 

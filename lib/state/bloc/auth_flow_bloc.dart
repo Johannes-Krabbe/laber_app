@@ -34,6 +34,8 @@ final class CreateDeviceAuthFlowEvent extends AuthFlowEvent {
   CreateDeviceAuthFlowEvent(this.token, this.deviceName);
 }
 
+final class InitAuthFlowEvent extends AuthFlowEvent {}
+
 class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
   AuthFlowBloc() : super(const AuthFlowState()) {
     on<EnterPhoneNumberAuthFlowEvent>((event, emit) async {
@@ -47,6 +49,9 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     });
     on<CreateDeviceAuthFlowEvent>((event, emit) async {
       await _onCreateDevice(event, emit);
+    });
+    on<InitAuthFlowEvent>((event, emit) async {
+      await _onInit(event, emit);
     });
   }
 
@@ -262,5 +267,13 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
         ),
       );
     }
+  }
+
+  _onInit(InitAuthFlowEvent event, Emitter<AuthFlowState> emit) async {
+    final authStateStore = await AuthStateStoreRepository.getAllFromSecureStorage();
+    emit(state.copyWith(
+      authStateStoreList: authStateStore,
+    ));
+    
   }
 }

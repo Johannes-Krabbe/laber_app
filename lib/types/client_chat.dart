@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:laber_app/types/client_device.dart';
 import 'package:laber_app/types/client_message.dart';
 
 class ClientChat {
@@ -8,7 +9,7 @@ class ClientChat {
 
   ClientChat({
     this.rawMessages = const [],
-    this.device = const [],
+    this.devices = const [],
   });
 
   ClientChat copyWith({

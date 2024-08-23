@@ -24,6 +24,8 @@ class AuthFlowState {
 
   final AuthStateStoreRepository? authStateStore;
 
+  final List<AuthStateStoreRepository>? authStateStoreList;
+
   const AuthFlowState({
     this.state = AuthFlowStateEnum.none,
     this.error = '',
@@ -34,6 +36,7 @@ class AuthFlowState {
     this.deviceName,
     this.meDevice,
     this.authStateStore,
+    this.authStateStoreList,
   });
 
   AuthFlowState copyWith({
@@ -46,6 +49,7 @@ class AuthFlowState {
     String? deviceName,
     ApiPrivateDevice? meDevice,
     AuthStateStoreRepository? authStateStore,
+    List<AuthStateStoreRepository>? authStateStoreList,
   }) {
     return AuthFlowState(
       state: state ?? this.state,
@@ -57,6 +61,7 @@ class AuthFlowState {
       deviceName: deviceName ?? this.deviceName,
       meDevice: meDevice ?? this.meDevice,
       authStateStore: authStateStore ?? this.authStateStore,
+      authStateStoreList: authStateStoreList ?? this.authStateStoreList,
     );
   }
 }
