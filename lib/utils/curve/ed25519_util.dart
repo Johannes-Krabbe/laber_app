@@ -21,8 +21,12 @@ class Ed25519Util {
     return signature;
   }
 
-  static Future<bool> verify(String content, Signature signature) async {
+  static Future<bool> verify({
+    required String content,
+    required Signature signature,
+  }) async {
     final message = utf8.encode(content);
+
     final isVerified = await flutterEd25519.verify(
       message,
       signature: signature,

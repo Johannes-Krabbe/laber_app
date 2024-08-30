@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/device/create.dart';
@@ -77,9 +80,10 @@ class DeviceRepository extends ApiProvider {
   }
 
   Future<ApiRepositoryResponse<DeviceGetIdsResponse>> getIds(
-      String username) async {
+    String userId,
+  ) async {
     try {
-      final response = await dioAuth.get('/device/ids?username=$username');
+      final response = await dioAuth.get('/device/ids?userId=$userId');
 
       return ApiRepositoryResponse<DeviceGetIdsResponse>(
         body: DeviceGetIdsResponse.fromJson(response.data),

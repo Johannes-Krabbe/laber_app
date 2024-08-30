@@ -7,6 +7,7 @@ class ClientRawMessage {
   final Map<String, String> content;
   final RawMessageTypes type;
   final String senderUserId;
+  final String senderDeviceId;
   final String? relatedMessageId;
   final int unixTime;
   final String chatId;
@@ -16,6 +17,7 @@ class ClientRawMessage {
     required this.content,
     required this.type,
     required this.senderUserId,
+    required this.senderDeviceId,
     this.relatedMessageId,
     required this.unixTime,
     required this.chatId,
@@ -27,6 +29,7 @@ class ClientRawMessage {
       'content': content,
       'type': type.index,
       'senderUserId': senderUserId,
+      'senderDeviceId': senderDeviceId,
       'relatedMessageId': relatedMessageId,
       'unixTime': unixTime,
       'chatId': chatId,
@@ -49,6 +52,7 @@ class ClientRawMessage {
       content: stringContent,
       type: RawMessageTypes.values[json['type']],
       senderUserId: json['senderUserId'],
+      senderDeviceId: json['senderDeviceId'],
       relatedMessageId: json['relatedMessageId'],
       unixTime: json['unixTime'],
       chatId: json['chatId'],
@@ -83,6 +87,7 @@ class ClientRawMessage {
 }
 
 enum RawMessageTypes {
+  initMessage,
   textMessage,
   reaction,
 }

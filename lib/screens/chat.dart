@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/components/chat_message_widget.dart';
+import 'package:laber_app/screens/chat_info.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:laber_app/types/client_contact.dart';
@@ -158,42 +159,51 @@ class ChatHead extends StatelessWidget {
           color: Colors.transparent,
           height: MediaQuery.of(context).padding.top,
         ),
-        Container(
-          color: Colors.transparent,
-          height: 56,
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(width: 10),
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(contact.profilePicture ?? ''),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      contact.name ?? contact.phoneNumber ?? 'NO NAME',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    // TODO add last seen
-                    const Text('Active now'),
-                  ],
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ChatInfo(
+                  contactId: contact.id,
                 ),
               ),
-              const SizedBox(width: 10),
-            ],
+            );
+          },
+          child: Container(
+            color: Colors.transparent,
+            height: 56,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(width: 10),
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(contact.profilePicture ?? ''),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        contact.name ?? contact.phoneNumber ?? 'NO NAME',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
+            ),
           ),
         ),
       ],

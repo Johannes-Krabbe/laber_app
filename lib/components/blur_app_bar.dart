@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:laber_app/components/blur_background.dart';
 
 class BlurAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
+  final String? title;
   final Widget? leading;
   final Widget? trailing;
 
-  const BlurAppBar(
-      {super.key, required this.title, this.leading, this.trailing});
+  const BlurAppBar({
+    super.key,
+    this.title,
+    this.leading,
+    this.trailing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +40,16 @@ class BlurAppBar extends StatelessWidget implements PreferredSizeWidget {
                             });
                       }),
                       Expanded(
-                        child: Center(
+                        child: title?.isNotEmpty == true ? Center(
                           child: Text(
-                            title,
+                            title!,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
+                        ) : const SizedBox(),
                       ),
                       // Add a placeholder to balance the layout
                       Builder(builder: (context) {
