@@ -2,10 +2,8 @@ import 'package:laber_app/api/models/types/public_user.dart';
 
 enum DiscoverPhoneNumberStateEnum {
   none,
-  searching,
-  notFound,
+  loading,
   found,
-
   error,
   success,
 }

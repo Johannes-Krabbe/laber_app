@@ -197,7 +197,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
     for (var contact in contactsStore.contacts) {
       final userResponse =
-          await UserRepository().getIdNumber(contact.id);
+          await UserRepository().getById(contact.id);
 
       newContacts.add(contact.copyWith(
         name: userResponse.body?.user?.name,

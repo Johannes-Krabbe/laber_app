@@ -32,7 +32,7 @@ class UserRepository extends ApiProvider {
     }
   }
 
-  Future<ApiRepositoryResponse<UserGetByIdResponse>> getIdNumber(
+  Future<ApiRepositoryResponse<UserGetByIdResponse>> getById(
       String userId) async {
     try {
       final response = await dioAuth.get(

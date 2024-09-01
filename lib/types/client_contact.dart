@@ -1,9 +1,6 @@
 import 'dart:convert';
-
 import 'package:cryptography/cryptography.dart';
-import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/api/repositories/device_repository.dart';
-import 'package:laber_app/state/types/auth_state.dart';
 import 'package:laber_app/types/client_chat.dart';
 import 'package:laber_app/types/client_device.dart';
 import 'package:laber_app/types/client_message.dart';
