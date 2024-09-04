@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:laber_app/api/models/types/public_user.dart';
+import 'package:laber_app/api/repositories/device_repository.dart';
 import 'package:laber_app/api/repositories/user_repository.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/store/types/contact.dart';
@@ -34,10 +35,19 @@ class ContactService {
       throw Exception('Failed to fetch contact');
     }
 
+    var fetchDevicesRes = await DeviceRepository().getIds(contact.apiId);
+
+    if (fetchDevicesRes.status != 200) {
+      return contact;
+    }
+
+    final deviceIds = fetchDevicesRes.body!.ids;
+
     contact
       ..name = apiResponse.body?.user?.name
       ..username = apiResponse.body?.user?.username
-      ..profilePicture = apiResponse.body?.user?.profilePicture;
+      ..profilePicture = apiResponse.body?.user?.profilePicture
+      ..deviceApiIds = deviceIds ?? [];
     // ..status = apiResponse.body?.user?.status;
 
     final isar = await getIsar();

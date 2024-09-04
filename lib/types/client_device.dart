@@ -2,11 +2,6 @@ import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
 
-enum SharedSecretVersion {
-  V1_X25519_WITHOUT_ONE_TIME_PREKEY,
-  V1_X25519_WITH_ONE_TIME_PREKEY,
-}
-
 class ClientDevice {
   final String id;
   final SecretKey sharedSecret;

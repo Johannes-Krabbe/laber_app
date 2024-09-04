@@ -73,7 +73,14 @@ const ContactSchema = CollectionSchema(
       ],
     )
   },
-  links: {},
+  links: {
+    r'chat': LinkSchema(
+      id: 3223669807987340661,
+      name: r'chat',
+      target: r'Chat',
+      single: true,
+    )
+  },
   embeddedSchemas: {},
   getId: _contactGetId,
   getLinks: _contactGetLinks,
@@ -88,10 +95,10 @@ int _contactEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.apiId.length * 3;
-  bytesCount += 3 + object.deviceIds.length * 3;
+  bytesCount += 3 + object.deviceApiIds.length * 3;
   {
-    for (var i = 0; i < object.deviceIds.length; i++) {
-      final value = object.deviceIds[i];
+    for (var i = 0; i < object.deviceApiIds.length; i++) {
+      final value = object.deviceApiIds[i];
       bytesCount += value.length * 3;
     }
   }
@@ -135,7 +142,7 @@ void _contactSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.apiId);
-  writer.writeStringList(offsets[1], object.deviceIds);
+  writer.writeStringList(offsets[1], object.deviceApiIds);
   writer.writeString(offsets[2], object.name);
   writer.writeString(offsets[3], object.phoneNumber);
   writer.writeString(offsets[4], object.profilePicture);
@@ -151,7 +158,7 @@ Contact _contactDeserialize(
 ) {
   final object = Contact();
   object.apiId = reader.readString(offsets[0]);
-  object.deviceIds = reader.readStringList(offsets[1]) ?? [];
+  object.deviceApiIds = reader.readStringList(offsets[1]) ?? [];
   object.id = id;
   object.name = reader.readStringOrNull(offsets[2]);
   object.phoneNumber = reader.readStringOrNull(offsets[3]);
@@ -192,11 +199,12 @@ Id _contactGetId(Contact object) {
 }
 
 List<IsarLinkBase<dynamic>> _contactGetLinks(Contact object) {
-  return [];
+  return [object.chat];
 }
 
 void _contactAttach(IsarCollection<dynamic> col, Id id, Contact object) {
   object.id = id;
+  object.chat.attach(col, col.isar.collection<Chat>(), r'chat', id);
 }
 
 extension ContactQueryWhereSort on QueryBuilder<Contact, Contact, QWhere> {
@@ -1463,7 +1471,20 @@ extension ContactQueryObject
     on QueryBuilder<Contact, Contact, QFilterCondition> {}
 
 extension ContactQueryLinks
-    on QueryBuilder<Contact, Contact, QFilterCondition> {}
+    on QueryBuilder<Contact, Contact, QFilterCondition> {
+  QueryBuilder<Contact, Contact, QAfterFilterCondition> chat(
+      FilterQuery<Chat> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'chat');
+    });
+  }
+
+  QueryBuilder<Contact, Contact, QAfterFilterCondition> chatIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'chat', 0, true, 0, true);
+    });
+  }
+}
 
 extension ContactQuerySortBy on QueryBuilder<Contact, Contact, QSortBy> {
   QueryBuilder<Contact, Contact, QAfterSortBy> sortByApiId() {

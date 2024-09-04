@@ -158,6 +158,7 @@ class ClientContact {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       content: {'message': message},
       senderUserId: userId,
+      senderDeviceId: '',
       unixTime: DateTime.now().millisecondsSinceEpoch,
       type: RawMessageTypes.textMessage,
     );

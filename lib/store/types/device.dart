@@ -17,6 +17,7 @@ class Device {
   @enumerated
   late SharedSecretVersion version;
   // store secret in secure storage
+  late String secret;
 }
 
 enum SharedSecretVersion {

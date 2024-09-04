@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:convert';
 import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:laber_app/store/types/device.dart';
 import 'package:laber_app/types/client_device.dart';
 import 'package:laber_app/utils/curve/fingerprint_util.dart';
 
@@ -57,7 +58,7 @@ class X25519Util {
       return (
         sharedSecret: SecretKey(sharedSecret),
         safetyNumber: safetyNumber,
-        version: SharedSecretVersion.V1_X25519_WITHOUT_ONE_TIME_PREKEY
+        version: SharedSecretVersion.v_1_1
       );
     } else {
       final sharedSecret4 =
@@ -75,7 +76,7 @@ class X25519Util {
       return (
         sharedSecret: SecretKey(sharedSecret),
         safetyNumber: safetyNumber,
-        version: SharedSecretVersion.V1_X25519_WITH_ONE_TIME_PREKEY
+        version: SharedSecretVersion.v_1_2
       );
     }
   }

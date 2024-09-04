@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:laber_app/store/types/chat.dart';
 
 part 'contact.g.dart';
 
@@ -15,5 +16,7 @@ class Contact {
   String? profilePicture;
   String? status;
 
-  List<String> deviceIds = [];
+  List<String> deviceApiIds = [];
+
+  final chat = IsarLink<Chat>();
 }

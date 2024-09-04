@@ -16,33 +16,13 @@ extension GetChatCollection on Isar {
 const ChatSchema = CollectionSchema(
   name: r'Chat',
   id: -4292359458225261721,
-  properties: {
-    r'apiId': PropertySchema(
-      id: 0,
-      name: r'apiId',
-      type: IsarType.string,
-    )
-  },
+  properties: {},
   estimateSize: _chatEstimateSize,
   serialize: _chatSerialize,
   deserialize: _chatDeserialize,
   deserializeProp: _chatDeserializeProp,
   idName: r'id',
-  indexes: {
-    r'apiId': IndexSchema(
-      id: 92618221247000178,
-      name: r'apiId',
-      unique: false,
-      replace: false,
-      properties: [
-        IndexPropertySchema(
-          name: r'apiId',
-          type: IndexType.hash,
-          caseSensitive: true,
-        )
-      ],
-    )
-  },
+  indexes: {},
   links: {
     r'messages': LinkSchema(
       id: 5088296045962649861,
@@ -55,6 +35,13 @@ const ChatSchema = CollectionSchema(
       name: r'devices',
       target: r'Device',
       single: false,
+    ),
+    r'contact': LinkSchema(
+      id: 841813752166812292,
+      name: r'contact',
+      target: r'Contact',
+      single: true,
+      linkName: r'chat',
     )
   },
   embeddedSchemas: {},
@@ -70,7 +57,6 @@ int _chatEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.apiId.length * 3;
   return bytesCount;
 }
 
@@ -79,10 +65,7 @@ void _chatSerialize(
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
-) {
-  writer.writeString(offsets[0], object.apiId);
-}
-
+) {}
 Chat _chatDeserialize(
   Id id,
   IsarReader reader,
@@ -90,7 +73,6 @@ Chat _chatDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Chat();
-  object.apiId = reader.readString(offsets[0]);
   object.id = id;
   return object;
 }
@@ -102,8 +84,6 @@ P _chatDeserializeProp<P>(
   Map<Type, List<int>> allOffsets,
 ) {
   switch (propertyId) {
-    case 0:
-      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -114,7 +94,7 @@ Id _chatGetId(Chat object) {
 }
 
 List<IsarLinkBase<dynamic>> _chatGetLinks(Chat object) {
-  return [object.messages, object.devices];
+  return [object.messages, object.devices, object.contact];
 }
 
 void _chatAttach(IsarCollection<dynamic> col, Id id, Chat object) {
@@ -122,6 +102,7 @@ void _chatAttach(IsarCollection<dynamic> col, Id id, Chat object) {
   object.messages
       .attach(col, col.isar.collection<RawMessage>(), r'messages', id);
   object.devices.attach(col, col.isar.collection<Device>(), r'devices', id);
+  object.contact.attach(col, col.isar.collection<Contact>(), r'contact', id);
 }
 
 extension ChatQueryWhereSort on QueryBuilder<Chat, Chat, QWhere> {
@@ -197,180 +178,9 @@ extension ChatQueryWhere on QueryBuilder<Chat, Chat, QWhereClause> {
       ));
     });
   }
-
-  QueryBuilder<Chat, Chat, QAfterWhereClause> apiIdEqualTo(String apiId) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'apiId',
-        value: [apiId],
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterWhereClause> apiIdNotEqualTo(String apiId) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
-              lower: [],
-              upper: [apiId],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
-              lower: [apiId],
-              includeLower: false,
-              upper: [],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
-              lower: [apiId],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
-              lower: [],
-              upper: [apiId],
-              includeUpper: false,
-            ));
-      }
-    });
-  }
 }
 
 extension ChatQueryFilter on QueryBuilder<Chat, Chat, QFilterCondition> {
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'apiId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdContains(String value,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdMatches(String pattern,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'apiId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'apiId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterFilterCondition> apiIdIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'apiId',
-        value: '',
-      ));
-    });
-  }
-
   QueryBuilder<Chat, Chat, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -538,35 +348,24 @@ extension ChatQueryLinks on QueryBuilder<Chat, Chat, QFilterCondition> {
           r'devices', lower, includeLower, upper, includeUpper);
     });
   }
-}
 
-extension ChatQuerySortBy on QueryBuilder<Chat, Chat, QSortBy> {
-  QueryBuilder<Chat, Chat, QAfterSortBy> sortByApiId() {
+  QueryBuilder<Chat, Chat, QAfterFilterCondition> contact(
+      FilterQuery<Contact> q) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.asc);
+      return query.link(q, r'contact');
     });
   }
 
-  QueryBuilder<Chat, Chat, QAfterSortBy> sortByApiIdDesc() {
+  QueryBuilder<Chat, Chat, QAfterFilterCondition> contactIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.desc);
+      return query.linkLength(r'contact', 0, true, 0, true);
     });
   }
 }
+
+extension ChatQuerySortBy on QueryBuilder<Chat, Chat, QSortBy> {}
 
 extension ChatQuerySortThenBy on QueryBuilder<Chat, Chat, QSortThenBy> {
-  QueryBuilder<Chat, Chat, QAfterSortBy> thenByApiId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Chat, Chat, QAfterSortBy> thenByApiIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.desc);
-    });
-  }
-
   QueryBuilder<Chat, Chat, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -580,25 +379,12 @@ extension ChatQuerySortThenBy on QueryBuilder<Chat, Chat, QSortThenBy> {
   }
 }
 
-extension ChatQueryWhereDistinct on QueryBuilder<Chat, Chat, QDistinct> {
-  QueryBuilder<Chat, Chat, QDistinct> distinctByApiId(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'apiId', caseSensitive: caseSensitive);
-    });
-  }
-}
+extension ChatQueryWhereDistinct on QueryBuilder<Chat, Chat, QDistinct> {}
 
 extension ChatQueryProperty on QueryBuilder<Chat, Chat, QQueryProperty> {
   QueryBuilder<Chat, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<Chat, String, QQueryOperations> apiIdProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'apiId');
     });
   }
 }
