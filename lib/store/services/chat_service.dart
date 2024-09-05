@@ -8,6 +8,7 @@ import 'package:laber_app/store/services/contact_service.dart';
 import 'package:laber_app/store/types/chat.dart';
 import 'package:laber_app/store/types/contact.dart';
 import 'package:laber_app/store/types/device.dart';
+import 'package:laber_app/store/types/rawMessage.dart';
 import 'package:laber_app/utils/auth_store_repository.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
@@ -29,6 +30,54 @@ class ChatService {
     return contact?.chat.value;
   }
 
+  static Future<void> sendMessage({
+    required String contactApiId,
+    required String message,
+  }) async {
+    final isar = await getIsar();
+    var contact =
+        await isar.contacts.where().apiIdEqualTo(contactApiId).findFirst();
+    var chat = contact?.chat.value;
+
+    if (chat == null) {
+      await createChat(contactApiId: contactApiId);
+
+      // refetch
+      contact =
+          await isar.contacts.where().apiIdEqualTo(contactApiId).findFirst();
+      chat = contact?.chat.value;
+    }
+
+    if (chat == null) {
+      throw Exception('Chat was not created');
+    }
+
+    final authStore =
+        await AuthStateStoreRepository.getCurrentFromSecureStorage();
+
+    final meDevice = authStore!.meDevice;
+    final meUser = authStore.meUser;
+
+    final content = TextMessageContent(text: message);
+
+    final messageObj = RawMessage()
+      ..content = message
+      ..type = RawMessageTypes.textMessage
+      ..senderUserId = meUser.id
+      ..senderDeviceId = meDevice.id
+      ..content = content.toJsonString()
+      ..status = RawMessageStatus.sending
+      ..unixTime = DateTime.now().millisecondsSinceEpoch
+      ..chat.value = chat;
+
+    await isar.writeTxn(() async {
+      await isar.rawMessages.put(messageObj);
+      await messageObj.chat.save();
+    });
+
+    // TODO: send message
+  }
+
   static Future<void> createChat({required String contactApiId}) async {
     final isar = await getIsar();
     var contact = await isar.contacts
@@ -43,11 +92,16 @@ class ChatService {
       throw Exception('Chat already exists');
     }
 
-    contact = await ContactService.refetchContact(contact.apiId);
-
     final chat = Chat();
-    chat.contact.value = contact;
-    await isar.chats.put(chat);
+
+    contact = await ContactService.refetchContact(contact.apiId);
+    contact.chat.value = chat;
+
+    await isar.writeTxn(() async {
+      await isar.chats.put(chat);
+      await isar.contacts.put(contact!);
+      await contact.chat.save();
+    });
   }
 
   static Future<void> createSecrets({required Chat chat}) async {
@@ -117,6 +171,7 @@ class ChatService {
       await isar.writeTxn(() async {
         await isar.devices.put(device);
         await isar.chats.put(chat);
+        await chat.devices.save();
       });
     }
   }

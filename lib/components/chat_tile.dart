@@ -1,27 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/screens/chat.dart';
-import 'package:laber_app/types/client_contact.dart';
+import 'package:laber_app/state/bloc/chat_bloc.dart';
+import 'package:laber_app/store/types/chat.dart';
 
 class ChatTile extends StatelessWidget {
-  final ClientContact contact;
-  final String? message;
-  final String? time;
+  final Chat chat;
 
   const ChatTile({
     super.key,
-    required this.contact,
-    this.message,
-    this.time,
+    required this.chat,
   });
 
   @override
   Widget build(BuildContext context) {
+    final contact = chat.contact.value;
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => ChatScreen(
-            contactId: contact.id,
-          )),
+          MaterialPageRoute(
+            builder: (context) {
+              return BlocProvider(
+                create: (context) {
+                  return ChatBloc(contact!.apiId);
+                },
+                child: const ChatScreen(),
+              );
+            },
+          ),
         );
       },
       child: Container(
@@ -32,7 +39,8 @@ class ChatTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage(contact.profilePicture ?? ''),
+              // TODO use a placeholder image
+              backgroundImage: NetworkImage(contact?.profilePicture ?? ''),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -46,7 +54,7 @@ class ChatTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          contact.name ?? 'NO NAME',
+                          contact?.name ?? 'NO NAME',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -56,25 +64,24 @@ class ChatTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Builder(
-                        builder: (context) {
-                          if(time == null) {
-                            return const SizedBox();
-                          }
-                          return Text(time!);
+                      Builder(builder: (context) {
+                        final time = chat.latestMessage?.formattedLongTime;
+                        if (time == null) {
+                          return const SizedBox();
                         }
-                      ),
+                        return Text(time);
+                      }),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Builder(
-                    builder: (context) {
-                      if(message == null) {
-                        return const SizedBox();
-                      }
-                      return Text(message!, overflow: TextOverflow.ellipsis, maxLines: 2);
+                  Builder(builder: (context) {
+                    final preview = chat.latestMessage?.previewString;
+                    if (preview == null) {
+                      return const SizedBox();
                     }
-                  ),
+                    return Text(preview,
+                        overflow: TextOverflow.ellipsis, maxLines: 2);
+                  }),
                 ],
               ),
             ),

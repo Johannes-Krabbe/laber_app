@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/components/chat_tile.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
+import 'package:laber_app/isar.dart';
+import 'package:laber_app/state/bloc/chat_list_bloc.dart';
+import 'package:laber_app/store/types/chat.dart';
+import 'package:laber_app/store/types/rawMessage.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({super.key});
@@ -16,25 +21,43 @@ class _ChatListState extends State<ChatList> {
       ScrollController(initialScrollOffset: 0);
   double scrollPosition = 0;
   Widget? appBarTitle;
-  late ContactsBloc contactsBloc;
+  late ChatListBloc chatListBloc;
+
+  StreamSubscription<void>? _messageSubscription;
+  StreamSubscription<void>? _chatSubscription;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    _setupIsarListeners();
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+
+    _chatSubscription?.cancel();
+    _messageSubscription?.cancel();
+
     super.dispose();
+  }
+
+  void _setupIsarListeners() async {
+    final isar = await getIsar();
+    _messageSubscription = isar.rawMessages.watchLazy().listen((_) {
+      chatListBloc.add(RefetchChatListEvent());
+    });
+    _chatSubscription = isar.chats.watchLazy().listen((_) {
+      chatListBloc.add(RefetchChatListEvent());
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    contactsBloc = context.watch<ContactsBloc>();
+    chatListBloc = context.watch<ChatListBloc>();
   }
 
   void _scrollListener() {
@@ -89,7 +112,7 @@ class _ChatListState extends State<ChatList> {
                             showSearch(
                               context: context,
                               delegate: ChatSearchDelegate(
-                                contactsBloc: contactsBloc,
+                                chatListBloc: chatListBloc,
                               ),
                             );
                           }),
@@ -134,27 +157,14 @@ class _ChatListState extends State<ChatList> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  return contactsBloc.state.contacts != null
+                  return chatListBloc.state.chats.isNotEmpty
                       ? ChatTile(
-                          contact: contactsBloc
-                              .state.sortedContactsByLastMessage[index],
-                          message: contactsBloc
-                              .state
-                              .sortedContactsByLastMessage[index]
-                              .chat
-                              ?.latestMessage
-                              ?.previewString,
-                          time: contactsBloc
-                              .state
-                              .sortedContactsByLastMessage[index]
-                              .chat
-                              ?.latestMessage
-                              ?.formattedLongTime,
+                          // TODO: sort?
+                          chat: chatListBloc.state.chats[index],
                         )
                       : const SizedBox();
                 },
-                childCount:
-                    contactsBloc.state.sortedContactsByLastMessage.length,
+                childCount: chatListBloc.state.chats.length,
               ),
             ),
           ),
@@ -165,9 +175,9 @@ class _ChatListState extends State<ChatList> {
 }
 
 class ChatSearchDelegate extends SearchDelegate<String> {
-  final ContactsBloc contactsBloc;
+  final ChatListBloc chatListBloc;
 
-  ChatSearchDelegate({required this.contactsBloc});
+  ChatSearchDelegate({required this.chatListBloc});
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -207,20 +217,17 @@ class ChatSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     return ListView.builder(
-      itemCount: contactsBloc.state.search(query).length,
+      itemCount: chatListBloc.state.search(query).length,
       itemBuilder: (BuildContext context, int index) {
-        var searchResult = contactsBloc.state.search(query);
+        var searchResult = chatListBloc.state.search(query);
         searchResult.sort((a, b) {
-          if (a.chat?.latestMessage == null) return 1;
-          if (b.chat?.latestMessage == null) return -1;
-          return a.chat!.latestMessage!.unixTime
-              .compareTo(b.chat!.latestMessage!.unixTime * -1);
+          if (a.latestMessage == null) return 1;
+          if (b.latestMessage == null) return -1;
+          return a.latestMessage!.unixTime
+              .compareTo(b.latestMessage!.unixTime * -1);
         });
         return ChatTile(
-          contact: searchResult[index],
-          message:
-              searchResult[index].chat?.latestMessage?.previewString ?? searchResult[index].phoneNumber,
-          time: searchResult[index].chat?.latestMessage?.formattedLongTime ?? "",
+          chat: searchResult[index],
         );
       },
     );

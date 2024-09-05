@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/screens/chat_list.dart';
 import 'package:laber_app/screens/contacts.dart';
 import 'package:laber_app/screens/settings/settings.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
+import 'package:laber_app/state/bloc/chat_list_bloc.dart';
+import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -23,10 +26,16 @@ class _HomeState extends State<Home> {
 
     switch (currentIndex) {
       case 0:
-        currentPage = const ChatList();
+        currentPage = BlocProvider(
+          create: (_) => ChatListBloc()..add(FetchChatListEvent()),
+          child: const ChatList(),
+        );
         break;
       case 1:
-        currentPage = const Contacts();
+        currentPage = BlocProvider(
+          create: (_) => ContactsBloc()..add(RefetchAllContactsEvent()),
+          child: const Contacts(),
+        );
         break;
       case 2:
         currentPage = const Settings();

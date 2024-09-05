@@ -4,8 +4,8 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:laber_app/components/phone_number_input.dart';
 import 'package:laber_app/screens/contacts/add_to_contacts.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
+import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 import 'package:laber_app/state/bloc/contacts/discover_phone_number_bloc.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:laber_app/state/types/contacts/discover_phone_number_state.dart';
 
 class AddByPhone extends StatefulWidget {
@@ -23,6 +23,12 @@ class _AddByPhoneState extends State<AddByPhone> {
   late DiscoverPhoneNumberBloc discoverPhoneNumberBloc;
 
   @override
+  void initState() {
+    super.initState();
+    discoverPhoneNumberBloc = context.read<DiscoverPhoneNumberBloc>();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     authBloc = context.read<AuthBloc>();
@@ -38,9 +44,12 @@ class _AddByPhoneState extends State<AddByPhone> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return AddToContacts(
-                  user: state.contact!,
-                  phoneNumber: state.phoneNumber,
+                return BlocProvider.value(
+                  value: contactsBloc,
+                  child: AddToContacts(
+                    user: state.contact!,
+                    phoneNumber: state.phoneNumber,
+                  ),
                 );
               },
             ),
@@ -94,7 +103,7 @@ class _AddByPhoneState extends State<AddByPhone> {
               ),
               Builder(builder: (context) {
                 if (discoverPhoneNumberBloc.state.state ==
-                    DiscoverPhoneNumberStateEnum.searching) {
+                    DiscoverPhoneNumberStateEnum.loading) {
                   return const CircularProgressIndicator();
                 }
 
@@ -104,11 +113,6 @@ class _AddByPhoneState extends State<AddByPhone> {
                     discoverPhoneNumberBloc.state.error ?? 'An error occurred',
                     style: const TextStyle(color: Colors.red),
                   );
-                }
-
-                if (discoverPhoneNumberBloc.state.state ==
-                    DiscoverPhoneNumberStateEnum.notFound) {
-                  return const Text('User not found');
                 }
 
                 return const SizedBox();

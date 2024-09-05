@@ -22,6 +22,17 @@ class ContactService {
     return contact;
   }
 
+  static Future<List<Contact>> refetchAllContacts() async {
+    final isar = await getIsar();
+    final contacts = await isar.contacts.where().findAll();
+
+    for (var contact in contacts) {
+      await refetchContact(contact.apiId);
+    }
+
+    return contacts;
+  }
+
   static Future<Contact> refetchContact(String apiId) async {
     final contact = await getContact(apiId);
 

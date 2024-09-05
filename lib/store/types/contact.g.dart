@@ -22,9 +22,9 @@ const ContactSchema = CollectionSchema(
       name: r'apiId',
       type: IsarType.string,
     ),
-    r'deviceIds': PropertySchema(
+    r'deviceApiIds': PropertySchema(
       id: 1,
-      name: r'deviceIds',
+      name: r'deviceApiIds',
       type: IsarType.stringList,
     ),
     r'name': PropertySchema(
@@ -458,13 +458,14 @@ extension ContactQueryFilter
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsElementEqualTo(
+  QueryBuilder<Contact, Contact, QAfterFilterCondition>
+      deviceApiIdsElementEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -472,7 +473,7 @@ extension ContactQueryFilter
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsElementGreaterThan(
+      deviceApiIdsElementGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -480,7 +481,7 @@ extension ContactQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -488,7 +489,7 @@ extension ContactQueryFilter
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsElementLessThan(
+      deviceApiIdsElementLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -496,14 +497,15 @@ extension ContactQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsElementBetween(
+  QueryBuilder<Contact, Contact, QAfterFilterCondition>
+      deviceApiIdsElementBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -512,7 +514,7 @@ extension ContactQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -523,13 +525,13 @@ extension ContactQueryFilter
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsElementStartsWith(
+      deviceApiIdsElementStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -537,13 +539,13 @@ extension ContactQueryFilter
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsElementEndsWith(
+      deviceApiIdsElementEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -551,22 +553,21 @@ extension ContactQueryFilter
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsElementContains(String value, {bool caseSensitive = true}) {
+      deviceApiIdsElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsElementMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+  QueryBuilder<Contact, Contact, QAfterFilterCondition>
+      deviceApiIdsElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
@@ -574,30 +575,30 @@ extension ContactQueryFilter
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsElementIsEmpty() {
+      deviceApiIdsElementIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: '',
       ));
     });
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsElementIsNotEmpty() {
+      deviceApiIdsElementIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'deviceIds',
+        property: r'deviceApiIds',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsLengthEqualTo(
-      int length) {
+  QueryBuilder<Contact, Contact, QAfterFilterCondition>
+      deviceApiIdsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'deviceIds',
+        r'deviceApiIds',
         length,
         true,
         length,
@@ -606,10 +607,10 @@ extension ContactQueryFilter
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsIsEmpty() {
+  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceApiIdsIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'deviceIds',
+        r'deviceApiIds',
         0,
         true,
         0,
@@ -618,10 +619,11 @@ extension ContactQueryFilter
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsIsNotEmpty() {
+  QueryBuilder<Contact, Contact, QAfterFilterCondition>
+      deviceApiIdsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'deviceIds',
+        r'deviceApiIds',
         0,
         false,
         999999,
@@ -630,13 +632,14 @@ extension ContactQueryFilter
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsLengthLessThan(
+  QueryBuilder<Contact, Contact, QAfterFilterCondition>
+      deviceApiIdsLengthLessThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'deviceIds',
+        r'deviceApiIds',
         0,
         true,
         length,
@@ -646,13 +649,13 @@ extension ContactQueryFilter
   }
 
   QueryBuilder<Contact, Contact, QAfterFilterCondition>
-      deviceIdsLengthGreaterThan(
+      deviceApiIdsLengthGreaterThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'deviceIds',
+        r'deviceApiIds',
         length,
         include,
         999999,
@@ -661,7 +664,8 @@ extension ContactQueryFilter
     });
   }
 
-  QueryBuilder<Contact, Contact, QAfterFilterCondition> deviceIdsLengthBetween(
+  QueryBuilder<Contact, Contact, QAfterFilterCondition>
+      deviceApiIdsLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -669,7 +673,7 @@ extension ContactQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'deviceIds',
+        r'deviceApiIds',
         lower,
         includeLower,
         upper,
@@ -1656,9 +1660,9 @@ extension ContactQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Contact, Contact, QDistinct> distinctByDeviceIds() {
+  QueryBuilder<Contact, Contact, QDistinct> distinctByDeviceApiIds() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'deviceIds');
+      return query.addDistinctBy(r'deviceApiIds');
     });
   }
 
@@ -1713,9 +1717,9 @@ extension ContactQueryProperty
     });
   }
 
-  QueryBuilder<Contact, List<String>, QQueryOperations> deviceIdsProperty() {
+  QueryBuilder<Contact, List<String>, QQueryOperations> deviceApiIdsProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'deviceIds');
+      return query.addPropertyName(r'deviceApiIds');
     });
   }
 

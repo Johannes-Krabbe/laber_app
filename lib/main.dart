@@ -5,7 +5,6 @@ import 'package:laber_app/home/home.dart';
 import 'package:laber_app/screens/auth/welcome.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 
 void main() {
@@ -14,10 +13,6 @@ void main() {
       BlocProvider(
         lazy: false,
         create: (_) => AuthBloc(),
-      ),
-      BlocProvider(
-        lazy: false,
-        create: (_) => ContactsBloc(),
       ),
     ],
     child: const MyApp(),
@@ -83,17 +78,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         splashColor: Colors.transparent,
       ),
       themeMode: ThemeMode.dark,
-      home: BlocListener<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state.state == AuthStateEnum.loggedIn) {
-              context.read<ContactsBloc>().add(
-                    LoadContactsContactsEvent(
-                      authBloc.state.meUser!.id,
-                    ),
-                  );
-            }
-          },
-          child: currentRenderedPage),
+      home: currentRenderedPage,
     );
   }
 }

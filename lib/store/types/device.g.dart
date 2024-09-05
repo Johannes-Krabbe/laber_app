@@ -27,8 +27,13 @@ const DeviceSchema = CollectionSchema(
       name: r'safetyNumber',
       type: IsarType.string,
     ),
-    r'version': PropertySchema(
+    r'secret': PropertySchema(
       id: 2,
+      name: r'secret',
+      type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 3,
       name: r'version',
       type: IsarType.byte,
       enumMap: _DeviceversionEnumValueMap,
@@ -78,6 +83,7 @@ int _deviceEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.apiId.length * 3;
   bytesCount += 3 + object.safetyNumber.length * 3;
+  bytesCount += 3 + object.secret.length * 3;
   return bytesCount;
 }
 
@@ -89,7 +95,8 @@ void _deviceSerialize(
 ) {
   writer.writeString(offsets[0], object.apiId);
   writer.writeString(offsets[1], object.safetyNumber);
-  writer.writeByte(offsets[2], object.version.index);
+  writer.writeString(offsets[2], object.secret);
+  writer.writeByte(offsets[3], object.version.index);
 }
 
 Device _deviceDeserialize(
@@ -102,8 +109,9 @@ Device _deviceDeserialize(
   object.apiId = reader.readString(offsets[0]);
   object.id = id;
   object.safetyNumber = reader.readString(offsets[1]);
+  object.secret = reader.readString(offsets[2]);
   object.version =
-      _DeviceversionValueEnumMap[reader.readByteOrNull(offsets[2])] ??
+      _DeviceversionValueEnumMap[reader.readByteOrNull(offsets[3])] ??
           SharedSecretVersion.v_1_1;
   return object;
 }
@@ -120,6 +128,8 @@ P _deviceDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (_DeviceversionValueEnumMap[reader.readByteOrNull(offset)] ??
           SharedSecretVersion.v_1_1) as P;
     default:
@@ -581,6 +591,136 @@ extension DeviceQueryFilter on QueryBuilder<Device, Device, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'secret',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'secret',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'secret',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'secret',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'secret',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'secret',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'secret',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'secret',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'secret',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterFilterCondition> secretIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'secret',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Device, Device, QAfterFilterCondition> versionEqualTo(
       SharedSecretVersion value) {
     return QueryBuilder.apply(this, (query) {
@@ -677,6 +817,18 @@ extension DeviceQuerySortBy on QueryBuilder<Device, Device, QSortBy> {
     });
   }
 
+  QueryBuilder<Device, Device, QAfterSortBy> sortBySecret() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secret', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterSortBy> sortBySecretDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secret', Sort.desc);
+    });
+  }
+
   QueryBuilder<Device, Device, QAfterSortBy> sortByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
@@ -727,6 +879,18 @@ extension DeviceQuerySortThenBy on QueryBuilder<Device, Device, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Device, Device, QAfterSortBy> thenBySecret() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secret', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Device, Device, QAfterSortBy> thenBySecretDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secret', Sort.desc);
+    });
+  }
+
   QueryBuilder<Device, Device, QAfterSortBy> thenByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
@@ -755,6 +919,13 @@ extension DeviceQueryWhereDistinct on QueryBuilder<Device, Device, QDistinct> {
     });
   }
 
+  QueryBuilder<Device, Device, QDistinct> distinctBySecret(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'secret', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Device, Device, QDistinct> distinctByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'version');
@@ -778,6 +949,12 @@ extension DeviceQueryProperty on QueryBuilder<Device, Device, QQueryProperty> {
   QueryBuilder<Device, String, QQueryOperations> safetyNumberProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'safetyNumber');
+    });
+  }
+
+  QueryBuilder<Device, String, QQueryOperations> secretProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'secret');
     });
   }
 

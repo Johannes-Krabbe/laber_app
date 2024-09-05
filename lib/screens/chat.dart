@@ -1,15 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/components/chat_message_widget.dart';
+import 'package:laber_app/isar.dart';
 import 'package:laber_app/screens/chat_info.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
-import 'package:laber_app/types/client_contact.dart';
+import 'package:laber_app/state/bloc/chat_bloc.dart';
+import 'package:laber_app/state/types/chat_state.dart';
+import 'package:laber_app/store/types/chat.dart';
+import 'package:laber_app/store/types/rawMessage.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String contactId;
-  const ChatScreen({super.key, required this.contactId});
+  const ChatScreen({super.key});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -17,32 +21,84 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   double renderedHeight = 0;
-  late ContactsBloc contactsBloc;
+  late ChatBloc chatBloc;
   late AuthBloc authBloc;
+
+  StreamSubscription<void>? _messageSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    chatBloc = context.read<ChatBloc>();
+    chatBloc.add(LoadChatEvent());
+
+    _setupIsarListener();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    contactsBloc = context.watch<ContactsBloc>();
+    chatBloc = context.watch<ChatBloc>();
     authBloc = context.watch<AuthBloc>();
   }
 
   @override
+  void dispose() {
+    _messageSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _setupIsarListener() async {
+    final isar = await getIsar();
+    _messageSubscription = isar.rawMessages.watchLazy().listen((_) {
+      chatBloc.add(LoadChatEvent());
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (chatBloc.state.state == ChatStateEnum.error) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error),
+              const SizedBox(height: 10),
+              Text(chatBloc.state.error ?? 'Error loading chat'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (chatBloc.state.chat == null) {
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 10),
+              Text('Loading chat...'),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: BlurBackground(
-          child:
-              ChatHead(contact: contactsBloc.state.getById(widget.contactId)!),
+          child: ChatHead(chat: chatBloc.state.chat!),
         ),
       ),
       body: Builder(builder: (context) {
-        final chat = contactsBloc.state.getById(widget.contactId)!.chat;
-
-        if (chat == null) {
+        final chat = chatBloc.state.chat!;
+        if (chat.messages.isEmpty == true) {
           return const Center(child: Text('No messages'));
         }
 
@@ -71,21 +127,19 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       */
       bottomNavigationBar: ChatInput(
-          contactsBloc: contactsBloc,
-          contact: contactsBloc.state.getById(widget.contactId)!),
+        chatBloc: chatBloc,
+      ),
     );
   }
 }
 
 class ChatInput extends StatelessWidget {
-  final ContactsBloc contactsBloc;
-  final ClientContact contact;
+  final ChatBloc chatBloc;
   final TextEditingController controller = TextEditingController();
 
   ChatInput({
     super.key,
-    required this.contactsBloc,
-    required this.contact,
+    required this.chatBloc,
   });
 
   @override
@@ -127,9 +181,7 @@ class ChatInput extends StatelessWidget {
                     if (controller.text.isEmpty) {
                       return;
                     }
-                    contactsBloc.add(
-                      SendMessageContactsEvent(contact.id, controller.text),
-                    );
+                    chatBloc.add(SendMessageEvent(controller.text));
                     controller.clear();
                   },
                 ),
@@ -144,11 +196,11 @@ class ChatInput extends StatelessWidget {
 }
 
 class ChatHead extends StatelessWidget {
-  final ClientContact contact;
+  final Chat chat;
 
   const ChatHead({
-    required this.contact,
     super.key,
+    required this.chat,
   });
 
   @override
@@ -164,7 +216,7 @@ class ChatHead extends StatelessWidget {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => ChatInfo(
-                  contactId: contact.id,
+                  chat: chat,
                 ),
               ),
             );
@@ -183,7 +235,8 @@ class ChatHead extends StatelessWidget {
                 const SizedBox(width: 10),
                 CircleAvatar(
                   radius: 20,
-                  backgroundImage: NetworkImage(contact.profilePicture ?? ''),
+                  backgroundImage:
+                      NetworkImage(chat.contact.value?.profilePicture ?? ''),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -192,7 +245,9 @@ class ChatHead extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        contact.name ?? contact.phoneNumber ?? 'NO NAME',
+                        chat.contact.value?.name ??
+                            chat.contact.value?.name ??
+                            'NO NAME',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,

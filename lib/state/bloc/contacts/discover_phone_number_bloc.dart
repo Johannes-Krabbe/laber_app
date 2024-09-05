@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
+import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 import 'package:laber_app/state/types/contacts/discover_phone_number_state.dart';
 import 'package:laber_app/store/services/contact_service.dart';
 
@@ -30,23 +30,23 @@ class DiscoverPhoneNumberBloc
 
   _onSearch(SearchDiscoverPhoneNumberEvent event,
       Emitter<DiscoverPhoneNumberState> emit) async {
-
     emit(state.copyWith(
       state: DiscoverPhoneNumberStateEnum.loading,
       phoneNumber: event.phoneNumber,
     ));
 
-
-    ContactService.discoverByPhoneNumber(event.phoneNumber).then((foundUser) {
+    try {
+      final foundUser =
+          await ContactService.discoverByPhoneNumber(event.phoneNumber);
       emit(state.copyWith(
         state: DiscoverPhoneNumberStateEnum.found,
         contact: foundUser,
       ));
-    }).catchError((e) {
+    } catch (e) {
       emit(state.copyWith(
         state: DiscoverPhoneNumberStateEnum.error,
         error: e.toString(),
       ));
-    });
+    }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:laber_app/api/models/types/public_user.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
+import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/store/services/contact_service.dart';
 
@@ -43,7 +43,9 @@ class _AddToContactsState extends State<AddToContacts> {
             ElevatedButton(
               onPressed: () async {
                 await ContactService.addContact(
-                    widget.user, widget.phoneNumber);
+                  widget.user,
+                  widget.phoneNumber,
+                );
 
                 if (!context.mounted) return;
                 Navigator.of(context).popUntil((route) => route.isFirst);

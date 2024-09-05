@@ -4,10 +4,11 @@ import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/screens/chat.dart';
 import 'package:laber_app/screens/contacts/add_by_phone.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
+import 'package:laber_app/state/bloc/chat_bloc.dart';
+import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 import 'package:laber_app/state/bloc/contacts/discover_phone_number_bloc.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
-import 'package:laber_app/state/types/contacts_state.dart';
+import 'package:laber_app/state/types/contacts/contacts_state.dart';
 
 class Contacts extends StatefulWidget {
   const Contacts({super.key});
@@ -25,6 +26,7 @@ class _ContactsState extends State<Contacts> {
     super.didChangeDependencies();
     authBloc = context.read<AuthBloc>();
     contactsBloc = context.watch<ContactsBloc>();
+    contactsBloc.add(RefetchAllContactsEvent());
   }
 
   @override
@@ -67,7 +69,9 @@ class _ContactsState extends State<Contacts> {
                               showModalBottomSheet(
                                 context: context,
                                 builder: (context) {
-                                  return const NewWidget();
+                                  return NewWidget(
+                                    contactsBloc: contactsBloc,
+                                  );
                                 },
                               );
                             },
@@ -88,7 +92,7 @@ class _ContactsState extends State<Contacts> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          contactsBloc.add(RefetchAllContactsEvent());
+          contactsBloc.add(ApiRefetchAllContactsEvent());
           return () async {
             var loopCount = 0;
             do {
@@ -101,7 +105,7 @@ class _ContactsState extends State<Contacts> {
         color: Colors.white,
         edgeOffset: 100,
         child: Builder(builder: (context) {
-          final contacts = contactsBloc.state.sortedContacts;
+          var contacts = contactsBloc.state.sortedContacts;
           return ListView.builder(
             itemCount: contactsBloc.state.sortedContacts.length,
             itemBuilder: (context, index) {
@@ -109,15 +113,23 @@ class _ContactsState extends State<Contacts> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        contactId: contacts[index].id,
-                      ),
+                      builder: (context) {
+                        return BlocProvider(
+                          create: (context) {
+                            return ChatBloc(contacts[index].apiId);
+                          },
+                          child: const ChatScreen(),
+                        );
+                      },
                     ),
                   );
                 },
-                title: Text(contacts[index].name ?? contacts[index].username ?? 'no name/username'),
-                subtitle:
-                    Text(contacts[index].phoneNumber ?? contacts[index].username ?? 'no phone number/username'),
+                title: Text(contacts[index].name ??
+                    contacts[index].username ??
+                    'no name/username'),
+                subtitle: Text(contacts[index].phoneNumber ??
+                    contacts[index].username ??
+                    'no phone number/username'),
                 leading: CircleAvatar(
                   backgroundImage:
                       NetworkImage(contacts[index].profilePicture ?? ''),
@@ -132,7 +144,9 @@ class _ContactsState extends State<Contacts> {
 }
 
 class NewWidget extends StatelessWidget {
+  final ContactsBloc contactsBloc;
   const NewWidget({
+    required this.contactsBloc,
     super.key,
   });
 
@@ -170,8 +184,16 @@ class NewWidget extends StatelessWidget {
               Navigator.pop(context);
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => BlocProvider(
-                    create: (context) => DiscoverPhoneNumberBloc(),
+                  builder: (context) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        lazy: false,
+                        create: (_) => DiscoverPhoneNumberBloc(),
+                      ),
+                      BlocProvider.value(
+                        value: contactsBloc,
+                      ),
+                    ],
                     child: const AddByPhone(),
                   ),
                 ),

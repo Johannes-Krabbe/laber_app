@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 
 import 'package:laber_app/types/client_device.dart';
@@ -101,3 +102,4 @@ class ClientChat {
     ));
   }
 }
+*/

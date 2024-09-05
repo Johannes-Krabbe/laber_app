@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/api/repositories/device_repository.dart';
@@ -198,3 +199,4 @@ class ClientContact {
     );
   }
 }
+*/

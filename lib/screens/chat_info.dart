@@ -1,29 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:laber_app/components/blur_app_bar.dart';
-import 'package:laber_app/state/bloc/contacts_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/store/types/chat.dart';
+
 
 class ChatInfo extends StatefulWidget {
-  final String contactId;
+  final Chat chat;
 
-  const ChatInfo({super.key, required this.contactId});
+  const ChatInfo({super.key, required this.chat});
 
   @override
   State<ChatInfo> createState() => _ChatInfoState();
 }
 
 class _ChatInfoState extends State<ChatInfo> {
-  late ContactsBloc contactsBloc;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    contactsBloc = context.watch<ContactsBloc>();
-  }
-
   @override
   Widget build(BuildContext context) {
-    var contact = contactsBloc.state.getById(widget.contactId);
+    var contact = widget.chat.contact.value;
 
     if (contact == null) {
       return const Scaffold(
@@ -62,10 +54,10 @@ class _ChatInfoState extends State<ChatInfo> {
                   contact.phoneNumber?.isNotEmpty == true
                       ? InfoDisplay(name: 'Phone:', value: contact.phoneNumber!)
                       : const SizedBox(),
-                  contact.chat?.rawMessages.isNotEmpty == true
+                  widget.chat.messages.isNotEmpty == true
                       ? InfoDisplay(
                           name: 'Raw Messages:',
-                          value: contact.chat!.rawMessages.length.toString(),
+                          value: widget.chat.messages.length.toString(),
                         )
                       : const SizedBox(),
                   InfoDisplay(
@@ -93,7 +85,7 @@ class _ChatInfoState extends State<ChatInfo> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    ...contact.clientDeviceIds.map((deviceId) {
+                    ...contact.deviceApiIds.map((deviceId) {
                       return Text(
                         deviceId,
                         style: const TextStyle(

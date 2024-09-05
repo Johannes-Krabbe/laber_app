@@ -16,7 +16,7 @@ class Device {
   late String safetyNumber;
   @enumerated
   late SharedSecretVersion version;
-  // store secret in secure storage
+  // TODO store secret in secure storage
   late String secret;
 }
 

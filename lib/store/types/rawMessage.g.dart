@@ -37,14 +37,20 @@ const RawMessageSchema = CollectionSchema(
       name: r'senderUserId',
       type: IsarType.string,
     ),
-    r'type': PropertySchema(
+    r'status': PropertySchema(
       id: 4,
+      name: r'status',
+      type: IsarType.byte,
+      enumMap: _RawMessagestatusEnumValueMap,
+    ),
+    r'type': PropertySchema(
+      id: 5,
       name: r'type',
       type: IsarType.byte,
       enumMap: _RawMessagetypeEnumValueMap,
     ),
     r'unixTime': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'unixTime',
       type: IsarType.long,
     )
@@ -69,7 +75,15 @@ const RawMessageSchema = CollectionSchema(
       ],
     )
   },
-  links: {},
+  links: {
+    r'chat': LinkSchema(
+      id: -1412029827583531416,
+      name: r'chat',
+      target: r'Chat',
+      single: true,
+      linkName: r'messages',
+    )
+  },
   embeddedSchemas: {},
   getId: _rawMessageGetId,
   getLinks: _rawMessageGetLinks,
@@ -83,7 +97,12 @@ int _rawMessageEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.apiId.length * 3;
+  {
+    final value = object.apiId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.content.length * 3;
   bytesCount += 3 + object.senderDeviceId.length * 3;
   bytesCount += 3 + object.senderUserId.length * 3;
@@ -100,8 +119,9 @@ void _rawMessageSerialize(
   writer.writeString(offsets[1], object.content);
   writer.writeString(offsets[2], object.senderDeviceId);
   writer.writeString(offsets[3], object.senderUserId);
-  writer.writeByte(offsets[4], object.type.index);
-  writer.writeLong(offsets[5], object.unixTime);
+  writer.writeByte(offsets[4], object.status.index);
+  writer.writeByte(offsets[5], object.type.index);
+  writer.writeLong(offsets[6], object.unixTime);
 }
 
 RawMessage _rawMessageDeserialize(
@@ -111,15 +131,18 @@ RawMessage _rawMessageDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = RawMessage();
-  object.apiId = reader.readString(offsets[0]);
+  object.apiId = reader.readStringOrNull(offsets[0]);
   object.content = reader.readString(offsets[1]);
   object.id = id;
   object.senderDeviceId = reader.readString(offsets[2]);
   object.senderUserId = reader.readString(offsets[3]);
+  object.status =
+      _RawMessagestatusValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+          RawMessageStatus.sending;
   object.type =
-      _RawMessagetypeValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+      _RawMessagetypeValueEnumMap[reader.readByteOrNull(offsets[5])] ??
           RawMessageTypes.initMessage;
-  object.unixTime = reader.readLong(offsets[5]);
+  object.unixTime = reader.readLong(offsets[6]);
   return object;
 }
 
@@ -131,7 +154,7 @@ P _rawMessageDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
@@ -139,15 +162,30 @@ P _rawMessageDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
+      return (_RawMessagestatusValueEnumMap[reader.readByteOrNull(offset)] ??
+          RawMessageStatus.sending) as P;
+    case 5:
       return (_RawMessagetypeValueEnumMap[reader.readByteOrNull(offset)] ??
           RawMessageTypes.initMessage) as P;
-    case 5:
+    case 6:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
+const _RawMessagestatusEnumValueMap = {
+  'sending': 0,
+  'sent': 1,
+  'failed': 2,
+  'received': 3,
+};
+const _RawMessagestatusValueEnumMap = {
+  0: RawMessageStatus.sending,
+  1: RawMessageStatus.sent,
+  2: RawMessageStatus.failed,
+  3: RawMessageStatus.received,
+};
 const _RawMessagetypeEnumValueMap = {
   'initMessage': 0,
   'textMessage': 1,
@@ -164,11 +202,12 @@ Id _rawMessageGetId(RawMessage object) {
 }
 
 List<IsarLinkBase<dynamic>> _rawMessageGetLinks(RawMessage object) {
-  return [];
+  return [object.chat];
 }
 
 void _rawMessageAttach(IsarCollection<dynamic> col, Id id, RawMessage object) {
   object.id = id;
+  object.chat.attach(col, col.isar.collection<Chat>(), r'chat', id);
 }
 
 extension RawMessageQueryWhereSort
@@ -247,8 +286,28 @@ extension RawMessageQueryWhere
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'apiId',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'apiId',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdEqualTo(
-      String apiId) {
+      String? apiId) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
         indexName: r'apiId',
@@ -258,7 +317,7 @@ extension RawMessageQueryWhere
   }
 
   QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdNotEqualTo(
-      String apiId) {
+      String? apiId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -295,8 +354,24 @@ extension RawMessageQueryWhere
 
 extension RawMessageQueryFilter
     on QueryBuilder<RawMessage, RawMessage, QFilterCondition> {
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'apiId',
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'apiId',
+      ));
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -309,7 +384,7 @@ extension RawMessageQueryFilter
   }
 
   QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -324,7 +399,7 @@ extension RawMessageQueryFilter
   }
 
   QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -339,8 +414,8 @@ extension RawMessageQueryFilter
   }
 
   QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -883,6 +958,59 @@ extension RawMessageQueryFilter
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> statusEqualTo(
+      RawMessageStatus value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'status',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> statusGreaterThan(
+    RawMessageStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'status',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> statusLessThan(
+    RawMessageStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'status',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> statusBetween(
+    RawMessageStatus lower,
+    RawMessageStatus upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'status',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> typeEqualTo(
       RawMessageTypes value) {
     return QueryBuilder.apply(this, (query) {
@@ -995,7 +1123,20 @@ extension RawMessageQueryObject
     on QueryBuilder<RawMessage, RawMessage, QFilterCondition> {}
 
 extension RawMessageQueryLinks
-    on QueryBuilder<RawMessage, RawMessage, QFilterCondition> {}
+    on QueryBuilder<RawMessage, RawMessage, QFilterCondition> {
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> chat(
+      FilterQuery<Chat> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'chat');
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> chatIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'chat', 0, true, 0, true);
+    });
+  }
+}
 
 extension RawMessageQuerySortBy
     on QueryBuilder<RawMessage, RawMessage, QSortBy> {
@@ -1045,6 +1186,18 @@ extension RawMessageQuerySortBy
   QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortBySenderUserIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'senderUserId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
     });
   }
 
@@ -1136,6 +1289,18 @@ extension RawMessageQuerySortThenBy
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -1192,6 +1357,12 @@ extension RawMessageQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QDistinct> distinctByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'status');
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QDistinct> distinctByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'type');
@@ -1213,7 +1384,7 @@ extension RawMessageQueryProperty
     });
   }
 
-  QueryBuilder<RawMessage, String, QQueryOperations> apiIdProperty() {
+  QueryBuilder<RawMessage, String?, QQueryOperations> apiIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'apiId');
     });
@@ -1234,6 +1405,13 @@ extension RawMessageQueryProperty
   QueryBuilder<RawMessage, String, QQueryOperations> senderUserIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'senderUserId');
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessageStatus, QQueryOperations>
+      statusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'status');
     });
   }
 

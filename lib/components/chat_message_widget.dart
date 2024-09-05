@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
-import 'package:laber_app/types/client_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/store/types/chat.dart';
 
 class MessageWidget extends StatefulWidget {
   final ClientParsedMessage message;
@@ -47,7 +47,7 @@ class _TextMessageWidgetState extends State<TextMessageWidget> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     authBloc = context.read<AuthBloc>();
-    isMe = authBloc.state.meUser?.id == widget.message.userId;
+    isMe = authBloc.state.meUser?.id == widget.message.senderUserId;
   }
 
   @override
@@ -90,7 +90,7 @@ class _TextMessageWidgetState extends State<TextMessageWidget> {
                   left: 15, right: 15, top: 10, bottom: 10),
               margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               child: Text(
-                widget.message.content,
+                widget.message.text,
                 softWrap: true,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
