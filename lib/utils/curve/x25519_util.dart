@@ -5,7 +5,6 @@ import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/store/types/device.dart';
 import 'package:laber_app/utils/curve/fingerprint_util.dart';
 
-
 class X25519Util {
   static final x25519 = X25519();
   static final flutterX25519 = FlutterX25519(x25519);
@@ -22,6 +21,62 @@ class X25519Util {
     return sharedSecret;
   }
 
+  // used to calculate a shared secret from an agreement message
+  static Future<
+      ({
+        SecretKey sharedSecret,
+        String safetyNumber,
+        SharedSecretVersion version
+      })> calculateSecret({
+    required SimplePublicKey contactIdentityKey,
+    required SimplePublicKey contactEphemeralKey,
+    required SimpleKeyPair meIdentityKey,
+    required SimpleKeyPair mePreKey,
+    SimpleKeyPair? meOneTimePreKey,
+  }) async {
+    final sharedSecret1 = await getSharedSecret(mePreKey, contactIdentityKey);
+    final sharedSecret2 =
+        await getSharedSecret(meIdentityKey, contactEphemeralKey);
+    final sharedSecret3 = await getSharedSecret(mePreKey, contactEphemeralKey);
+
+    final myFingerprint =
+        await getPublicKeyFingerprint(await meIdentityKey.extractPublicKey());
+    final contactFingerprint =
+        await getPublicKeyFingerprint(contactIdentityKey);
+
+    final safetyNumber = '$contactFingerprint$myFingerprint';
+
+    if (meOneTimePreKey == null) {
+      final sharedSecrets = [sharedSecret1, sharedSecret2, sharedSecret3];
+      final sharedSecret = await keyDerivation(sharedSecrets, 'X25519');
+
+      return (
+        sharedSecret: SecretKey(sharedSecret),
+        safetyNumber: safetyNumber,
+        version: SharedSecretVersion.v_1_1
+      );
+    } else {
+      final sharedSecret4 =
+          await getSharedSecret(meOneTimePreKey, contactEphemeralKey);
+
+      final sharedSecrets = [
+        sharedSecret1,
+        sharedSecret2,
+        sharedSecret3,
+        sharedSecret4
+      ];
+
+      final sharedSecret = await keyDerivation(sharedSecrets, 'X25519');
+
+      return (
+        sharedSecret: SecretKey(sharedSecret),
+        safetyNumber: safetyNumber,
+        version: SharedSecretVersion.v_1_2
+      );
+    }
+  }
+
+  // used to initialize a chat
   static Future<
       ({
         SecretKey sharedSecret,
@@ -130,5 +185,13 @@ class X25519Util {
   static Future<String> publicKeyToString(SimplePublicKey publicKey) async {
     final publicKeyData = publicKey.bytes;
     return base64Encode(publicKeyData);
+  }
+
+  static Future<SimplePublicKey> stringToPublicKey(
+      String publicKeyString) async {
+    final publicKeyData = base64Decode(publicKeyString);
+    SimplePublicKey publicKey =
+        SimplePublicKey(publicKeyData, type: KeyPairType.x25519);
+    return publicKey;
   }
 }
