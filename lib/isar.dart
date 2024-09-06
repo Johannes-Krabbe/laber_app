@@ -4,7 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:laber_app/store/types/chat.dart';
 import 'package:laber_app/store/types/contact.dart';
 import 'package:laber_app/store/types/device.dart';
-import 'package:laber_app/store/types/rawMessage.dart';
+import 'package:laber_app/store/types/raw_message.dart';
 
 const instanceName = 'default';
 

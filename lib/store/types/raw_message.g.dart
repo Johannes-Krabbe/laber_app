@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'rawMessage.dart';
+part of 'raw_message.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator

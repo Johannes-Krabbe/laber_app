@@ -7,7 +7,7 @@ import 'package:laber_app/components/chat_tile.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/state/bloc/chat_list_bloc.dart';
 import 'package:laber_app/store/types/chat.dart';
-import 'package:laber_app/store/types/rawMessage.dart';
+import 'package:laber_app/store/types/raw_message.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({super.key});

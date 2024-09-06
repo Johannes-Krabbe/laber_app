@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/store/types/device.dart';
-import 'package:laber_app/types/client_device.dart';
 import 'package:laber_app/utils/curve/fingerprint_util.dart';
 
 

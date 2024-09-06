@@ -179,8 +179,22 @@ class _SettingsState extends State<Settings> {
                         context: context,
                         builder: (_) => AlertDialog(
                               title: const Text("Logout"),
-                              content: const Text(
-                                  "Are you sure you want to logout?"),
+                              content: const SizedBox(
+                                height: 100,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "This will delete all you local data.",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text("Are you sure you want to logout?"),
+                                  ],
+                                ),
+                              ),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () {

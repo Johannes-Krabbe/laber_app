@@ -5,6 +5,7 @@ import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
 import 'package:laber_app/components/button.dart';
 import 'package:laber_app/screens/auth/login.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/store/secure/secure_storage_service.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -16,13 +17,6 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   late AuthFlowBloc authFlowBloc;
   late AuthBloc authBloc;
-
-  @override
-  void initState() {
-    var authFlowBloc = context.read<AuthFlowBloc>();
-    authFlowBloc.add(InitAuthFlowEvent());
-    super.initState();
-  }
 
   @override
   void didChangeDependencies() {
@@ -53,35 +47,24 @@ class _WelcomeState extends State<Welcome> {
             ),
           ),
           const Spacer(),
-          Container(
-            padding: const EdgeInsets.all(20),
-            height: 300,
-            child: ListView(
-              children: authFlowBloc.state.authStateStoreList?.map((element) {
-                    return GestureDetector(
-                      onTap: () {
-                        authBloc.add(SelectSignedInUserAuthEvent(element.meUser.id));
-                      },
-                      child: Container(
-                        color: Colors.transparent,
-                        child: Row(
-                          children: [
-                            const CircleAvatar(
-                              radius: 30,
-                              backgroundImage: NetworkImage(
-                                "https://randomuser.me/api/portraits/med/men/99.jpg",
-                              ),
-                            ),
-                            Text(element.meUser.name ??
-                                element.meUser.phoneNumber),
-                            const Spacer(),
-                            const Icon(Icons.arrow_forward_ios)
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList() ??
-                  [],
+          TextButton(
+            onPressed: () async {
+              await SecureStorageService().deleteAll();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              padding: const EdgeInsets.all(10.0),
+              child: const Text(
+                'Reset secure storage',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
           Button(
@@ -89,7 +72,10 @@ class _WelcomeState extends State<Welcome> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const Login(),
+                  builder: (context) => BlocProvider.value(
+                    value: authFlowBloc,
+                    child: const Login(),
+                  ),
                 ),
               );
             },

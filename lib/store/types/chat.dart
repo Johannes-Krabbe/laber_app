@@ -1,7 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:laber_app/store/types/contact.dart';
 import 'package:laber_app/store/types/device.dart';
-import 'package:laber_app/store/types/rawMessage.dart';
+import 'package:laber_app/store/types/raw_message.dart';
 
 part 'chat.g.dart';
 

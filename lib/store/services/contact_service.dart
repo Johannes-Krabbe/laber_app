@@ -3,8 +3,8 @@ import 'package:laber_app/api/models/types/public_user.dart';
 import 'package:laber_app/api/repositories/device_repository.dart';
 import 'package:laber_app/api/repositories/user_repository.dart';
 import 'package:laber_app/isar.dart';
+import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/types/contact.dart';
-import 'package:laber_app/utils/auth_store_repository.dart';
 import 'package:laber_app/utils/phone_number.dart';
 import 'package:laber_app/utils/sha.dart';
 
@@ -103,7 +103,7 @@ class ContactService {
     }
 
     final authState =
-        await AuthStateStoreRepository.getCurrentFromSecureStorage();
+        await AuthStateStoreService.readFromSecureStorage();
 
     if (authState?.meUser.phoneNumber == cleanedPhoneNumber) {
       throw Exception('You cannot add yourself as a contact');

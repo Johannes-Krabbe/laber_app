@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class SecureStorageRepository {
+class SecureStorageService {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<void> write(SecureStorageKeys key, String value) async {

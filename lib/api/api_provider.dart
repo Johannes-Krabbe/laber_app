@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:laber_app/utils/auth_store_repository.dart';
+import 'package:laber_app/store/secure/auth_store_service.dart';
 export 'api_provider.dart';
 
 final Dio globalDio = Dio(
@@ -39,7 +39,7 @@ class AuthInterceptor extends Interceptor {
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
     if (token == null) {
-      var secureStorageToken = (await AuthStateStoreRepository.getCurrentFromSecureStorage())?.token;
+      var secureStorageToken = (await AuthStateStoreService.readFromSecureStorage())?.token;
       if (secureStorageToken?.isNotEmpty == true) {
         token = secureStorageToken!;
       } else {

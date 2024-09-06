@@ -10,7 +10,8 @@ import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/chat_bloc.dart';
 import 'package:laber_app/state/types/chat_state.dart';
 import 'package:laber_app/store/types/chat.dart';
-import 'package:laber_app/store/types/rawMessage.dart';
+import 'package:laber_app/store/types/raw_message.dart';
+
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});

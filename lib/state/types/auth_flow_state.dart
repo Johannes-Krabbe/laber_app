@@ -1,7 +1,7 @@
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:laber_app/api/models/types/private_device.dart';
 import 'package:laber_app/api/models/types/private_user.dart';
-import 'package:laber_app/utils/auth_store_repository.dart';
+import 'package:laber_app/store/secure/auth_store_service.dart';
 
 enum AuthFlowStateEnum {
   none,
@@ -22,9 +22,7 @@ class AuthFlowState {
   final String? deviceName;
   final ApiPrivateDevice? meDevice;
 
-  final AuthStateStoreRepository? authStateStore;
-
-  final List<AuthStateStoreRepository>? authStateStoreList;
+  final AuthStateStoreService? authStateStore;
 
   const AuthFlowState({
     this.state = AuthFlowStateEnum.none,
@@ -36,7 +34,6 @@ class AuthFlowState {
     this.deviceName,
     this.meDevice,
     this.authStateStore,
-    this.authStateStoreList,
   });
 
   AuthFlowState copyWith({
@@ -48,8 +45,7 @@ class AuthFlowState {
     ApiPrivateUser? meUser,
     String? deviceName,
     ApiPrivateDevice? meDevice,
-    AuthStateStoreRepository? authStateStore,
-    List<AuthStateStoreRepository>? authStateStoreList,
+    AuthStateStoreService? authStateStore,
   }) {
     return AuthFlowState(
       state: state ?? this.state,
@@ -61,7 +57,6 @@ class AuthFlowState {
       deviceName: deviceName ?? this.deviceName,
       meDevice: meDevice ?? this.meDevice,
       authStateStore: authStateStore ?? this.authStateStore,
-      authStateStoreList: authStateStoreList ?? this.authStateStoreList,
     );
   }
 }

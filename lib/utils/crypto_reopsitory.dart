@@ -1,7 +1,7 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
-import 'package:laber_app/utils/secure_storage_repository.dart';
+import 'package:laber_app/store/secure/secure_storage_service.dart';
 import 'dart:convert';
 
 enum SecureStorageType {
@@ -11,7 +11,7 @@ enum SecureStorageType {
 }
 
 class CryptoRepository {
-  final secureStorage = SecureStorageRepository();
+  final secureStorage = SecureStorageService();
 
   // ==== Signed Pre Key Pair ====
   Future<SignedPreKeyPair> createNewSignedPreKeyPair(

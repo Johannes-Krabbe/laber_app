@@ -4,7 +4,6 @@ import 'package:laber_app/screens/auth/verify_otp.dart';
 import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/state/types/auth_flow_state.dart';
-import 'package:laber_app/utils/secure_storage_repository.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -104,26 +103,6 @@ class _LoginState extends State<Login> {
                   },
                 ),
                 const Spacer(),
-                TextButton(
-                  onPressed: () async {
-                    await SecureStorageRepository().deleteAll();
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    padding: const EdgeInsets.all(10.0),
-                    child: const Text(
-                      'Reset secure storage',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
                 TextButton(
                   onPressed: () {
                     formKey.currentState?.save();

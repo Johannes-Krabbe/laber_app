@@ -4,9 +4,9 @@ import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/api/repositories/device_repository.dart';
 import 'package:laber_app/state/types/auth_flow_state.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/types/client_me_device.dart';
 import 'package:laber_app/types/client_me_user.dart';
-import 'package:laber_app/utils/auth_store_repository.dart';
 import 'package:laber_app/utils/crypto_reopsitory.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
@@ -34,8 +34,6 @@ final class CreateDeviceAuthFlowEvent extends AuthFlowEvent {
   CreateDeviceAuthFlowEvent(this.token, this.deviceName);
 }
 
-final class InitAuthFlowEvent extends AuthFlowEvent {}
-
 class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
   AuthFlowBloc() : super(const AuthFlowState()) {
     on<EnterPhoneNumberAuthFlowEvent>((event, emit) async {
@@ -49,9 +47,6 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     });
     on<CreateDeviceAuthFlowEvent>((event, emit) async {
       await _onCreateDevice(event, emit);
-    });
-    on<InitAuthFlowEvent>((event, emit) async {
-      await _onInit(event, emit);
     });
   }
 
@@ -238,7 +233,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       // store
 
       final clientMeUser = ClientMeUser.fromApiPrivateMeUser(state.meUser!);
-      final authStateStore = AuthStateStoreRepository(
+      final authStateStore = AuthStateStoreService(
           state.token!,
           clientMeUser,
           ClientMeDevice(
@@ -249,7 +244,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
             clientSignedPreKeyPairList,
           ),
         );
-      await AuthStateStoreRepository.saveAsCurrentToSecureStorage(authStateStore);
+      await AuthStateStoreService.saveToSecureStorage(authStateStore);
 
       emit(
         state.copyWith(
@@ -267,13 +262,5 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
         ),
       );
     }
-  }
-
-  _onInit(InitAuthFlowEvent event, Emitter<AuthFlowState> emit) async {
-    final authStateStore = await AuthStateStoreRepository.getAllFromSecureStorage();
-    emit(state.copyWith(
-      authStateStoreList: authStateStore,
-    ));
-    
   }
 }

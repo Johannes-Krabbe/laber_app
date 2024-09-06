@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
 import 'package:laber_app/store/types/chat.dart';
 
-part 'rawMessage.g.dart';
+part 'raw_message.g.dart';
 
 @collection
 class RawMessage {
