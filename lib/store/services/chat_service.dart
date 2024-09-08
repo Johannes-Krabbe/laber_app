@@ -52,8 +52,9 @@ class ChatService {
       throw Exception('Chat was not created');
     }
 
-    final authStore =
-        await AuthStateStoreService.readFromSecureStorage();
+    await createSecrets(chat: chat);
+
+    final authStore = await AuthStateStoreService.readFromSecureStorage();
 
     final meDevice = authStore!.meDevice;
     final meUser = authStore.meUser;
@@ -102,23 +103,29 @@ class ChatService {
       await isar.contacts.put(contact!);
       await contact.chat.save();
     });
+
+    await createSecrets(chat: chat);
   }
 
   static Future<void> createSecrets({required Chat chat}) async {
-    final contact = chat.contact.value;
+    print('Creating secrets');
+
+    var contact = chat.contact.value;
     if (contact == null) {
       throw Exception('Contact not found');
     }
 
-    final authStore =
-        await AuthStateStoreService.readFromSecureStorage();
+    contact = await ContactService.refetchContact(contact.apiId);
+
+    final authStore = await AuthStateStoreService.readFromSecureStorage();
 
     for (var deviceId in contact.deviceApiIds) {
       var exisitingDevices = chat.devices.where((device) {
         return device.apiId == deviceId;
       }).toList();
 
-      if (exisitingDevices.isEmpty || exisitingDevices.length > 1) {
+      if (exisitingDevices.isNotEmpty) {
+        print('Device already exists');
         // TODO: error.
         continue;
       }
@@ -126,6 +133,7 @@ class ChatService {
       var deviceRes = await DeviceRepository().getKeyBundle(deviceId);
 
       if (deviceRes.status != 200) {
+        print('DeviceRes is not 200');
         continue;
       }
 
@@ -138,13 +146,20 @@ class ChatService {
       var contactIdentityKey =
           await deviceRes.body!.device!.identityKey!.publicKey;
 
+      print("publicKey");
+      print(contactIdentityKey.bytes);
+
+      print("signature");
+      print(stringToUint8List(signature!));
+
       var isValid = await Ed25519Util.verify(
         content: deviceRes.body!.device!.signedPreKey!.key!,
-        signature:
-            Signature(utf8.encode(signature!), publicKey: contactIdentityKey),
+        signature: Signature(stringToUint8List(signature!),
+            publicKey: contactIdentityKey),
       );
 
       if (!isValid) {
+        print('Signature is not valid');
         continue;
       }
 
@@ -175,4 +190,8 @@ class ChatService {
       });
     }
   }
+}
+
+List<int> stringToUint8List(String input) {
+  return base64Decode(input);
 }

@@ -1,17 +1,20 @@
 import 'dart:convert';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:isar/isar.dart';
 import 'package:laber_app/api/models/types/private_message.dart';
+import 'package:laber_app/api/repositories/device_repository.dart';
 import 'package:laber_app/api/repositories/user_repository.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/services/contact_service.dart';
+import 'package:laber_app/store/types/chat.dart';
 import 'package:laber_app/store/types/contact.dart';
-import 'package:laber_app/store/types/raw_message.dart';
+import 'package:laber_app/store/types/device.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
 class MessageService {
-  static Future<RawMessage?> fromApiIncommingMessage(
+  static Future<void> processIncomingMessage(
       ApiPrivateMessage apiMessage) async {
     final isar = await getIsar();
 
@@ -58,9 +61,20 @@ class MessageService {
         throw Exception('Device already exists');
       }
 
-      // TODO continue here
-      // fetch identity key for device from server
-      final contactIdentityKey = await contact.identityKey;
+      final apiDevice = await DeviceRepository()
+          .getPublic(agreementMessageData.initiatorDeviceId);
+
+      if (apiDevice.body == null) {
+        throw Exception('Device not found');
+      }
+
+      final identityKey = await apiDevice.body?.device?.identityKey?.publicKey;
+
+      if (identityKey == null) {
+        throw Exception('Identity key not found');
+      }
+
+      final contactIdentityKey = identityKey;
       final contactEphemeralKey = await X25519Util.stringToPublicKey(
           agreementMessageData.ephemeralPublicKey);
       final meIdentityKey = authStateStore.meDevice.identityKeyPair.keyPair;
@@ -76,8 +90,14 @@ class MessageService {
         return element.id == agreementMessageData.onetimePreKeyId;
       });
 
+      ({
+        String safetyNumber,
+        SecretKey sharedSecret,
+        SharedSecretVersion version
+      }) result;
+
       if (meOneTimePreKey.isEmpty) {
-         final result = await X25519Util.calculateSecret(
+        result = await X25519Util.calculateSecret(
           contactIdentityKey: contactIdentityKey,
           contactEphemeralKey: contactEphemeralKey,
           meIdentityKey: meIdentityKey,
@@ -85,7 +105,7 @@ class MessageService {
           meOneTimePreKey: null,
         );
       } else {
-        final result = await X25519Util.calculateSecret(
+        result = await X25519Util.calculateSecret(
           contactIdentityKey: contactIdentityKey,
           contactEphemeralKey: contactEphemeralKey,
           meIdentityKey: meIdentityKey,
@@ -94,6 +114,21 @@ class MessageService {
         );
       }
 
+      final chat = Chat()..contact.value = contact;
+
+      final device = Device()
+        ..apiId = agreementMessageData.initiatorDeviceId
+        ..safetyNumber = result.safetyNumber
+        ..secret = result.sharedSecret.toString()
+        ..chat.value = chat;
+
+      await isar.writeTxn(() async {
+        await isar.chats.put(chat);
+        await chat.contact.save();
+
+        await isar.devices.put(device);
+        await device.chat.save();
+      });
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:laber_app/api/models/responses/device/create.dart';
 import 'package:laber_app/api/models/responses/device/get_all.dart';
 import 'package:laber_app/api/models/responses/device/get_ids.dart';
 import 'package:laber_app/api/models/responses/device/get_key_bundle.dart';
+import 'package:laber_app/api/models/responses/device/get_public.dart';
 
 class DeviceRepository extends ApiProvider {
   Future<ApiRepositoryResponse<DeviceCreateResponse>> create(
@@ -88,6 +89,22 @@ class DeviceRepository extends ApiProvider {
       );
     } catch (e) {
       return ApiRepositoryResponse<DeviceGetIdsResponse>(
+        status: 500,
+      );
+    }
+  }
+
+  Future<ApiRepositoryResponse<DeviceGetPublicResponse>> getPublic(
+      String deviceId) async {
+    try {
+      final response = await dioAuth.get('/device/public/$deviceId');
+
+      return ApiRepositoryResponse<DeviceGetPublicResponse>(
+        body: DeviceGetPublicResponse.fromJson(response.data),
+        status: response.statusCode!,
+      );
+    } catch (e) {
+      return ApiRepositoryResponse<DeviceGetPublicResponse>(
         status: 500,
       );
     }

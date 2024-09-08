@@ -119,7 +119,6 @@ class ApiIdentityKey {
   }
 
   Future<SimplePublicKey> get publicKey async {
-    return Ed25519Util.stringToKeyPair(key!)
-        .then((value) => value.extractPublicKey());
+    return Ed25519Util.stringToPublicKey(key!);
   }
 }

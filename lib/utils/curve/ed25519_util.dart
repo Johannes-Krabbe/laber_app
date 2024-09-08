@@ -25,7 +25,7 @@ class Ed25519Util {
     required String content,
     required Signature signature,
   }) async {
-    final message = utf8.encode(content);
+    final message = base64Decode(content);
 
     final isVerified = await flutterEd25519.verify(
       message,
@@ -42,6 +42,11 @@ class Ed25519Util {
   static Future<SimpleKeyPair> stringToKeyPair(String keyPairString) async {
     final keyPairData = base64Decode(keyPairString);
     return flutterEd25519.newKeyPairFromSeed(keyPairData);
+  }
+
+  static Future<SimplePublicKey> stringToPublicKey(String publicKeyString) async {
+    final publicKeyData = base64Decode(publicKeyString);
+    return SimplePublicKey(publicKeyData, type: KeyPairType.ed25519);
   }
 
   static Future<String> publicKeyToString(SimplePublicKey publicKey) async {
