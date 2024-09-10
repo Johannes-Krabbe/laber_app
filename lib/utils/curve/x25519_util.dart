@@ -171,27 +171,4 @@ class X25519Util {
 
     return key.extractBytes();
   }
-
-  static Future<String> keyPairToString(SimpleKeyPair keyPair) async {
-    final keyPairData = await keyPair.extractPrivateKeyBytes();
-    return base64Encode(keyPairData);
-  }
-
-  static Future<SimpleKeyPair> stringToKeyPair(String keyPairString) async {
-    final keyPairData = base64Decode(keyPairString);
-    return flutterX25519.newKeyPairFromSeed(keyPairData);
-  }
-
-  static Future<String> publicKeyToString(SimplePublicKey publicKey) async {
-    final publicKeyData = publicKey.bytes;
-    return base64Encode(publicKeyData);
-  }
-
-  static Future<SimplePublicKey> stringToPublicKey(
-      String publicKeyString) async {
-    final publicKeyData = base64Decode(publicKeyString);
-    SimplePublicKey publicKey =
-        SimplePublicKey(publicKeyData, type: KeyPairType.x25519);
-    return publicKey;
-  }
 }

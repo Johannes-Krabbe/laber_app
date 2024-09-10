@@ -1,4 +1,5 @@
 import 'package:cryptography/cryptography.dart';
+import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 import 'package:laber_app/store/secure/secure_storage_service.dart';
@@ -18,7 +19,7 @@ class CryptoRepository {
       SimpleKeyPair identityKeyPair) async {
     final unsignedPreKey = await Ed25519Util.generateKeyPair();
 
-    final base64UnsignedPublicKey = await X25519Util.publicKeyToString(
+    final base64UnsignedPublicKey = await CryptoUtil.publicKeyToString(
         await unsignedPreKey.extractPublicKey());
 
     final signature =
@@ -40,7 +41,7 @@ class SignedPreKeyPair {
   SignedPreKeyPair(this.keyPair, this.signature);
 
   static Future<SignedPreKeyPair> fromJson(Map<String, dynamic> json) async {
-    final keyPair = await Ed25519Util.stringToKeyPair(json['keyPair']);
+    final keyPair = await CryptoUtil.stringToKeyPair(json['keyPair']);
     final signature = json['signature'];
     final signedPreKeyPair = SignedPreKeyPair(keyPair, signature);
     return signedPreKeyPair;
@@ -49,7 +50,7 @@ class SignedPreKeyPair {
   static String toJson(SignedPreKeyPair signedPreKeyPair) {
     return '''
     {
-      "keyPair": "${Ed25519Util.keyPairToString(signedPreKeyPair.keyPair)}",
+      "keyPair": "${CryptoUtil.keyPairToString(signedPreKeyPair.keyPair)}",
       "signature": "${signedPreKeyPair.signature}",
     }
     ''';

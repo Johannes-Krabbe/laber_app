@@ -2,6 +2,7 @@ import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/message/get_new.dart';
 import 'package:laber_app/api/models/responses/message/post_new.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
+import 'package:laber_app/store/types/outgoing_message.dart';
 
 class MessageRepository extends ApiProvider {
   Future<ApiRepositoryResponse<MessageGetNewResponse>> getNew() async {
@@ -28,20 +29,20 @@ class MessageRepository extends ApiProvider {
   }
 
   Future<ApiRepositoryResponse<MessagePostNewResponse>> postNew(
-      String content, String recipientDeviceId) async {
+      OutgoingMessage message) async {
     try {
-      final authStateStore =
-          await AuthStateStoreService.readFromSecureStorage();
-      if (authStateStore == null) {
+      final authStateStore = await AuthStateStoreService.readFromSecureStorage();
+
+      if(authStateStore == null) {
         return ApiRepositoryResponse<MessagePostNewResponse>(
           status: 500,
         );
       }
 
       final response = await dioAuth.post('/message/new', data: {
-        'content': content,
-        'recipientDeviceId': recipientDeviceId,
-        'senderDeviceId': authStateStore.meDevice.id
+        'content': message.content,
+        'recipientDeviceId': message.recipientDeviceId,
+        'senderDeviceId': authStateStore.meDevice.id,
       });
 
       return ApiRepositoryResponse<MessagePostNewResponse>(

@@ -108,8 +108,6 @@ class ChatService {
   }
 
   static Future<void> createSecrets({required Chat chat}) async {
-    print('Creating secrets');
-
     var contact = chat.contact.value;
     if (contact == null) {
       throw Exception('Contact not found');
@@ -125,7 +123,6 @@ class ChatService {
       }).toList();
 
       if (exisitingDevices.isNotEmpty) {
-        print('Device already exists');
         // TODO: error.
         continue;
       }
@@ -133,7 +130,6 @@ class ChatService {
       var deviceRes = await DeviceRepository().getKeyBundle(deviceId);
 
       if (deviceRes.status != 200) {
-        print('DeviceRes is not 200');
         continue;
       }
 
@@ -145,12 +141,6 @@ class ChatService {
 
       var contactIdentityKey =
           await deviceRes.body!.device!.identityKey!.publicKey;
-
-      print("publicKey");
-      print(contactIdentityKey.bytes);
-
-      print("signature");
-      print(stringToUint8List(signature!));
 
       var isValid = await Ed25519Util.verify(
         content: deviceRes.body!.device!.signedPreKey!.key!,

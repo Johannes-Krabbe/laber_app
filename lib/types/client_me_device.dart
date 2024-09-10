@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
+import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
@@ -61,14 +62,14 @@ class ClientIdentityKeyPair {
 
   Future<Map<String, dynamic>> toJson() async {
     return {
-      'keyPair': await X25519Util.keyPairToString(keyPair),
+      'keyPair': await CryptoUtil.keyPairToString(keyPair),
     };
   }
 
   static Future<ClientIdentityKeyPair> fromJson(
       Map<String, dynamic> json) async {
     return ClientIdentityKeyPair(
-      await Ed25519Util.stringToKeyPair(json['keyPair']),
+      await CryptoUtil.stringToKeyPair(json['keyPair']),
     );
   }
 }
@@ -83,7 +84,7 @@ class ClientOnetimePreKeyPair {
 
   Future<Map<String, dynamic>> toJson() async {
     return {
-      'keyPair': await Ed25519Util.keyPairToString(keyPair),
+      'keyPair': await CryptoUtil.keyPairToString(keyPair),
       'id': id,
       'unixCreatedAt': unixCreatedAt,
     };
@@ -92,7 +93,7 @@ class ClientOnetimePreKeyPair {
   static Future<ClientOnetimePreKeyPair> fromJson(
       Map<String, dynamic> json) async {
     return ClientOnetimePreKeyPair(
-      await Ed25519Util.stringToKeyPair(json['keyPair']),
+      await CryptoUtil.stringToKeyPair(json['keyPair']),
       json['id'],
       unixCreatedAt: json['unixCreatedAt'],
     );
@@ -111,7 +112,7 @@ class ClientSignedPreKeyPair {
 
   Future<Map<String, dynamic>> toJson() async {
     return {
-      'keyPair': await Ed25519Util.keyPairToString(keyPair),
+      'keyPair': await CryptoUtil.keyPairToString(keyPair),
       'id': id,
       'unixCreatedAt': unixCreatedAt,
       'signature': signature,
@@ -121,7 +122,7 @@ class ClientSignedPreKeyPair {
   static Future<ClientSignedPreKeyPair> fromJson(
       Map<String, dynamic> json) async {
     return ClientSignedPreKeyPair(
-      await Ed25519Util.stringToKeyPair(json['keyPair']),
+      await CryptoUtil.stringToKeyPair(json['keyPair']),
       json['id'],
       json['signature'],
       unixCreatedAt: json['unixCreatedAt'],

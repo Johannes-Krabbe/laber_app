@@ -33,24 +33,4 @@ class Ed25519Util {
     );
     return isVerified;
   }
-
-  static Future<String> keyPairToString(SimpleKeyPair keyPair) async {
-    final keyPairData = await keyPair.extractPrivateKeyBytes();
-    return base64Encode(keyPairData);
-  }
-
-  static Future<SimpleKeyPair> stringToKeyPair(String keyPairString) async {
-    final keyPairData = base64Decode(keyPairString);
-    return flutterEd25519.newKeyPairFromSeed(keyPairData);
-  }
-
-  static Future<SimplePublicKey> stringToPublicKey(String publicKeyString) async {
-    final publicKeyData = base64Decode(publicKeyString);
-    return SimplePublicKey(publicKeyData, type: KeyPairType.ed25519);
-  }
-
-  static Future<String> publicKeyToString(SimplePublicKey publicKey) async {
-    final publicKeyData = publicKey.bytes;
-    return base64Encode(publicKeyData);
-  }
 }

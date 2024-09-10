@@ -1,5 +1,5 @@
 import 'package:cryptography/cryptography.dart';
-import 'package:laber_app/utils/curve/ed25519_util.dart';
+import 'package:laber_app/utils/curve/crypto_util.dart';
 
 class ApiPublicDevice {
   String? id;
@@ -65,7 +65,7 @@ class ApiSignedPreKey {
   }
 
   Future<SimplePublicKey> get publicKey async {
-    return Ed25519Util.stringToKeyPair(key!)
+    return CryptoUtil.stringToKeyPair(key!)
         .then((value) => value.extractPublicKey());
   }
 }
@@ -92,7 +92,7 @@ class ApiOneTimePreKey {
   }
 
   Future<SimplePublicKey> get publicKey async {
-    return Ed25519Util.stringToKeyPair(key!)
+    return CryptoUtil.stringToKeyPair(key!)
         .then((value) => value.extractPublicKey());
   }
 }
@@ -119,6 +119,6 @@ class ApiIdentityKey {
   }
 
   Future<SimplePublicKey> get publicKey async {
-    return Ed25519Util.stringToPublicKey(key!);
+    return CryptoUtil.stringToPublicKey(key!);
   }
 }
