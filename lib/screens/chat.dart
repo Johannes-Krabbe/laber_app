@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
 import 'package:laber_app/components/blur_background.dart';
+import 'package:laber_app/components/button.dart';
 import 'package:laber_app/components/chat_message_widget.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/screens/chat_info.dart';
@@ -11,7 +13,6 @@ import 'package:laber_app/state/bloc/chat_bloc.dart';
 import 'package:laber_app/state/types/chat_state.dart';
 import 'package:laber_app/store/types/chat.dart';
 import 'package:laber_app/store/types/raw_message.dart';
-
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -58,22 +59,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (chatBloc.state.state == ChatStateEnum.error) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error),
-              const SizedBox(height: 10),
-              Text(chatBloc.state.error ?? 'Error loading chat'),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (chatBloc.state.chat == null) {
+    if (chatBloc.state.state == ChatStateEnum.loading ||
+        chatBloc.state.state == ChatStateEnum.none) {
       return const Scaffold(
         body: Center(
           child: Column(
@@ -82,6 +69,50 @@ class _ChatScreenState extends State<ChatScreen> {
               CircularProgressIndicator(),
               SizedBox(height: 10),
               Text('Loading chat...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (chatBloc.state.state == ChatStateEnum.notCreated) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Icon(IconoirIcons.infoCircle),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                child: Text(
+                  'Before you can start messaging you need to initiate a chat with this contact.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 30),
+              Button(
+                text: 'Create chat',
+                onPressed: () {
+                  chatBloc.add(CreateChatEvent());
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (chatBloc.state.state != ChatStateEnum.success) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error),
+              const SizedBox(height: 10),
+              Text(chatBloc.state.error ?? 'Error loading chat'),
             ],
           ),
         ),
@@ -182,7 +213,7 @@ class ChatInput extends StatelessWidget {
                     if (controller.text.isEmpty) {
                       return;
                     }
-                    chatBloc.add(SendMessageEvent(controller.text));
+                    chatBloc.add(SendTextMessageEvent(controller.text));
                     controller.clear();
                   },
                 ),

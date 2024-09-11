@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:cryptography/cryptography.dart';
 import 'dart:convert';
@@ -22,13 +24,11 @@ class Ed25519Util {
   }
 
   static Future<bool> verify({
-    required String content,
+    required List<int> content,
     required Signature signature,
   }) async {
-    final message = base64Decode(content);
-
     final isVerified = await flutterEd25519.verify(
-      message,
+      content,
       signature: signature,
     );
     return isVerified;

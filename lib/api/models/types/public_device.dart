@@ -53,6 +53,11 @@ class ApiSignedPreKey {
     unixCreatedAt = json['unixCreatedAt'];
     key = json['key'];
     signature = json['signature'];
+
+    if (key == null || signature == null || id == null || unixCreatedAt == null) {
+      print(json);
+      throw Exception('Key or signature is null');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -65,8 +70,7 @@ class ApiSignedPreKey {
   }
 
   Future<SimplePublicKey> get publicKey async {
-    return CryptoUtil.stringToKeyPair(key!)
-        .then((value) => value.extractPublicKey());
+    return CryptoUtil.stringToPublicKey(key!);
   }
 }
 
@@ -92,8 +96,7 @@ class ApiOneTimePreKey {
   }
 
   Future<SimplePublicKey> get publicKey async {
-    return CryptoUtil.stringToKeyPair(key!)
-        .then((value) => value.extractPublicKey());
+    return CryptoUtil.stringToPublicKey(key!);
   }
 }
 

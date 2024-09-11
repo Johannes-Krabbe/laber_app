@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/services/contact_service.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 import 'package:laber_app/state/types/contacts/discover_phone_number_state.dart';
-import 'package:laber_app/store/services/contact_service.dart';
 
 sealed class DiscoverPhoneNumberEvent {}
 

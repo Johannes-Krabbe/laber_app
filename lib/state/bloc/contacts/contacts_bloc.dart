@@ -1,6 +1,7 @@
+import 'package:laber_app/services/contact_service.dart';
 import 'package:laber_app/state/types/contacts/contacts_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:laber_app/store/services/contact_service.dart';
+import 'package:laber_app/store/repositories/contact_repository.dart';
 
 sealed class ContactsEvent {}
 
@@ -21,7 +22,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
   _onRefetchAllContacts(
       RefetchAllContactsEvent event, Emitter<ContactsState> emit) async {
     emit(state.copyWith(state: ContactsStateEnum.loading));
-    final contacts = await ContactService.getContacts();
+    final contacts = await ContactRepository.getAllContacts();
     emit(state.copyWith(state: ContactsStateEnum.success, contacts: contacts));
   }
 

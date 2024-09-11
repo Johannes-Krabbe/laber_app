@@ -1,14 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/services/chat_service.dart';
+import 'package:laber_app/services/message_create_service.dart';
 import 'package:laber_app/state/types/chat_state.dart';
-import 'package:laber_app/store/services/chat_service.dart';
+import 'package:laber_app/store/repositories/chat_repository.dart';
 
 sealed class ChatEvent {}
 
 final class LoadChatEvent extends ChatEvent {}
 
-final class SendMessageEvent extends ChatEvent {
+final class CreateChatEvent extends ChatEvent {}
+
+final class SendTextMessageEvent extends ChatEvent {
   final String message;
-  SendMessageEvent(this.message);
+  SendTextMessageEvent(this.message);
 }
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
@@ -16,35 +20,52 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadChatEvent>((event, emit) async {
       await _onLoadChat(event, emit);
     });
-    on<SendMessageEvent>((event, emit) async {
-      await _onSendMessage(event, emit);
+    on<SendTextMessageEvent>((event, emit) async {
+      await _onSendTextMessage(event, emit);
+    });
+    on<CreateChatEvent>((event, emit) async {
+      await _onCreateChat(event, emit);
     });
   }
 
   _onLoadChat(LoadChatEvent event, Emitter<ChatState> emit) async {
     emit(state.copyWith(state: ChatStateEnum.loading));
-    var chat = await ChatService.getChat(contactApiId: state.contactApiId);
+    var chat = await ChatRepository.getChat(contactApiId: state.contactApiId);
     if (chat == null) {
-      try {
-        await ChatService.createChat(contactApiId: state.contactApiId);
-        chat = await ChatService.getChat(contactApiId: state.contactApiId);
-      } catch (e) {
-        emit(state.copyWith(state: ChatStateEnum.error, error: e.toString()));
-      }
-    }
-
-    if (chat == null) {
-      emit(state.copyWith(
-          state: ChatStateEnum.error, error: 'Error loading chat'));
+      emit(state.copyWith(state: ChatStateEnum.notCreated));
     } else {
       emit(state.copyWith(state: ChatStateEnum.success, chat: chat));
     }
   }
 
-  _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
+  _onSendTextMessage(SendTextMessageEvent event, Emitter<ChatState> emit) async {
     emit(state.copyWith(state: ChatStateEnum.loading));
-    await ChatService.sendMessage(
+    await MessageCreateService.sendTextMessage(
         contactApiId: state.contactApiId, message: event.message);
     emit(state.copyWith(state: ChatStateEnum.success));
+  }
+
+  _onCreateChat(CreateChatEvent event, Emitter<ChatState> emit) async {
+    emit(state.copyWith(state: ChatStateEnum.loading));
+    // try {
+      var chat = await ChatRepository.getChat(contactApiId: state.contactApiId);
+      if (chat != null) {
+        emit(state.copyWith(state: ChatStateEnum.success, chat: chat));
+        return;
+      }
+
+      await ChatService.createChat(contactApiId: state.contactApiId);
+      chat = await ChatRepository.getChat(contactApiId: state.contactApiId);
+      if (chat == null) {
+        emit(state.copyWith(
+            state: ChatStateEnum.error, error: 'Error loading chat'));
+      } else {
+        emit(state.copyWith(state: ChatStateEnum.success, chat: chat));
+      }
+    /*
+    } catch (e) {
+      emit(state.copyWith(state: ChatStateEnum.error, error: e.toString()));
+    }
+    */
   }
 }

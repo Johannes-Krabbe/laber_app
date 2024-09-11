@@ -31,12 +31,11 @@ class MessageRepository extends ApiProvider {
   Future<ApiRepositoryResponse<MessagePostNewResponse>> postNew(
       OutgoingMessage message) async {
     try {
-      final authStateStore = await AuthStateStoreService.readFromSecureStorage();
+      final authStateStore =
+          await AuthStateStoreService.readFromSecureStorage();
 
-      if(authStateStore == null) {
-        return ApiRepositoryResponse<MessagePostNewResponse>(
-          status: 500,
-        );
+      if (authStateStore == null) {
+        throw Exception('AuthStateStore is null');
       }
 
       final response = await dioAuth.post('/message/new', data: {

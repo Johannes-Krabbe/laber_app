@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:laber_app/api/models/types/public_user.dart';
 import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:laber_app/store/services/contact_service.dart';
+import 'package:laber_app/store/repositories/contact_repository.dart';
 
 class AddToContacts extends StatefulWidget {
   final ApiPublicUser user;
@@ -42,7 +42,7 @@ class _AddToContactsState extends State<AddToContacts> {
             Text('Add ${widget.user.name} to contacts?'),
             ElevatedButton(
               onPressed: () async {
-                await ContactService.addContact(
+                await ContactRepository.addContactFromApiUser(
                   widget.user,
                   widget.phoneNumber,
                 );

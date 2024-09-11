@@ -1,6 +1,6 @@
 import 'package:laber_app/store/types/chat.dart';
 
-enum ChatStateEnum { none, loading, success, error }
+enum ChatStateEnum { none, loading, success, notCreated, error }
 
 class ChatState {
   final ChatStateEnum state;

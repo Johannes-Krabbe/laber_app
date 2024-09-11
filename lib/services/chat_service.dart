@@ -83,8 +83,11 @@ class ChatService {
       var contactIdentityKey =
           await deviceRes.body!.device!.identityKey!.publicKey;
 
+      final signedPreKeyBytes = (await CryptoUtil.stringToPublicKey(
+              deviceRes.body!.device!.signedPreKey!.key!))
+          .bytes;
       var isValid = await Ed25519Util.verify(
-        content: deviceRes.body!.device!.signedPreKey!.key!,
+        content: signedPreKeyBytes,
         signature:
             Signature(base64Decode(signature!), publicKey: contactIdentityKey),
       );

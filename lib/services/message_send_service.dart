@@ -6,7 +6,7 @@ import 'package:laber_app/store/types/outgoing_message.dart';
 import 'package:laber_app/utils/interval_executer.dart';
 
 const maxRetries = 3;
-const retryInterval = Duration(seconds: 10);
+const retryInterval = Duration(seconds: 30);
 
 class MessageSendService {
   StreamSubscription<void>? _outgoingMessageSubscription;
@@ -19,7 +19,9 @@ class MessageSendService {
     _outgoingMessageSubscription = isar.outgoingMessages.watchLazy().listen(
       (_) async {
         final pendnig = await OutgoingMessageRepository.getPending();
-        for(final message in pendnig) {
+        if(pendnig.isEmpty) return;
+        print('Sending ${pendnig.length} pending messages');
+        for (final message in pendnig) {
           await sendMessage(message);
         }
       },
@@ -30,11 +32,15 @@ class MessageSendService {
       interval: retryInterval,
       callback: () async {
         final retryable = await OutgoingMessageRepository.getRetryable();
-        for(final message in retryable) {
+        if(retryable.isEmpty) return;
+        print('Retrying ${retryable.length} retryable messages');
+        for (final message in retryable) {
           await sendMessage(message);
         }
       },
     );
+
+    _intervalExecutor?.start();
   }
 
   Future<void> stop() async {
@@ -45,7 +51,11 @@ class MessageSendService {
   Future<void> sendMessage(OutgoingMessage message) async {
     final messageRepository = MessageRepository();
     try {
-      await messageRepository.postNew(message);
+      final messagePostRes = await messageRepository.postNew(message);
+      if(messagePostRes.status != 200) {
+        throw Exception('Failed to send message');
+      }
+      await handleSuccess(message);
     } catch (e) {
       await handleFailed(message);
     }
