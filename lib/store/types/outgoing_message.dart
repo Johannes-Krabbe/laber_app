@@ -9,16 +9,17 @@ class OutgoingMessage {
   late String recipientDeviceId;
 
   @enumerated
-  late OutgoingStatus status;
-  late int retryCount;
+  OutgoingStatus status = OutgoingStatus.pending;
+  int retryCount = 0;
 
-  late DateTime createdAt;
+  DateTime createdAt = DateTime.now();
   DateTime? sentAt;
   DateTime? failedAt;
 }
 
 enum OutgoingStatus {
   pending,
+  retrying,
   sent,
   failed,
 }

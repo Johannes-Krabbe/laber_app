@@ -37,10 +37,10 @@ const OutgoingMessageSchema = CollectionSchema(
       name: r'recipientDeviceId',
       type: IsarType.string,
     ),
-    r'senderDeviceId': PropertySchema(
+    r'retryCount': PropertySchema(
       id: 4,
-      name: r'senderDeviceId',
-      type: IsarType.string,
+      name: r'retryCount',
+      type: IsarType.long,
     ),
     r'sentAt': PropertySchema(
       id: 5,
@@ -76,7 +76,6 @@ int _outgoingMessageEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.content.length * 3;
   bytesCount += 3 + object.recipientDeviceId.length * 3;
-  bytesCount += 3 + object.senderDeviceId.length * 3;
   return bytesCount;
 }
 
@@ -90,7 +89,7 @@ void _outgoingMessageSerialize(
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeDateTime(offsets[2], object.failedAt);
   writer.writeString(offsets[3], object.recipientDeviceId);
-  writer.writeString(offsets[4], object.senderDeviceId);
+  writer.writeLong(offsets[4], object.retryCount);
   writer.writeDateTime(offsets[5], object.sentAt);
   writer.writeByte(offsets[6], object.status.index);
 }
@@ -107,7 +106,7 @@ OutgoingMessage _outgoingMessageDeserialize(
   object.failedAt = reader.readDateTimeOrNull(offsets[2]);
   object.id = id;
   object.recipientDeviceId = reader.readString(offsets[3]);
-  object.senderDeviceId = reader.readString(offsets[4]);
+  object.retryCount = reader.readLong(offsets[4]);
   object.sentAt = reader.readDateTimeOrNull(offsets[5]);
   object.status =
       _OutgoingMessagestatusValueEnumMap[reader.readByteOrNull(offsets[6])] ??
@@ -131,7 +130,7 @@ P _outgoingMessageDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 5:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
@@ -708,137 +707,57 @@ extension OutgoingMessageQueryFilter
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+      retryCountEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'senderDeviceId',
+        property: r'retryCount',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdGreaterThan(
-    String value, {
+      retryCountGreaterThan(
+    int value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'senderDeviceId',
+        property: r'retryCount',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdLessThan(
-    String value, {
+      retryCountLessThan(
+    int value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'senderDeviceId',
+        property: r'retryCount',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdBetween(
-    String lower,
-    String upper, {
+      retryCountBetween(
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'senderDeviceId',
+        property: r'retryCount',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'senderDeviceId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'senderDeviceId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'senderDeviceId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'senderDeviceId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'senderDeviceId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterFilterCondition>
-      senderDeviceIdIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'senderDeviceId',
-        value: '',
       ));
     });
   }
@@ -1038,16 +957,16 @@ extension OutgoingMessageQuerySortBy
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterSortBy>
-      sortBySenderDeviceId() {
+      sortByRetryCount() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'senderDeviceId', Sort.asc);
+      return query.addSortBy(r'retryCount', Sort.asc);
     });
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterSortBy>
-      sortBySenderDeviceIdDesc() {
+      sortByRetryCountDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'senderDeviceId', Sort.desc);
+      return query.addSortBy(r'retryCount', Sort.desc);
     });
   }
 
@@ -1148,16 +1067,16 @@ extension OutgoingMessageQuerySortThenBy
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterSortBy>
-      thenBySenderDeviceId() {
+      thenByRetryCount() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'senderDeviceId', Sort.asc);
+      return query.addSortBy(r'retryCount', Sort.asc);
     });
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QAfterSortBy>
-      thenBySenderDeviceIdDesc() {
+      thenByRetryCountDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'senderDeviceId', Sort.desc);
+      return query.addSortBy(r'retryCount', Sort.desc);
     });
   }
 
@@ -1220,10 +1139,9 @@ extension OutgoingMessageQueryWhereDistinct
   }
 
   QueryBuilder<OutgoingMessage, OutgoingMessage, QDistinct>
-      distinctBySenderDeviceId({bool caseSensitive = true}) {
+      distinctByRetryCount() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'senderDeviceId',
-          caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'retryCount');
     });
   }
 
@@ -1275,10 +1193,9 @@ extension OutgoingMessageQueryProperty
     });
   }
 
-  QueryBuilder<OutgoingMessage, String, QQueryOperations>
-      senderDeviceIdProperty() {
+  QueryBuilder<OutgoingMessage, int, QQueryOperations> retryCountProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'senderDeviceId');
+      return query.addPropertyName(r'retryCount');
     });
   }
 

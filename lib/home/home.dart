@@ -5,6 +5,7 @@ import 'package:laber_app/screens/chat_list.dart';
 import 'package:laber_app/screens/contacts.dart';
 import 'package:laber_app/screens/settings/settings.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
+import 'package:laber_app/services/message_send_service.dart';
 import 'package:laber_app/state/bloc/chat_list_bloc.dart';
 import 'package:laber_app/state/bloc/contacts/contacts_bloc.dart';
 
@@ -19,6 +20,19 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int currentIndex = 0;
+  MessageSendService messageSendService = MessageSendService();
+
+  @override
+  void initState() {
+    super.initState();
+    messageSendService.start();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    messageSendService.stop();
+  }
 
   @override
   Widget build(BuildContext context) {
