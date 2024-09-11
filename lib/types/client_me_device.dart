@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
-import 'package:laber_app/utils/curve/ed25519_util.dart';
-import 'package:laber_app/utils/curve/x25519_util.dart';
 
 class ClientMeDevice {
   final String id;
@@ -83,11 +81,12 @@ class ClientOnetimePreKeyPair {
       : unixCreatedAt = unixCreatedAt ?? DateTime.now().millisecondsSinceEpoch;
 
   Future<Map<String, dynamic>> toJson() async {
-    return {
+    final data = {
       'keyPair': await CryptoUtil.keyPairToString(keyPair),
       'id': id,
       'unixCreatedAt': unixCreatedAt,
     };
+    return data;
   }
 
   static Future<ClientOnetimePreKeyPair> fromJson(

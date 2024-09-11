@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:laber_app/store/types/outgoing_message.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:laber_app/store/types/chat.dart';
@@ -17,7 +18,7 @@ Future<Isar> getIsar() async {
   final dir = await getApplicationDocumentsDirectory();
 
   instance = await Isar.open(
-    [ContactSchema, DeviceSchema, ChatSchema, RawMessageSchema],
+    [ContactSchema, DeviceSchema, ChatSchema, RawMessageSchema, OutgoingMessageSchema],
     directory: dir.path,
     name: instanceName
   );

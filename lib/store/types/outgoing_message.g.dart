@@ -144,13 +144,15 @@ P _outgoingMessageDeserializeProp<P>(
 
 const _OutgoingMessagestatusEnumValueMap = {
   'pending': 0,
-  'sent': 1,
-  'failed': 2,
+  'retrying': 1,
+  'sent': 2,
+  'failed': 3,
 };
 const _OutgoingMessagestatusValueEnumMap = {
   0: OutgoingStatus.pending,
-  1: OutgoingStatus.sent,
-  2: OutgoingStatus.failed,
+  1: OutgoingStatus.retrying,
+  2: OutgoingStatus.sent,
+  3: OutgoingStatus.failed,
 };
 
 Id _outgoingMessageGetId(OutgoingMessage object) {

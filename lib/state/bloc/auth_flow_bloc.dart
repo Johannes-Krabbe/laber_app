@@ -8,8 +8,8 @@ import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/types/client_me_device.dart';
 import 'package:laber_app/types/client_me_user.dart';
 import 'package:laber_app/utils/crypto_reopsitory.dart';
+import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
-import 'package:laber_app/utils/curve/x25519_util.dart';
 
 sealed class AuthFlowEvent {}
 
@@ -133,13 +133,13 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
 
     // --- Identity Key ---
     final identityKeyPair = await Ed25519Util.generateKeyPair();
-    final base64PublicIdentityKey = await Ed25519Util.publicKeyToString(
+    final base64PublicIdentityKey = await CryptoUtil.publicKeyToString(
         await identityKeyPair.extractPublicKey());
 
     // --- Signed Pre Key ---
     final signedPreKey =
         await cryptoRepository.createNewSignedPreKeyPair(identityKeyPair);
-    final base64UnsignedPublicKey = await X25519Util.publicKeyToString(
+    final base64UnsignedPublicKey = await CryptoUtil.publicKeyToString(
         await signedPreKey.keyPair.extractPublicKey());
 
     // --- One Time Pre Keys ---
@@ -153,7 +153,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     for (var key in oneTimePreKeys) {
       final keyPair = key;
       final base64PublicKey =
-          await X25519Util.publicKeyToString(await keyPair.extractPublicKey());
+          await CryptoUtil.publicKeyToString(await keyPair.extractPublicKey());
       oneTimePrePublicPreKeyStrings.add(base64PublicKey);
     }
 
@@ -208,7 +208,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
 
         for (var key in oneTimePreKeys) {
           final keyPair = key;
-          final base64PublicKey = await X25519Util.publicKeyToString(
+          final base64PublicKey = await CryptoUtil.publicKeyToString(
               await keyPair.extractPublicKey());
 
           if (base64PublicKey == apiKey.key) {

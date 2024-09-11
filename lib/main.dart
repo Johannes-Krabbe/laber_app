@@ -32,6 +32,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     var authBloc = context.read<AuthBloc>();
+    // authBloc.add(LogoutAuthEvent());
     authBloc.add(AppStartedAuthEvent());
     super.initState();
   }
