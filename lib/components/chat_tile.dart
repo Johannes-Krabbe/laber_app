@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/screens/chat.dart';
 import 'package:laber_app/state/bloc/chat_bloc.dart';
 import 'package:laber_app/store/types/chat.dart';
@@ -37,11 +38,7 @@ class ChatTile extends StatelessWidget {
         color: Colors.transparent,
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 30,
-              // TODO use a placeholder image
-              backgroundImage: NetworkImage(contact?.profilePicture ?? ''),
-            ),
+            ProfilePicture(radius: 30, imageUrl: contact?.profilePicture),
             const SizedBox(width: 10),
             Expanded(
               child: Column(

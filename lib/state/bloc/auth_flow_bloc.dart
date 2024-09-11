@@ -130,17 +130,18 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
 
     final cryptoRepository = CryptoRepository();
 
-
     // --- Identity Key ---
     final identityKeyPair = await Ed25519Util.generateKeyPair();
-    final base64PublicIdentityKey = await CryptoUtil.publicKeyToString(
-        await identityKeyPair.extractPublicKey());
+    final identityKeyPublicKey = await identityKeyPair.extractPublicKey();
+    final base64PublicIdentityKey =
+        await CryptoUtil.publicKeyToString(identityKeyPublicKey);
 
     // --- Signed Pre Key ---
     final signedPreKey =
         await cryptoRepository.createNewSignedPreKeyPair(identityKeyPair);
-    final base64UnsignedPublicKey = await CryptoUtil.publicKeyToString(
-        await signedPreKey.keyPair.extractPublicKey());
+    final signedPreKeyPublicKey = await signedPreKey.keyPair.extractPublicKey();
+    final base64UnsignedPublicKey =
+        await CryptoUtil.publicKeyToString(signedPreKeyPublicKey);
 
     // --- One Time Pre Keys ---
     final List<SimpleKeyPair> oneTimePreKeys = [];
@@ -217,7 +218,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
           }
         }
 
-        if(foundCreatedKeyPair == null){
+        if (foundCreatedKeyPair == null) {
           throw Exception('One time pre key not found');
         }
 
@@ -234,16 +235,16 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
 
       final clientMeUser = ClientMeUser.fromApiPrivateMeUser(state.meUser!);
       final authStateStore = AuthStateStoreService(
-          state.token!,
-          clientMeUser,
-          ClientMeDevice(
-            apiDevice.id!,
-            apiDevice.deviceName!,
-            clientIdentityKeyPair,
-            clientOneTimePreKeys,
-            clientSignedPreKeyPairList,
-          ),
-        );
+        state.token!,
+        clientMeUser,
+        ClientMeDevice(
+          apiDevice.id!,
+          apiDevice.deviceName!,
+          clientIdentityKeyPair,
+          clientOneTimePreKeys,
+          clientSignedPreKeyPairList,
+        ),
+      );
       await AuthStateStoreService.saveToSecureStorage(authStateStore);
 
       emit(

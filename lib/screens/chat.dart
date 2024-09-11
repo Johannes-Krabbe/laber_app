@@ -6,6 +6,7 @@ import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
 import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/components/button.dart';
 import 'package:laber_app/components/chat_message_widget.dart';
+import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/screens/chat_info.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
@@ -265,11 +266,8 @@ class ChatHead extends StatelessWidget {
                   },
                 ),
                 const SizedBox(width: 10),
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage:
-                      NetworkImage(chat.contact.value?.profilePicture ?? ''),
-                ),
+                ProfilePicture(
+                    radius: 20, imageUrl: chat.contact.value?.profilePicture),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(

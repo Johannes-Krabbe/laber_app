@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:laber_app/components/blur_app_bar.dart';
+import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/store/types/chat.dart';
-
 
 class ChatInfo extends StatefulWidget {
   final Chat chat;
@@ -31,10 +31,7 @@ class _ChatInfoState extends State<ChatInfo> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(contact.profilePicture ?? ''),
-            ),
+            ProfilePicture(radius: 50, imageUrl: contact.profilePicture),
             const SizedBox(height: 10),
             Text(
               contact.name ?? 'NO NAME',
@@ -98,6 +95,8 @@ class _ChatInfoState extends State<ChatInfo> {
                 ),
               ),
             ),
+            Text(widget.chat.devices.firstOrNull?.id.toString() ?? 'No id'),
+            Text(widget.chat.devices.firstOrNull?.secret ?? 'No secret')
           ],
         ),
       ),

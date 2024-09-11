@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
+import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/screens/settings/devices.dart';
 import 'package:laber_app/screens/settings/qr_code.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
@@ -71,10 +72,9 @@ class _SettingsState extends State<Settings> {
                       const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   child: Row(
                     children: <Widget>[
-                      const CircleAvatar(
+                      ProfilePicture(
                         radius: 30,
-                        backgroundImage: NetworkImage(
-                            "https://randomuser.me/api/portraits/med/men/99.jpg"),
+                        imageUrl: authBloc.state.meUser?.profilePicture,
                       ),
                       Flexible(
                         child: Container(

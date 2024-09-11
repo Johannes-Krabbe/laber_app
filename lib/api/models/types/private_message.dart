@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:laber_app/types/message/api_message.dart';
+
 class ApiPrivateMessage {
   String apiId;
   String senderDeviceId;
@@ -13,12 +17,17 @@ class ApiPrivateMessage {
     required this.unixCreatedAt,
   });
 
-  ApiPrivateMessage.fromJson(Map<String, dynamic> json)
-      : apiId = json['id'],
-        senderDeviceId = json['senderDeviceId'],
-        senderUserId = json['senderUserId'],
-        content = json['content'],
-        unixCreatedAt = json['unixCreatedAt'];
+  static ApiPrivateMessage fromJson(Map<String, dynamic> json) {
+    final message = ApiPrivateMessage(
+      apiId: json['id'],
+      senderDeviceId: json['senderDeviceId'],
+      senderUserId: json['senderUserId'],
+      content: json['content'],
+      unixCreatedAt: json['unixCreatedAt'],
+    );
+    print(message.content);
+    return message;
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -28,5 +37,9 @@ class ApiPrivateMessage {
       'content': content,
       'unixCreatedAt': unixCreatedAt,
     };
+  }
+
+  ApiMessageData get apiMessageData {
+    return ApiMessageData.fromJsonString(jsonDecode(content)['message']);
   }
 }

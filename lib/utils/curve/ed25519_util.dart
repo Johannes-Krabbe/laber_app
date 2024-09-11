@@ -1,8 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:cryptography/cryptography.dart';
-import 'dart:convert';
 
 class Ed25519Util {
   static final ed25519 = Ed25519();
@@ -13,10 +10,9 @@ class Ed25519Util {
     return keyPair;
   }
 
-  static Future<Signature> sign(SimpleKeyPair keyPair, String content) async {
-    final message = utf8.encode(content);
+  static Future<Signature> sign(SimpleKeyPair keyPair, List<int> content) async {
     final signature = await flutterEd25519.sign(
-      message,
+      content,
       keyPair: keyPair,
     );
 

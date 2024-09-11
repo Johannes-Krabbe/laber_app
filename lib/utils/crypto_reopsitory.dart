@@ -1,7 +1,6 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
-import 'package:laber_app/utils/curve/x25519_util.dart';
 import 'package:laber_app/store/secure/secure_storage_service.dart';
 import 'dart:convert';
 
@@ -18,12 +17,10 @@ class CryptoRepository {
   Future<SignedPreKeyPair> createNewSignedPreKeyPair(
       SimpleKeyPair identityKeyPair) async {
     final unsignedPreKey = await Ed25519Util.generateKeyPair();
-
-    final base64UnsignedPublicKey = await CryptoUtil.publicKeyToString(
-        await unsignedPreKey.extractPublicKey());
+    final publicKey = await unsignedPreKey.extractPublicKey();
 
     final signature =
-        await Ed25519Util.sign(identityKeyPair, base64UnsignedPublicKey);
+        await Ed25519Util.sign(identityKeyPair, publicKey.bytes);
     final base64Signature = base64Encode(signature.bytes);
 
     final newSignedPreKeyPair =

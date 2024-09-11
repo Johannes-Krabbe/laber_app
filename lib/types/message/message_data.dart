@@ -52,7 +52,7 @@ class AgreementMessageData {
 bool isAgreementMessageData(String data) {
   try {
     final json = jsonDecode(data);
-    return json['type'] == EncryptedMessageDataTypes.keyAgreement;
+    return json['type'] == EncryptedMessageDataTypes.keyAgreement.toString();
   } catch (e) {
     return false;
   }

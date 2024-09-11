@@ -86,6 +86,7 @@ class ChatService {
       final signedPreKeyBytes = (await CryptoUtil.stringToPublicKey(
               deviceRes.body!.device!.signedPreKey!.key!))
           .bytes;
+
       var isValid = await Ed25519Util.verify(
         content: signedPreKeyBytes,
         signature:
@@ -255,8 +256,9 @@ class ChatService {
     final device = Device()
       ..apiId = agreementMessageData.initiatorDeviceId
       ..safetyNumber = result.safetyNumber
-      ..secret = result.sharedSecret.toString()
-      ..chat.value = chat;
+      ..secret = await CryptoUtil.secretKeyToString(result.sharedSecret)
+      ..chat.value = chat
+      ..version = result.version;
 
     await isar.writeTxn(() async {
       await isar.chats.put(chat);

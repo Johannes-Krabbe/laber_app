@@ -19,6 +19,7 @@ class MessageRecieveService {
   }
 
   processMessages(List<ApiPrivateMessage> messages) async {
+    print('Processing ${messages.length} messages');
     for (var message in messages) {
       await processMessage(message);
     }
@@ -31,9 +32,9 @@ class MessageRecieveService {
       throw Exception('AuthStateStore is null');
     }
 
-    if (isAgreementMessageData(apiMessage.content)) {
+    if (isAgreementMessageData(apiMessage.apiMessageData.encryptedMessage)) {
       final agreementMessageData =
-          AgreementMessageData.fromJson(jsonDecode(apiMessage.content));
+          AgreementMessageData.fromJson(jsonDecode(apiMessage.apiMessageData.encryptedMessage));
       await ChatService.createChatFromInitiationMessage(agreementMessageData: agreementMessageData);
     }
   }

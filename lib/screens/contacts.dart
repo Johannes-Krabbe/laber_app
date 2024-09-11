@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
+import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/screens/chat.dart';
 import 'package:laber_app/screens/contacts/add_by_phone.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
@@ -130,9 +131,9 @@ class _ContactsState extends State<Contacts> {
                 subtitle: Text(contacts[index].phoneNumber ??
                     contacts[index].username ??
                     'no phone number/username'),
-                leading: CircleAvatar(
-                  backgroundImage:
-                      NetworkImage(contacts[index].profilePicture ?? ''),
+                leading: ProfilePicture(
+                  radius: 30,
+                  imageUrl: contacts[index].profilePicture,
                 ),
               );
             },
