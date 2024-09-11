@@ -8,7 +8,7 @@ enum EncryptedMessageDataTypes {
 // === Agreement ===
 
 class AgreementMessageData {
-  final String onetimePreKeyId;
+  final String? onetimePreKeyId;
   final String signedPreKeyId;
   final String ephemeralPublicKey;
 
@@ -18,7 +18,7 @@ class AgreementMessageData {
   final EncryptedMessageDataTypes type;
 
   AgreementMessageData({
-    required this.onetimePreKeyId,
+    this.onetimePreKeyId,
     required this.signedPreKeyId,
     required this.ephemeralPublicKey,
     required this.initiatorDeviceId,

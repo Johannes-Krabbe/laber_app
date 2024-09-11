@@ -15,6 +15,7 @@ import 'package:laber_app/types/message/api_message.dart';
 import 'package:laber_app/types/message/message_data.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
+import 'package:laber_app/utils/curve/secret_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
 class ChatService {
@@ -98,7 +99,7 @@ class ChatService {
         continue;
       }
 
-      var sharedSecretRes = await X25519Util.getSharedSecretForChat(
+      var sharedSecretRes = await SecretUtil.initiatorKeyCalculation(
         meIdentityKey: meIdentityKey.keyPair,
         meEphemeralKey: meEphemeralKey,
         contactIdentityKey:
@@ -222,34 +223,31 @@ class ChatService {
         .first
         .keyPair;
 
-    final meOneTimePreKey =
-        authStateStore.meDevice.onetimePreKeyPairs.where((element) {
-      return element.id == agreementMessageData.onetimePreKeyId;
-    });
+    SimpleKeyPair? meOneTimePreKey;
 
-    ({
-      String safetyNumber,
-      SecretKey sharedSecret,
-      SharedSecretVersion version
-    }) result;
+    if (agreementMessageData.onetimePreKeyId != null) {
+      final meOneTimePreKeys =
+          authStateStore.meDevice.onetimePreKeyPairs.where((element) {
+        return element.id == agreementMessageData.onetimePreKeyId;
+      });
 
-    if (meOneTimePreKey.isEmpty) {
-      result = await X25519Util.calculateSecret(
-        contactIdentityKey: contactIdentityKey,
-        contactEphemeralKey: contactEphemeralKey,
-        meIdentityKey: meIdentityKey,
-        mePreKey: mePreKey,
-        meOneTimePreKey: null,
-      );
-    } else {
-      result = await X25519Util.calculateSecret(
-        contactIdentityKey: contactIdentityKey,
-        contactEphemeralKey: contactEphemeralKey,
-        meIdentityKey: meIdentityKey,
-        mePreKey: mePreKey,
-        meOneTimePreKey: meOneTimePreKey.first.keyPair,
-      );
+      if (meOneTimePreKeys.isEmpty) {
+        print('One time pre key not found');
+        throw Exception('One time pre key not found');
+      } else if (meOneTimePreKeys.length > 1) {
+        print('More than one one time pre key found');
+        throw Exception('More than one one time pre key found');
+      }
+      meOneTimePreKey = meOneTimePreKeys.first.keyPair;
     }
+
+    final result = await SecretUtil.recipientKeyCalculation(
+      contactIdentityKey: contactIdentityKey,
+      contactEphemeralKey: contactEphemeralKey,
+      meIdentityKey: meIdentityKey,
+      mePreKey: mePreKey,
+      meOneTimePreKey: meOneTimePreKey,
+    );
 
     final chat = Chat()..contact.value = contact;
 

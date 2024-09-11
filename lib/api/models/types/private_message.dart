@@ -25,7 +25,6 @@ class ApiPrivateMessage {
       content: json['content'],
       unixCreatedAt: json['unixCreatedAt'],
     );
-    print(message.content);
     return message;
   }
 
