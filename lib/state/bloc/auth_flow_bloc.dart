@@ -10,6 +10,7 @@ import 'package:laber_app/types/client_me_user.dart';
 import 'package:laber_app/utils/crypto_reopsitory.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
+import 'package:laber_app/utils/curve/x25519_util.dart';
 
 sealed class AuthFlowEvent {}
 
@@ -131,22 +132,22 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     final cryptoRepository = CryptoRepository();
 
     // --- Identity Key ---
-    final identityKeyPair = await Ed25519Util.generateKeyPair();
+    final identityKeyPair = await X25519Util.generateKeyPair();
     final identityKeyPublicKey = await identityKeyPair.extractPublicKey();
     final base64PublicIdentityKey =
-        await CryptoUtil.publicKeyToString(identityKeyPublicKey);
+        await CryptoUtil.publicKeyToString(identityKeyPublicKey, KeyPairType.ed25519);
 
     // --- Signed Pre Key ---
     final signedPreKey =
         await cryptoRepository.createNewSignedPreKeyPair(identityKeyPair);
     final signedPreKeyPublicKey = await signedPreKey.keyPair.extractPublicKey();
     final base64UnsignedPublicKey =
-        await CryptoUtil.publicKeyToString(signedPreKeyPublicKey);
+        await CryptoUtil.publicKeyToString(signedPreKeyPublicKey, KeyPairType.x25519);
 
     // --- One Time Pre Keys ---
     final List<SimpleKeyPair> oneTimePreKeys = [];
     for (var i = 0; i < 10; i++) {
-      final keyPair = await Ed25519Util.generateKeyPair();
+      final keyPair = await X25519Util.generateKeyPair();
       oneTimePreKeys.add(keyPair);
     }
 
@@ -154,7 +155,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     for (var key in oneTimePreKeys) {
       final keyPair = key;
       final base64PublicKey =
-          await CryptoUtil.publicKeyToString(await keyPair.extractPublicKey());
+          await CryptoUtil.publicKeyToString(await keyPair.extractPublicKey(), KeyPairType.x25519);
       oneTimePrePublicPreKeyStrings.add(base64PublicKey);
     }
 
@@ -210,7 +211,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
         for (var key in oneTimePreKeys) {
           final keyPair = key;
           final base64PublicKey = await CryptoUtil.publicKeyToString(
-              await keyPair.extractPublicKey());
+              await keyPair.extractPublicKey(), KeyPairType.x25519);
 
           if (base64PublicKey == apiKey.key) {
             foundCreatedKeyPair = key;

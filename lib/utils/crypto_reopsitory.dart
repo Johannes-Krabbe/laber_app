@@ -4,6 +4,8 @@ import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/store/secure/secure_storage_service.dart';
 import 'dart:convert';
 
+import 'package:laber_app/utils/curve/x25519_util.dart';
+
 enum SecureStorageType {
   identityKeyPair,
   onetimePreKeyPairs,
@@ -16,7 +18,7 @@ class CryptoRepository {
   // ==== Signed Pre Key Pair ====
   Future<SignedPreKeyPair> createNewSignedPreKeyPair(
       SimpleKeyPair identityKeyPair) async {
-    final unsignedPreKey = await Ed25519Util.generateKeyPair();
+    final unsignedPreKey = await X25519Util.generateKeyPair();
     final publicKey = await unsignedPreKey.extractPublicKey();
 
     final signature =
@@ -47,7 +49,7 @@ class SignedPreKeyPair {
   static String toJson(SignedPreKeyPair signedPreKeyPair) {
     return '''
     {
-      "keyPair": "${CryptoUtil.keyPairToString(signedPreKeyPair.keyPair)}",
+      "keyPair": "${CryptoUtil.keyPairToString(signedPreKeyPair.keyPair, KeyPairType.x25519)}",
       "signature": "${signedPreKeyPair.signature}",
     }
     ''';

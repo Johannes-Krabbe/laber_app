@@ -7,6 +7,10 @@ class X25519Util {
   static final x25519 = X25519();
   static final flutterX25519 = FlutterX25519(x25519);
 
+  static Future<SimpleKeyPair> keyPairFromBytes(List<int> bytes) async {
+    return await flutterX25519.newKeyPairFromSeed(bytes);
+  }
+
   static Future<SimpleKeyPair> generateKeyPair() async {
     final keyPair = await flutterX25519.newKeyPair();
     return keyPair;
@@ -19,8 +23,7 @@ class X25519Util {
     return sharedSecret;
   }
 
-  static Future<List<int>> keyDerivation(
-      List<SecretKey> keys) async {
+  static Future<List<int>> keyDerivation(List<SecretKey> keys) async {
     // Concatenate the secret keys into a single byte array
     final kmBytes = <int>[];
     for (var key in keys) {

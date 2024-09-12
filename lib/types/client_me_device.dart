@@ -60,7 +60,7 @@ class ClientIdentityKeyPair {
 
   Future<Map<String, dynamic>> toJson() async {
     return {
-      'keyPair': await CryptoUtil.keyPairToString(keyPair),
+      'keyPair': await CryptoUtil.keyPairToString(keyPair, KeyPairType.ed25519),
     };
   }
 
@@ -82,7 +82,7 @@ class ClientOnetimePreKeyPair {
 
   Future<Map<String, dynamic>> toJson() async {
     final data = {
-      'keyPair': await CryptoUtil.keyPairToString(keyPair),
+      'keyPair': await CryptoUtil.keyPairToString(keyPair, KeyPairType.x25519),
       'id': id,
       'unixCreatedAt': unixCreatedAt,
     };
@@ -111,7 +111,7 @@ class ClientSignedPreKeyPair {
 
   Future<Map<String, dynamic>> toJson() async {
     return {
-      'keyPair': await CryptoUtil.keyPairToString(keyPair),
+      'keyPair': await CryptoUtil.keyPairToString(keyPair, KeyPairType.x25519),
       'id': id,
       'unixCreatedAt': unixCreatedAt,
       'signature': signature,

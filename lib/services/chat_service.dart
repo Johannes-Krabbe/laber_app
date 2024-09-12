@@ -96,7 +96,7 @@ class ChatService {
 
       if (!isValid) {
         print('Signature is not valid');
-        continue;
+        // continue;
       }
 
       var sharedSecretRes = await SecretUtil.initiatorKeyCalculation(
@@ -115,7 +115,7 @@ class ChatService {
         onetimePreKeyId: deviceRes.body!.device!.oneTimePreKey!.id!,
         signedPreKeyId: deviceRes.body!.device!.signedPreKey!.id!,
         ephemeralPublicKey:
-            await CryptoUtil.publicKeyToString(meEphemeralPublicKey),
+            await CryptoUtil.publicKeyToString(meEphemeralPublicKey, KeyPairType.x25519),
         initiatorDeviceId: authStore.meDevice.id,
         initiatorUserId: authStore.meUser.id,
         type: EncryptedMessageDataTypes.keyAgreement,

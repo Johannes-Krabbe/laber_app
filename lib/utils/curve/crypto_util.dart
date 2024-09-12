@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
+import 'package:laber_app/utils/curve/ed25519_util.dart';
+import 'package:laber_app/utils/curve/x25519_util.dart';
 
 // General crypto functions
 class CryptoUtil {
   // === KeyPair functions ===
-  static Future<String> keyPairToString(SimpleKeyPair keyPair) async {
+  static Future<String> keyPairToString(
+      SimpleKeyPair keyPair, KeyPairType type) async {
     final keyPairData = await keyPair.extract();
 
     final keyStore = KeyPairStore(
-      keyPairData.type,
+      type,
       base64Encode(keyPairData.publicKey.bytes),
       base64Encode(keyPairData.bytes),
     );
@@ -18,18 +21,20 @@ class CryptoUtil {
   static Future<SimpleKeyPair> stringToKeyPair(String keyPairString) async {
     final keyStore = KeyPairStore.fromJson(jsonDecode(keyPairString));
 
-    final publicKey = SimplePublicKey(
-      base64Decode(keyStore.publicKey),
-      type: keyStore.type,
-    );
-
-    final keyPairData = SimpleKeyPairData(
-      base64Decode(keyStore.privateKey),
-      publicKey: publicKey,
-      type: keyStore.type,
-    );
-
-    return keyPairData;
+    switch (keyStore.type) {
+      case KeyPairType.x25519:
+        final keyPair = await X25519Util.keyPairFromBytes(
+          base64Decode(keyStore.privateKey),
+        );
+        return keyPair;
+      case KeyPairType.ed25519:
+        final keyPair = await Ed25519Util.keyPairFromBytes(
+          base64Decode(keyStore.privateKey),
+        );
+        return keyPair;
+      default:
+        throw Exception('Invalid key pair type: ${keyStore.type}');
+    }
   }
 
   // === Public key functions ===
@@ -40,9 +45,9 @@ class CryptoUtil {
     return SimplePublicKey(publicKeyData, type: keyStore.type);
   }
 
-  static Future<String> publicKeyToString(SimplePublicKey publicKey) async {
-    final keyStore =
-        PublicKeyStore(publicKey.type, base64Encode(publicKey.bytes));
+  static Future<String> publicKeyToString(
+      SimplePublicKey publicKey, KeyPairType type) async {
+    final keyStore = PublicKeyStore(type, base64Encode(publicKey.bytes));
     return jsonEncode(keyStore.toJson());
   }
 
@@ -72,7 +77,7 @@ class PublicKeyStore {
 
   Map<String, dynamic> toJson() {
     return {
-      'type': type.toString(),
+      'type': type.name,
       'publicKey': publicKey,
     };
   }
@@ -93,7 +98,7 @@ class KeyPairStore {
 
   Map<String, dynamic> toJson() {
     return {
-      'type': type.toString(),
+      'type': type.name,
       'publicKey': publicKey,
       'privateKey': privateKey,
     };
@@ -102,12 +107,13 @@ class KeyPairStore {
 
 // == helper functions ==
 
-keyPairTypeFromString(String keyPairTypeString) {
-  if (keyPairTypeString == KeyPairType.ed25519.toString()) {
-    return KeyPairType.ed25519;
-  } else if (keyPairTypeString == KeyPairType.x25519.toString()) {
-    return KeyPairType.x25519;
-  } else {
-    throw Exception('Invalid key pair type');
+KeyPairType keyPairTypeFromString(String keyPairTypeString) {
+  switch (keyPairTypeString) {
+    case 'ed25519':
+      return KeyPairType.ed25519;
+    case 'x25519':
+      return KeyPairType.x25519;
+    default:
+      throw Exception('Invalid key pair type: $keyPairTypeString');
   }
 }
