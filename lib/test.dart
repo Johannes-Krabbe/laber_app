@@ -1,32 +1,28 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
+import 'package:laber_app/utils/curve/ed25519/ed25519.dart';
+import 'package:laber_app/utils/curve/ed25519/key_helper.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/secret_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
 test() async {
   final keyPair = await X25519Util.generateKeyPair();
-  final content = [123, 1, 88, 99, 01];
+  final content = Uint8List.fromList([123, 1, 88, 99, 01]);
 
-  final publicKey = await keyPair.extractPublicKey();
-
-  final signature = await Ed25519Util.sign(keyPair, content);
-  final signingKeyPair = await Ed25519Util.keyPairFromBytes(
-      await keyPair.extractPrivateKeyBytes());
-
-  final base64Signature = base64Encode(signature.bytes);
-  print(publicKey.bytes);
-
-  final signingPublicKey =
-      SimplePublicKey(publicKey.bytes, type: KeyPairType.ed25519);
-
-  var isValid = await Ed25519Util.verify(
-    content: content,
-    signature:
-        Signature(base64Decode(base64Signature), publicKey: await signingKeyPair.extractPublicKey()),
+  final random = generateRandomBytes();
+  final signature = sign(
+    Uint8List.fromList(await keyPair.extractPrivateKeyBytes()),
+    content,
+    random,
   );
+
+  final publicKeyBytes = (await keyPair.extractPublicKey()).bytes;
+
+  final isValid = await verifySig(Uint8List.fromList(publicKeyBytes), content, signature);
 
   print(isValid);
 }
@@ -52,7 +48,7 @@ Future<void> test1() async {
 
 Future<bool> test2() async {
   // initiator
-  final aliceIdentityKey = await X25519Util.generateKeyPair();
+  final aliceIdentityKey = await Ed25519Util.generateKeyPair();
   final aliceEphemeralKey = await X25519Util.generateKeyPair();
 
   final aliceIdentityKeyString = await CryptoUtil.publicKeyToString(
@@ -65,7 +61,7 @@ Future<bool> test2() async {
   );
 
   // recipient
-  final bobIdentityKey = await X25519Util.generateKeyPair();
+  final bobIdentityKey = await Ed25519Util.generateKeyPair();
 
   final bobOneTimePreKey = await X25519Util.generateKeyPair();
   final bobSignedPreKey = await X25519Util.generateKeyPair();

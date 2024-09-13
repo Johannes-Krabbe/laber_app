@@ -5,12 +5,15 @@ class Ed25519Util {
   static final ed25519 = Ed25519();
   static final flutterEd25519 = FlutterEd25519(ed25519);
 
+  static Future<SimpleKeyPair> generateKeyPair() async {
+    return await flutterEd25519.newKeyPair();
+  }
+
   static Future<SimpleKeyPair> keyPairFromBytes(List<int> bytes) async {
     return await flutterEd25519.newKeyPairFromSeed(bytes);
   }
 
   static Future<Signature> sign(SimpleKeyPair keyPair, List<int> content) async {
-    print((await keyPair.extractPublicKey()).bytes);
     final signingKeyPair = await keyPairFromBytes(await keyPair.extractPrivateKeyBytes());
 
     final signature = await flutterEd25519.sign(
