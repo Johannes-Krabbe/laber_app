@@ -9,7 +9,6 @@ import 'package:laber_app/types/client_me_device.dart';
 import 'package:laber_app/types/client_me_user.dart';
 import 'package:laber_app/utils/crypto_reopsitory.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
-import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
 sealed class AuthFlowEvent {}

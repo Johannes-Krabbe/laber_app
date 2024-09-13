@@ -4,7 +4,6 @@ import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519/ed25519.dart';
 import 'package:laber_app/utils/curve/ed25519/util.dart';
-import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/secret_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
@@ -47,7 +46,7 @@ Future<void> test1() async {
 
 Future<bool> test2() async {
   // initiator
-  final aliceIdentityKey = await Ed25519Util.generateKeyPair();
+  final aliceIdentityKey = await X25519Util.generateKeyPair();
   final aliceEphemeralKey = await X25519Util.generateKeyPair();
 
   final aliceIdentityKeyString = await CryptoUtil.publicKeyToString(
@@ -60,7 +59,7 @@ Future<bool> test2() async {
   );
 
   // recipient
-  final bobIdentityKey = await Ed25519Util.generateKeyPair();
+  final bobIdentityKey = await X25519Util.generateKeyPair();
 
   final bobOneTimePreKey = await X25519Util.generateKeyPair();
   final bobSignedPreKey = await X25519Util.generateKeyPair();

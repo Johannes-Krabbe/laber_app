@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
-import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
 
 // General crypto functions
@@ -21,20 +20,10 @@ class CryptoUtil {
   static Future<SimpleKeyPair> stringToKeyPair(String keyPairString) async {
     final keyStore = KeyPairStore.fromJson(jsonDecode(keyPairString));
 
-    switch (keyStore.type) {
-      case KeyPairType.x25519:
-        final keyPair = await X25519Util.keyPairFromBytes(
-          base64Decode(keyStore.privateKey),
-        );
-        return keyPair;
-      case KeyPairType.ed25519:
-        final keyPair = await Ed25519Util.keyPairFromBytes(
-          base64Decode(keyStore.privateKey),
-        );
-        return keyPair;
-      default:
-        throw Exception('Invalid key pair type: ${keyStore.type}');
-    }
+    final keyPair = await X25519Util.keyPairFromBytes(
+      base64Decode(keyStore.privateKey),
+    );
+    return keyPair;
   }
 
   // === Public key functions ===

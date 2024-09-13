@@ -14,9 +14,9 @@ import 'package:laber_app/store/types/device.dart';
 import 'package:laber_app/types/message/api_message.dart';
 import 'package:laber_app/types/message/message_data.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
-import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/secret_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
+import 'package:laber_app/utils/curve/xeddsa_util.dart';
 
 class ChatService {
   /* ===
@@ -88,15 +88,14 @@ class ChatService {
               deviceRes.body!.device!.signedPreKey!.key!))
           .bytes;
 
-      var isValid = await Ed25519Util.verify(
-        content: signedPreKeyBytes,
-        signature:
-            Signature(base64Decode(signature!), publicKey: contactIdentityKey),
-      );
+      var isValid = await XeddsaUtil.verifyX25519(
+          content: signedPreKeyBytes,
+          publicKeyBytes: contactIdentityKey.bytes,
+          signature: base64Decode(signature!));
 
       if (!isValid) {
         print('Signature is not valid');
-        // continue;
+        continue;
       }
 
       var sharedSecretRes = await SecretUtil.initiatorKeyCalculation(
@@ -114,8 +113,8 @@ class ChatService {
       final agreementMessageData = AgreementMessageData(
         onetimePreKeyId: deviceRes.body!.device!.oneTimePreKey!.id!,
         signedPreKeyId: deviceRes.body!.device!.signedPreKey!.id!,
-        ephemeralPublicKey:
-            await CryptoUtil.publicKeyToString(meEphemeralPublicKey, KeyPairType.x25519),
+        ephemeralPublicKey: await CryptoUtil.publicKeyToString(
+            meEphemeralPublicKey, KeyPairType.x25519),
         initiatorDeviceId: authStore.meDevice.id,
         initiatorUserId: authStore.meUser.id,
         type: EncryptedMessageDataTypes.keyAgreement,

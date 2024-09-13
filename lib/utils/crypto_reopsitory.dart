@@ -1,10 +1,10 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
-import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/store/secure/secure_storage_service.dart';
 import 'dart:convert';
 
 import 'package:laber_app/utils/curve/x25519_util.dart';
+import 'package:laber_app/utils/curve/xeddsa_util.dart';
 
 enum SecureStorageType {
   identityKeyPair,
@@ -22,8 +22,8 @@ class CryptoRepository {
     final publicKey = await unsignedPreKey.extractPublicKey();
 
     final signature =
-        await Ed25519Util.sign(identityKeyPair, publicKey.bytes);
-    final base64Signature = base64Encode(signature.bytes);
+        await XeddsaUtil.signX25519(identityKeyPair, publicKey.bytes);
+    final base64Signature = base64Encode(signature);
 
     final newSignedPreKeyPair =
         SignedPreKeyPair(unsignedPreKey, base64Signature);
