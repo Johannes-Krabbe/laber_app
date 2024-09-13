@@ -5,15 +5,7 @@ import 'package:crypto/crypto.dart' as cr;
 import 'package:ed25519_edwards/ed25519_edwards.dart';
 // ignore: implementation_imports
 import 'package:ed25519_edwards/src/edwards25519.dart';
-
-// import 'curve.dart';
-
-class Curve {
-  static void arraycopy(
-      List<int> src, int srcPos, List<int> dest, int destPos, int length) {
-    dest.setRange(destPos, length + destPos, src, srcPos);
-  }
-}
+import 'package:laber_app/utils/curve/ed25519/util.dart';
 
 Uint8List sign(Uint8List privateKey, Uint8List message, Uint8List random) {
   final A = ExtendedGroupElement();
@@ -89,8 +81,8 @@ Uint8List sign(Uint8List privateKey, Uint8List message, Uint8List random) {
   ScMulAdd(s, hramDigestReduced, privateKey, rReduced);
 
   final signature = Uint8List(64);
-  Curve.arraycopy(encodedR, 0, signature, 0, 32);
-  Curve.arraycopy(s, 0, signature, 32, 32);
+  arraycopy(encodedR, 0, signature, 0, 32);
+  arraycopy(s, 0, signature, 32, 32);
   signature[63] |= publicKey[31] & 0x80;
 
   return signature;

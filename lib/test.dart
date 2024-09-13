@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
 import 'package:laber_app/utils/curve/ed25519/ed25519.dart';
-import 'package:laber_app/utils/curve/ed25519/key_helper.dart';
+import 'package:laber_app/utils/curve/ed25519/util.dart';
 import 'package:laber_app/utils/curve/ed25519_util.dart';
 import 'package:laber_app/utils/curve/secret_util.dart';
 import 'package:laber_app/utils/curve/x25519_util.dart';
