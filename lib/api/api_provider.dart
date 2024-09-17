@@ -14,6 +14,12 @@ final Dio globalDioAuth = Dio(
   ),
 )..interceptors.add(AuthInterceptor());
 
+var refetchToken = false;
+
+dioRefetchTokenFunction() {
+  refetchToken = true;
+}
+
 abstract class ApiProvider {
   final dio = globalDio;
   final dioAuth = globalDioAuth;
@@ -38,13 +44,16 @@ class AuthInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    if (token == null) {
-      var secureStorageToken = (await AuthStateStoreService.readFromSecureStorage())?.token;
+    if (token == null || refetchToken) {
+      print('refetchToken');
+      var secureStorageToken =
+          (await AuthStateStoreService.readFromSecureStorage())?.token;
       if (secureStorageToken?.isNotEmpty == true) {
         token = secureStorageToken!;
       } else {
         throw Exception('Token not found');
       }
+      refetchToken = false;
     }
 
     options.headers['Authorization'] = 'Bearer $token';

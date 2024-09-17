@@ -45,7 +45,7 @@ class Chat {
           final content = TextMessageContent.fromJsonString(rawMessage.content);
           parsedMessages.add(ClientParsedMessage(
             text: content.text,
-            apiId: rawMessage.apiId,
+            uniqueId: rawMessage.uniqueId,
             senderUserId: rawMessage.senderUserId,
             unixTime: rawMessage.unixTime,
             type: ParsedMessageTypes.textMessage,
@@ -57,7 +57,7 @@ class Chat {
               ReactionMessageContent.fromJsonString(rawMessage.content);
 
           parsedMessages
-              .where((element) => element.apiId == content.messageApiId)
+              .where((element) => element.uniqueId == content.messageUniqueId)
               .first
               .reactions
               .add(ClientReaction(
@@ -76,7 +76,7 @@ class Chat {
 
 class ClientParsedMessage {
   final String text;
-  final String? apiId;
+  final String uniqueId;
   final String senderUserId;
   final int unixTime;
   final ParsedMessageTypes type;
@@ -84,7 +84,7 @@ class ClientParsedMessage {
 
   ClientParsedMessage({
     required this.text,
-    this.apiId,
+    required this.uniqueId,
     required this.senderUserId,
     required this.unixTime,
     required this.type,

@@ -1,9 +1,12 @@
 import 'package:laber_app/api/models/types/private_message.dart';
 import 'package:laber_app/api/repositories/message_repository.dart';
 import 'package:laber_app/services/chat_service.dart';
+import 'package:laber_app/services/message_encryption_service.dart';
+import 'package:laber_app/store/repositories/raw_message_repository.dart';
 import 'dart:convert';
 
 import 'package:laber_app/store/secure/auth_store_service.dart';
+import 'package:laber_app/types/message/api_message.dart';
 import 'package:laber_app/types/message/message_data.dart';
 
 class MessageRecieveService {
@@ -32,10 +35,27 @@ class MessageRecieveService {
       throw Exception('AuthStateStore is null');
     }
 
-    if (isAgreementMessageData(apiMessage.apiMessageData.encryptedMessage)) {
-      final agreementMessageData =
-          AgreementMessageData.fromJson(jsonDecode(apiMessage.apiMessageData.encryptedMessage));
-      await ChatService.createChatFromInitiationMessage(agreementMessageData: agreementMessageData);
+    switch (apiMessage.apiMessage.messageData.type) {
+      case ApiMessageDataTypes.keyAgreement:
+        {
+          final agreementMessageData = AgreementMessageData.fromJson(
+              jsonDecode(apiMessage.apiMessage.messageData.encryptedMessage));
+          try {
+            await ChatService.createChatFromInitiationMessage(
+                agreementMessageData: agreementMessageData);
+          } catch (e) {
+            print('Error creating chat from initiation message: $e');
+          }
+          break;
+        }
+      case ApiMessageDataTypes.applicationRawMessage:
+        {
+          final decryptedMessage = await MessageEncryptionService()
+              .decryptMessage(apiMessage: apiMessage.apiMessage);
+          await RawMessageStoreRepository().saveRawMessage(decryptedMessage);
+          break;
+        }
+      default:
     }
   }
 }

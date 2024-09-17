@@ -17,37 +17,37 @@ const RawMessageSchema = CollectionSchema(
   name: r'RawMessage',
   id: 6546940355494955126,
   properties: {
-    r'apiId': PropertySchema(
-      id: 0,
-      name: r'apiId',
-      type: IsarType.string,
-    ),
     r'content': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'content',
       type: IsarType.string,
     ),
     r'senderDeviceId': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'senderDeviceId',
       type: IsarType.string,
     ),
     r'senderUserId': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'senderUserId',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 4,
+      id: 3,
       name: r'status',
       type: IsarType.byte,
       enumMap: _RawMessagestatusEnumValueMap,
     ),
     r'type': PropertySchema(
-      id: 5,
+      id: 4,
       name: r'type',
       type: IsarType.byte,
       enumMap: _RawMessagetypeEnumValueMap,
+    ),
+    r'uniqueId': PropertySchema(
+      id: 5,
+      name: r'uniqueId',
+      type: IsarType.string,
     ),
     r'unixTime': PropertySchema(
       id: 6,
@@ -61,14 +61,14 @@ const RawMessageSchema = CollectionSchema(
   deserializeProp: _rawMessageDeserializeProp,
   idName: r'id',
   indexes: {
-    r'apiId': IndexSchema(
-      id: 92618221247000178,
-      name: r'apiId',
+    r'uniqueId': IndexSchema(
+      id: -6275468996282682414,
+      name: r'uniqueId',
       unique: false,
       replace: false,
       properties: [
         IndexPropertySchema(
-          name: r'apiId',
+          name: r'uniqueId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -97,15 +97,10 @@ int _rawMessageEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  {
-    final value = object.apiId;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
   bytesCount += 3 + object.content.length * 3;
   bytesCount += 3 + object.senderDeviceId.length * 3;
   bytesCount += 3 + object.senderUserId.length * 3;
+  bytesCount += 3 + object.uniqueId.length * 3;
   return bytesCount;
 }
 
@@ -115,12 +110,12 @@ void _rawMessageSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.apiId);
-  writer.writeString(offsets[1], object.content);
-  writer.writeString(offsets[2], object.senderDeviceId);
-  writer.writeString(offsets[3], object.senderUserId);
-  writer.writeByte(offsets[4], object.status.index);
-  writer.writeByte(offsets[5], object.type.index);
+  writer.writeString(offsets[0], object.content);
+  writer.writeString(offsets[1], object.senderDeviceId);
+  writer.writeString(offsets[2], object.senderUserId);
+  writer.writeByte(offsets[3], object.status.index);
+  writer.writeByte(offsets[4], object.type.index);
+  writer.writeString(offsets[5], object.uniqueId);
   writer.writeLong(offsets[6], object.unixTime);
 }
 
@@ -131,17 +126,17 @@ RawMessage _rawMessageDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = RawMessage();
-  object.apiId = reader.readStringOrNull(offsets[0]);
-  object.content = reader.readString(offsets[1]);
+  object.content = reader.readString(offsets[0]);
   object.id = id;
-  object.senderDeviceId = reader.readString(offsets[2]);
-  object.senderUserId = reader.readString(offsets[3]);
+  object.senderDeviceId = reader.readString(offsets[1]);
+  object.senderUserId = reader.readString(offsets[2]);
   object.status =
-      _RawMessagestatusValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+      _RawMessagestatusValueEnumMap[reader.readByteOrNull(offsets[3])] ??
           RawMessageStatus.sending;
   object.type =
-      _RawMessagetypeValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+      _RawMessagetypeValueEnumMap[reader.readByteOrNull(offsets[4])] ??
           RawMessageTypes.initMessage;
+  object.uniqueId = reader.readString(offsets[5]);
   object.unixTime = reader.readLong(offsets[6]);
   return object;
 }
@@ -154,19 +149,19 @@ P _rawMessageDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
-    case 4:
       return (_RawMessagestatusValueEnumMap[reader.readByteOrNull(offset)] ??
           RawMessageStatus.sending) as P;
-    case 5:
+    case 4:
       return (_RawMessagetypeValueEnumMap[reader.readByteOrNull(offset)] ??
           RawMessageTypes.initMessage) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readLong(offset)) as P;
     default:
@@ -286,65 +281,45 @@ extension RawMessageQueryWhere
     });
   }
 
-  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdIsNull() {
+  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> uniqueIdEqualTo(
+      String uniqueId) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'apiId',
-        value: [null],
+        indexName: r'uniqueId',
+        value: [uniqueId],
       ));
     });
   }
 
-  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'apiId',
-        lower: [null],
-        includeLower: false,
-        upper: [],
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdEqualTo(
-      String? apiId) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'apiId',
-        value: [apiId],
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> apiIdNotEqualTo(
-      String? apiId) {
+  QueryBuilder<RawMessage, RawMessage, QAfterWhereClause> uniqueIdNotEqualTo(
+      String uniqueId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
+              indexName: r'uniqueId',
               lower: [],
-              upper: [apiId],
+              upper: [uniqueId],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
-              lower: [apiId],
+              indexName: r'uniqueId',
+              lower: [uniqueId],
               includeLower: false,
               upper: [],
             ));
       } else {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
-              lower: [apiId],
+              indexName: r'uniqueId',
+              lower: [uniqueId],
               includeLower: false,
               upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'apiId',
+              indexName: r'uniqueId',
               lower: [],
-              upper: [apiId],
+              upper: [uniqueId],
               includeUpper: false,
             ));
       }
@@ -354,153 +329,6 @@ extension RawMessageQueryWhere
 
 extension RawMessageQueryFilter
     on QueryBuilder<RawMessage, RawMessage, QFilterCondition> {
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'apiId',
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'apiId',
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdEqualTo(
-    String? value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdLessThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdBetween(
-    String? lower,
-    String? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'apiId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdContains(
-      String value,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'apiId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'apiId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> apiIdIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'apiId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition>
-      apiIdIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'apiId',
-        value: '',
-      ));
-    });
-  }
-
   QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> contentEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1064,6 +892,140 @@ extension RawMessageQueryFilter
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> uniqueIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'uniqueId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition>
+      uniqueIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'uniqueId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> uniqueIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'uniqueId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> uniqueIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'uniqueId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition>
+      uniqueIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'uniqueId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> uniqueIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'uniqueId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> uniqueIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'uniqueId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> uniqueIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'uniqueId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition>
+      uniqueIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'uniqueId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition>
+      uniqueIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'uniqueId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QAfterFilterCondition> unixTimeEqualTo(
       int value) {
     return QueryBuilder.apply(this, (query) {
@@ -1140,18 +1102,6 @@ extension RawMessageQueryLinks
 
 extension RawMessageQuerySortBy
     on QueryBuilder<RawMessage, RawMessage, QSortBy> {
-  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByApiId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.asc);
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByApiIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.desc);
-    });
-  }
-
   QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByContent() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'content', Sort.asc);
@@ -1213,6 +1163,18 @@ extension RawMessageQuerySortBy
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByUniqueId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'uniqueId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByUniqueIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'uniqueId', Sort.desc);
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QAfterSortBy> sortByUnixTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unixTime', Sort.asc);
@@ -1228,18 +1190,6 @@ extension RawMessageQuerySortBy
 
 extension RawMessageQuerySortThenBy
     on QueryBuilder<RawMessage, RawMessage, QSortThenBy> {
-  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByApiId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.asc);
-    });
-  }
-
-  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByApiIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'apiId', Sort.desc);
-    });
-  }
-
   QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByContent() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'content', Sort.asc);
@@ -1313,6 +1263,18 @@ extension RawMessageQuerySortThenBy
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByUniqueId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'uniqueId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByUniqueIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'uniqueId', Sort.desc);
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QAfterSortBy> thenByUnixTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unixTime', Sort.asc);
@@ -1328,13 +1290,6 @@ extension RawMessageQuerySortThenBy
 
 extension RawMessageQueryWhereDistinct
     on QueryBuilder<RawMessage, RawMessage, QDistinct> {
-  QueryBuilder<RawMessage, RawMessage, QDistinct> distinctByApiId(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'apiId', caseSensitive: caseSensitive);
-    });
-  }
-
   QueryBuilder<RawMessage, RawMessage, QDistinct> distinctByContent(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1369,6 +1324,13 @@ extension RawMessageQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RawMessage, RawMessage, QDistinct> distinctByUniqueId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'uniqueId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<RawMessage, RawMessage, QDistinct> distinctByUnixTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'unixTime');
@@ -1381,12 +1343,6 @@ extension RawMessageQueryProperty
   QueryBuilder<RawMessage, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<RawMessage, String?, QQueryOperations> apiIdProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'apiId');
     });
   }
 
@@ -1418,6 +1374,12 @@ extension RawMessageQueryProperty
   QueryBuilder<RawMessage, RawMessageTypes, QQueryOperations> typeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'type');
+    });
+  }
+
+  QueryBuilder<RawMessage, String, QQueryOperations> uniqueIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'uniqueId');
     });
   }
 

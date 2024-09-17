@@ -23,6 +23,4 @@ class SecureStorageService {
 
 enum SecureStorageKeys {
   authStateStore,
-  authCurrentUserId,
-  contactsStore,
 }

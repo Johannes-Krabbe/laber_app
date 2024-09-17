@@ -44,7 +44,7 @@ class ApiMessageData {
   static ApiMessageData fromJsonString(String jsonString) {
     final json = jsonDecode(jsonString);
 
-    ApiMessageDataTypes type = ApiMessageDataTypes.message;
+    ApiMessageDataTypes type = ApiMessageDataTypes.applicationRawMessage;
     if (json['type'] == ApiMessageDataTypes.keyAgreement.toString()) {
       type = ApiMessageDataTypes.keyAgreement;
     }
@@ -67,5 +67,5 @@ class ApiMessageData {
 
 enum ApiMessageDataTypes {
   keyAgreement,
-  message,
+  applicationRawMessage,
 }

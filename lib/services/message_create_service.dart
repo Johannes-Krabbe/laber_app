@@ -1,11 +1,13 @@
 import 'package:isar/isar.dart';
 import 'package:laber_app/isar.dart';
+import 'package:laber_app/services/message_encryption_service.dart';
+import 'package:laber_app/store/repositories/outgoing_message_repository.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/types/contact.dart';
 import 'package:laber_app/store/types/raw_message.dart';
 
 class MessageCreateService {
-static Future<void> sendTextMessage({
+  static Future<void> sendTextMessage({
     required String contactApiId,
     required String message,
   }) async {
@@ -25,7 +27,7 @@ static Future<void> sendTextMessage({
 
     final content = TextMessageContent(text: message);
 
-    final messageObj = RawMessage()
+    final rawMessage = RawMessage()
       ..content = message
       ..type = RawMessageTypes.textMessage
       ..senderUserId = meUser.id
@@ -36,10 +38,34 @@ static Future<void> sendTextMessage({
       ..chat.value = chat;
 
     await isar.writeTxn(() async {
-      await isar.rawMessages.put(messageObj);
-      await messageObj.chat.save();
+      await isar.rawMessages.put(rawMessage);
+      await rawMessage.chat.save();
     });
 
-    // TODO: send message
+    await sendRawMessage(contact: contact!, message: rawMessage);
+  }
+
+  static Future<void> sendRawMessage({
+    required Contact contact,
+    required RawMessage message,
+  }) async {
+    final chat = contact.chat.value;
+
+    final contactDevices = chat?.devices;
+
+    if (contactDevices == null) {
+      throw Exception('No devices found');
+    }
+
+    // TODO send to me devices
+
+    for (var device in contactDevices) {
+      final apiMessage = await MessageEncryptionService()
+          .encryptMessage(message: message, device: device);
+      await OutgoingMessageRepository.create(
+        content: apiMessage,
+        recipientDeviceId: device.apiId,
+      );
+    }
   }
 }

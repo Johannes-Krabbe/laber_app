@@ -7,7 +7,6 @@ import 'package:laber_app/screens/settings/devices.dart';
 import 'package:laber_app/screens/settings/qr_code.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
-import 'package:laber_app/test.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -248,11 +247,6 @@ class _SettingsState extends State<Settings> {
               ],
             ),
           ),
-          Button(
-              text: 'test',
-              onPressed: () async {
-                await test();
-              })
         ],
       ),
     );

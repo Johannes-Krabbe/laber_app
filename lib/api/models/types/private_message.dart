@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:laber_app/types/message/api_message.dart';
 
 class ApiPrivateMessage {
@@ -38,7 +36,7 @@ class ApiPrivateMessage {
     };
   }
 
-  ApiMessageData get apiMessageData {
-    return ApiMessageData.fromJsonString(jsonDecode(content)['message']);
+  ApiMessage get apiMessage {
+    return ApiMessage.fromJsonString(content);
   }
 }

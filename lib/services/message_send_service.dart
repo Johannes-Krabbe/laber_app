@@ -6,7 +6,7 @@ import 'package:laber_app/store/types/outgoing_message.dart';
 import 'package:laber_app/utils/interval_executer.dart';
 
 const maxRetries = 3;
-const retryInterval = Duration(seconds: 30);
+const retryInterval = Duration(seconds: 10);
 
 class MessageSendService {
   StreamSubscription<void>? _outgoingMessageSubscription;
@@ -52,11 +52,12 @@ class MessageSendService {
     final messageRepository = MessageRepository();
     try {
       final messagePostRes = await messageRepository.postNew(message);
-      if(messagePostRes.status != 200) {
-        throw Exception('Failed to send message');
+      if(messagePostRes.status != 201) {
+        throw Exception('Failed to send message: ${messagePostRes.status} ${messagePostRes.body?.message}');
       }
       await handleSuccess(message);
     } catch (e) {
+      print('Failed to send message: $e');
       await handleFailed(message);
     }
   }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
 import 'package:laber_app/store/types/chat.dart';
+import 'package:laber_app/utils/id_generator.dart';
 
 part 'raw_message.g.dart';
 
@@ -11,7 +12,7 @@ class RawMessage {
   Id id = Isar.autoIncrement;
 
   @Index(type: IndexType.hash)
-  String? apiId;
+  String uniqueId = newCuid();
 
   @enumerated
   late RawMessageTypes type;
@@ -49,13 +50,51 @@ class RawMessage {
   String get previewString {
     switch (type) {
       case RawMessageTypes.textMessage:
-        TextMessageContent content = TextMessageContent.fromJsonString(this.content);
+        TextMessageContent content =
+            TextMessageContent.fromJsonString(this.content);
         return content.text;
       case RawMessageTypes.reaction:
         return 'Reaction';
       default:
         return 'Unknown';
     }
+  }
+
+  @ignore
+  String get jsonString {
+    return jsonEncode({
+      'uniqueId': uniqueId,
+      'type': type.toString(),
+      'senderUserId': senderUserId,
+      'senderDeviceId': senderDeviceId,
+      'content': content,
+      'unixTime': unixTime,
+      'status': status.toString(),
+    });
+  }
+
+  static RawMessage fromJsonString(String jsonString) {
+    final json = jsonDecode(jsonString);
+    final uniqueId = json['uniqueId'];
+    final type =
+        RawMessageTypes.values.firstWhere((e) => e.toString() == json['type']);
+    final senderUserId = json['senderUserId'];
+    final senderDeviceId = json['senderDeviceId'];
+    final content = json['content'];
+    final unixTime = json['unixTime'];
+    final status = RawMessageStatus.values
+        .firstWhere((e) => e.toString() == json['status']);
+
+    var message = RawMessage()
+      ..uniqueId = uniqueId
+      ..type = type
+      ..senderUserId = senderUserId
+      ..senderDeviceId = senderDeviceId
+      ..content = content
+      ..unixTime = unixTime
+      ..status = status;
+
+    return message;
   }
 }
 
@@ -94,23 +133,24 @@ class TextMessageContent {
 }
 
 class ReactionMessageContent {
-  late String messageApiId;
+  late String messageUniqueId;
   late String reaction;
 
-  ReactionMessageContent({required this.messageApiId, required this.reaction});
+  ReactionMessageContent({required this.messageUniqueId, required this.reaction});
 
   String toJsonString() {
     return jsonEncode({
-      'messageApiId': messageApiId,
+      'messageUniqueId': messageUniqueId,
       'reaction': reaction,
     });
   }
 
   static ReactionMessageContent fromJsonString(String jsonString) {
     final json = jsonDecode(jsonString);
-    final messageApiId= json['messageApiId'];
+    final messageUniqueId = json['messageUniqueId'];
     final reaction = json['reaction'];
-    var content = ReactionMessageContent(messageApiId: messageApiId, reaction: reaction);
+    var content =
+        ReactionMessageContent(messageUniqueId: messageUniqueId, reaction: reaction);
     return content;
   }
 }

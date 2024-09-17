@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/state/types/auth_state.dart';
@@ -91,6 +92,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   _onLogout(LogoutAuthEvent event, Emitter<AuthState> emit) async {
     // delete all data from secure storage
     await AuthStateStoreService.deleteFromSecureStorage();
+
+    // reset dio
+    dioRefetchTokenFunction();
 
     // delete all data from isar
     final isar = await getIsar();
