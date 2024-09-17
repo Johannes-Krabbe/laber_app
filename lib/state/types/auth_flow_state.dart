@@ -10,6 +10,8 @@ enum AuthFlowStateEnum {
   successPhone,
   successOtp,
   successDevice,
+  successUsername,
+  successSecurity,
 }
 
 class AuthFlowState {
@@ -18,11 +20,18 @@ class AuthFlowState {
   final PhoneNumber? phoneNumber;
   final String? otp;
   final String? token;
-  final ApiPrivateUser? meUser;
   final String? deviceName;
+
+  final ApiPrivateUser? meUser;
   final ApiPrivateDevice? meDevice;
 
   final AuthStateStoreService? authStateStore;
+
+  //userdata
+  final String? username;
+  final String? name;
+  final bool? phoneNumberDiscoveryEnabled;
+  final bool? usernameDiscoveryEnabled;
 
   const AuthFlowState({
     this.state = AuthFlowStateEnum.none,
@@ -34,6 +43,10 @@ class AuthFlowState {
     this.deviceName,
     this.meDevice,
     this.authStateStore,
+    this.username,
+    this.name,
+    this.phoneNumberDiscoveryEnabled,
+    this.usernameDiscoveryEnabled,
   });
 
   AuthFlowState copyWith({
@@ -46,6 +59,10 @@ class AuthFlowState {
     String? deviceName,
     ApiPrivateDevice? meDevice,
     AuthStateStoreService? authStateStore,
+    String? username,
+    String? name,
+    bool? phoneNumberDiscoveryEnabled,
+    bool? usernameDiscoveryEnabled,
   }) {
     return AuthFlowState(
       state: state ?? this.state,
@@ -57,6 +74,12 @@ class AuthFlowState {
       deviceName: deviceName ?? this.deviceName,
       meDevice: meDevice ?? this.meDevice,
       authStateStore: authStateStore ?? this.authStateStore,
+      username: username ?? this.username,
+      name: name ?? this.name,
+      phoneNumberDiscoveryEnabled:
+          phoneNumberDiscoveryEnabled ?? this.phoneNumberDiscoveryEnabled,
+      usernameDiscoveryEnabled:
+          usernameDiscoveryEnabled ?? this.usernameDiscoveryEnabled,
     );
   }
 }

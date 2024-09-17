@@ -34,6 +34,23 @@ final class CreateDeviceAuthFlowEvent extends AuthFlowEvent {
   CreateDeviceAuthFlowEvent(this.token, this.deviceName);
 }
 
+final class EnterUserdataAuthFlowEvent extends AuthFlowEvent {
+  final String username;
+  final String name;
+
+  EnterUserdataAuthFlowEvent(this.username, this.name);
+}
+
+final class EnterSecurityAuthFlowEvent extends AuthFlowEvent {
+  final bool switchUsernameDiscoveryValue;
+  final bool switchPhonenumberDiscoveryValue;
+
+  EnterSecurityAuthFlowEvent(
+    this.switchUsernameDiscoveryValue,
+    this.switchPhonenumberDiscoveryValue,
+  );
+}
+
 class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
   AuthFlowBloc() : super(const AuthFlowState()) {
     on<EnterPhoneNumberAuthFlowEvent>((event, emit) async {
@@ -47,6 +64,12 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     });
     on<CreateDeviceAuthFlowEvent>((event, emit) async {
       await _onCreateDevice(event, emit);
+    });
+    on<EnterUserdataAuthFlowEvent>((event, emit) async {
+      await _onEnterUserdata(event, emit);
+    });
+    on<EnterSecurityAuthFlowEvent>((event, emit) async {
+      await _onEnterSecurity(event, emit);
     });
   }
 
@@ -133,15 +156,15 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     // --- Identity Key ---
     final identityKeyPair = await X25519Util.generateKeyPair();
     final identityKeyPublicKey = await identityKeyPair.extractPublicKey();
-    final base64PublicIdentityKey =
-        await CryptoUtil.publicKeyToString(identityKeyPublicKey, KeyPairType.ed25519);
+    final base64PublicIdentityKey = await CryptoUtil.publicKeyToString(
+        identityKeyPublicKey, KeyPairType.ed25519);
 
     // --- Signed Pre Key ---
     final signedPreKey =
         await cryptoRepository.createNewSignedPreKeyPair(identityKeyPair);
     final signedPreKeyPublicKey = await signedPreKey.keyPair.extractPublicKey();
-    final base64UnsignedPublicKey =
-        await CryptoUtil.publicKeyToString(signedPreKeyPublicKey, KeyPairType.x25519);
+    final base64UnsignedPublicKey = await CryptoUtil.publicKeyToString(
+        signedPreKeyPublicKey, KeyPairType.x25519);
 
     // --- One Time Pre Keys ---
     final List<SimpleKeyPair> oneTimePreKeys = [];
@@ -153,8 +176,8 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     final List<String> oneTimePrePublicPreKeyStrings = [];
     for (var key in oneTimePreKeys) {
       final keyPair = key;
-      final base64PublicKey =
-          await CryptoUtil.publicKeyToString(await keyPair.extractPublicKey(), KeyPairType.x25519);
+      final base64PublicKey = await CryptoUtil.publicKeyToString(
+          await keyPair.extractPublicKey(), KeyPairType.x25519);
       oneTimePrePublicPreKeyStrings.add(base64PublicKey);
     }
 
@@ -252,6 +275,92 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
           state: AuthFlowStateEnum.successDevice,
           meDevice: apiDevice,
           authStateStore: authStateStore,
+          error: '',
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          state: AuthFlowStateEnum.error,
+          error: res.body?.message ?? 'Something went wrong!',
+        ),
+      );
+    }
+  }
+
+  _onEnterUserdata(
+      EnterUserdataAuthFlowEvent event, Emitter<AuthFlowState> emit) async {
+    emit(state.copyWith(
+      state: AuthFlowStateEnum.loading,
+      username: event.username,
+      name: event.name,
+      error: '',
+    ));
+
+    if (state.token?.isEmpty != false) {
+      emit(state.copyWith(
+        state: AuthFlowStateEnum.error,
+        error: 'Invalid token',
+      ));
+      return;
+    }
+
+    final res = await AuthRepository().updateMe(
+      token: state.token,
+      username: event.username,
+      name: event.name,
+    );
+
+    if (res.status == 200 || res.status == 201) {
+      final meUserResponse = await AuthRepository().fetchMe(state.token!);
+
+      emit(
+        state.copyWith(
+          state: AuthFlowStateEnum.successUsername,
+          meUser: meUserResponse.body?.user,
+          error: '',
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          state: AuthFlowStateEnum.error,
+          error: res.body?.message ?? 'Something went wrong!',
+        ),
+      );
+    }
+  }
+
+  _onEnterSecurity(
+      EnterSecurityAuthFlowEvent event, Emitter<AuthFlowState> emit) async {
+    emit(state.copyWith(
+      state: AuthFlowStateEnum.loading,
+      usernameDiscoveryEnabled: event.switchUsernameDiscoveryValue,
+      phoneNumberDiscoveryEnabled: event.switchPhonenumberDiscoveryValue,
+      error: '',
+    ));
+
+    if (state.token?.isEmpty != false) {
+      emit(state.copyWith(
+        state: AuthFlowStateEnum.error,
+        error: 'Invalid token',
+      ));
+      return;
+    }
+
+    final res = await AuthRepository().updateMe(
+      token: state.token,
+      usernameDiscoveryEnabled: event.switchUsernameDiscoveryValue,
+      phoneNumberDiscoveryEnabled: event.switchPhonenumberDiscoveryValue,
+    );
+
+    if (res.status == 200 || res.status == 201) {
+      final meUserResponse = await AuthRepository().fetchMe(state.token!);
+
+      emit(
+        state.copyWith(
+          state: AuthFlowStateEnum.successSecurity,
+          meUser: meUserResponse.body?.user,
           error: '',
         ),
       );

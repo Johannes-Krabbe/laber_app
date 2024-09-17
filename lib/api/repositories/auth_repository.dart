@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/auth/login_response.dart';
 import 'package:laber_app/api/models/responses/auth/me_response.dart';
+import 'package:laber_app/api/models/responses/auth/me_update_response.dart';
 import 'package:laber_app/api/models/responses/auth/verify_response.dart';
 
 class AuthRepository extends ApiProvider {
@@ -58,6 +59,56 @@ class AuthRepository extends ApiProvider {
       );
     } catch (e) {
       return ApiRepositoryResponse<AuthMeResponse>(
+        status: 500,
+      );
+    }
+  }
+
+  Future<ApiRepositoryResponse<MeUpdateResponse>> updateMe({
+    String? token,
+    String? username,
+    String? name,
+    String? phoneNumber,
+    bool? phoneNumberDiscoveryEnabled,
+    bool? usernameDiscoveryEnabled,
+  }) async {
+    try {
+      Response<dynamic> response;
+      if (token == null) {
+        response = await dioAuth.put(
+          '/auth/me/update',
+          data: {
+            'username': username,
+            'name': name,
+            'phoneNumber': phoneNumber,
+            'phoneNumberDiscoveryEnabled': phoneNumberDiscoveryEnabled,
+            'usernameDiscoveryEnabled': usernameDiscoveryEnabled,
+          },
+        );
+      } else {
+        response = await dio.put(
+          '/auth/me/update',
+          options: Options(headers: {"authorization": "Bearer $token"}),
+          data: {
+            'username': username,
+            'name': name,
+            'phoneNumber': phoneNumber,
+            'phoneNumberDiscoveryEnabled': phoneNumberDiscoveryEnabled,
+            'usernameDiscoveryEnabled': usernameDiscoveryEnabled,
+          },
+        );
+      }
+
+      return ApiRepositoryResponse<MeUpdateResponse>(
+        body: MeUpdateResponse.fromJson(response.data),
+        status: response.statusCode!,
+      );
+    } catch (e) {
+      if (e is DioException) {
+        print(e.response?.data);
+      }
+      print(e);
+      return ApiRepositoryResponse<MeUpdateResponse>(
         status: 500,
       );
     }

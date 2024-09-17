@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:laber_app/screens/auth/create_device.dart';
+import 'package:laber_app/screens/auth/name.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/state/bloc/auth_flow_bloc.dart';
@@ -32,19 +33,25 @@ class _VerifyOtpState extends State<VerifyOtp> {
       listener: (context, state) {
         if (state.state == AuthFlowStateEnum.successOtp &&
             state.token?.isNotEmpty == true) {
-          /*
-          authBloc.add(
-              LoggedInAuthEvent(state.phoneNumber!.phoneNumber!, state.token!, state.meUser!));
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          */
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => BlocProvider.value(
-                value: authFlowBloc,
-                child: CreateDevice(),
+          if (state.meUser?.name == null) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BlocProvider.value(
+                  value: authFlowBloc,
+                  child: const Name(),
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BlocProvider.value(
+                  value: authFlowBloc,
+                  child: const CreateDevice(),
+                ),
+              ),
+            );
+          }
         }
       },
       child: Scaffold(
