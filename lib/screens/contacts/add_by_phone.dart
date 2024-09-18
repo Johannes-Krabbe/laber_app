@@ -131,7 +131,7 @@ class _AddByPhoneState extends State<AddByPhone> {
                     padding: const EdgeInsets.all(10.0),
                     width: double.infinity,
                     child: const Text(
-                      'hello',
+                      'Continue',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

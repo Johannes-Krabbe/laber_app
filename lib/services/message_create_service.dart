@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/services/message_encryption_service.dart';
 import 'package:laber_app/store/repositories/outgoing_message_repository.dart';
+import 'package:laber_app/store/secure/account_device_store_service.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/types/contact.dart';
 import 'package:laber_app/store/types/raw_message.dart';
@@ -32,6 +33,7 @@ class MessageCreateService {
       ..type = RawMessageTypes.textMessage
       ..senderUserId = meUser.id
       ..senderDeviceId = meDevice.id
+      ..recipientUserId = contact!.apiId
       ..content = content.toJsonString()
       ..status = RawMessageStatus.sending
       ..unixTime = DateTime.now().millisecondsSinceEpoch
@@ -42,7 +44,7 @@ class MessageCreateService {
       await rawMessage.chat.save();
     });
 
-    await sendRawMessage(contact: contact!, message: rawMessage);
+    await sendRawMessage(contact: contact, message: rawMessage);
   }
 
   static Future<void> sendRawMessage({
@@ -57,11 +59,26 @@ class MessageCreateService {
       throw Exception('No devices found');
     }
 
-    // TODO send to me devices
-
     for (var device in contactDevices) {
-      final apiMessage = await MessageEncryptionService()
-          .encryptMessage(message: message, device: device);
+      final apiMessage = await MessageEncryptionService().encryptMessage(
+        message: message,
+        secret: device.secret,
+        apiRecipientDeviceId: device.apiId,
+      );
+      await OutgoingMessageRepository.create(
+        content: apiMessage,
+        recipientDeviceId: device.apiId,
+      );
+    }
+
+    final meDevices = (await AccountDeviceStoreService.getAll()) ?? [];
+
+    for (var device in meDevices) {
+      final apiMessage = await MessageEncryptionService().encryptMessage(
+        message: message,
+        secret: device.secret,
+        apiRecipientDeviceId: device.apiId,
+      );
       await OutgoingMessageRepository.create(
         content: apiMessage,
         recipientDeviceId: device.apiId,

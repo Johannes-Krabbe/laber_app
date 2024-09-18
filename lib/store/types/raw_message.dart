@@ -20,6 +20,8 @@ class RawMessage {
   late String senderUserId;
   late String senderDeviceId;
 
+  late String recipientUserId;
+
   late String content;
   late int unixTime;
 
@@ -67,6 +69,7 @@ class RawMessage {
       'type': type.toString(),
       'senderUserId': senderUserId,
       'senderDeviceId': senderDeviceId,
+      'recipientUserId': recipientUserId,
       'content': content,
       'unixTime': unixTime,
       'status': status.toString(),
@@ -80,6 +83,7 @@ class RawMessage {
         RawMessageTypes.values.firstWhere((e) => e.toString() == json['type']);
     final senderUserId = json['senderUserId'];
     final senderDeviceId = json['senderDeviceId'];
+    final recipientUserId = json['recipientUserId'];
     final content = json['content'];
     final unixTime = json['unixTime'];
     final status = RawMessageStatus.values
@@ -90,6 +94,7 @@ class RawMessage {
       ..type = type
       ..senderUserId = senderUserId
       ..senderDeviceId = senderDeviceId
+      ..recipientUserId = recipientUserId
       ..content = content
       ..unixTime = unixTime
       ..status = status;
@@ -136,7 +141,8 @@ class ReactionMessageContent {
   late String messageUniqueId;
   late String reaction;
 
-  ReactionMessageContent({required this.messageUniqueId, required this.reaction});
+  ReactionMessageContent(
+      {required this.messageUniqueId, required this.reaction});
 
   String toJsonString() {
     return jsonEncode({
@@ -149,8 +155,8 @@ class ReactionMessageContent {
     final json = jsonDecode(jsonString);
     final messageUniqueId = json['messageUniqueId'];
     final reaction = json['reaction'];
-    var content =
-        ReactionMessageContent(messageUniqueId: messageUniqueId, reaction: reaction);
+    var content = ReactionMessageContent(
+        messageUniqueId: messageUniqueId, reaction: reaction);
     return content;
   }
 }

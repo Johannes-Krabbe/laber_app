@@ -1,13 +1,16 @@
 import 'package:laber_app/api/models/types/private_message.dart';
 import 'package:laber_app/api/repositories/message_repository.dart';
 import 'package:laber_app/services/chat_service.dart';
+import 'package:laber_app/services/key_agreement_service.dart';
 import 'package:laber_app/services/message_encryption_service.dart';
 import 'package:laber_app/store/repositories/raw_message_repository.dart';
+import 'package:laber_app/store/secure/account_device_store_service.dart';
 import 'dart:convert';
 
 import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/types/message/api_message.dart';
 import 'package:laber_app/types/message/message_data.dart';
+import 'package:laber_app/utils/curve/crypto_util.dart';
 
 class MessageRecieveService {
   // Can throw
@@ -40,9 +43,53 @@ class MessageRecieveService {
         {
           final agreementMessageData = AgreementMessageData.fromJson(
               jsonDecode(apiMessage.apiMessage.messageData.encryptedMessage));
+
           try {
-            await ChatService.createChatFromInitiationMessage(
-                agreementMessageData: agreementMessageData);
+            // Variables
+            final authStore =
+                await AuthStateStoreService.readFromSecureStorage();
+            final isSelfInitiated =
+                agreementMessageData.initiatorUserId == authStore!.meUser.id;
+
+            // Check if the handshake is self initiated
+            if (isSelfInitiated) {
+              // if yes validate the message
+              if (agreementMessageData.initiatorDeviceId ==
+                  authStore.meDevice.id) {
+                throw Exception('Initiator is me');
+              }
+
+              final existingDevice = await AccountDeviceStoreService.get(
+                agreementMessageData.initiatorDeviceId,
+              );
+
+              if (existingDevice != null) {
+                throw Exception('Device already exists');
+              }
+
+              // Process the message
+              final result =
+                  await KeyAgreementService.processInitializationMessage(
+                agreementMessageData,
+              );
+
+              if (result == null) {
+                throw Exception('Error processing initiation message');
+              }
+
+              // Save the device
+              await AccountDeviceStoreService.store(
+                AccountDeviceStore(
+                  secret:
+                      await CryptoUtil.secretKeyToString(result.sharedSecret),
+                  apiId: agreementMessageData.initiatorDeviceId,
+                ),
+              );
+            } else {
+              await ChatService.createChatFromInitiationMessage(
+                agreementMessageData: agreementMessageData,
+              );
+            }
           } catch (e) {
             print('Error creating chat from initiation message: $e');
           }

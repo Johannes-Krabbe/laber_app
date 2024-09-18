@@ -22,7 +22,7 @@ class ContactService {
   }
 
   static Future<Contact> refetchContact(String apiId) async {
-    final contact = await ContactRepository.getContact(apiId);
+    final contact = await ContactStoreRepository.getContact(apiId);
 
     if (contact == null) {
       throw Exception('Contact not found in local database');
@@ -32,11 +32,12 @@ class ContactService {
   }
 
   static Future<Contact?> fetchContact(String apiId) async {
-    var contact = await ContactRepository.getContact(apiId);
+    var contact = await ContactStoreRepository.getContact(apiId);
 
     final apiResponse = await UserRepository().getById(apiId);
 
     if (apiResponse.status != 200) {
+      print('Failed to fetch contact');
       throw Exception('Failed to fetch contact');
     }
 
@@ -49,7 +50,6 @@ class ContactService {
     }
 
     final deviceIds = fetchDevicesRes.body!.ids;
-
 
     contact
       ..name = apiResponse.body?.user?.name

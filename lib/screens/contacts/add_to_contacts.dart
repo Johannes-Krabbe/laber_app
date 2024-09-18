@@ -42,7 +42,7 @@ class _AddToContactsState extends State<AddToContacts> {
             Text('Add ${widget.user.name} to contacts?'),
             ElevatedButton(
               onPressed: () async {
-                await ContactRepository.addContactFromApiUser(
+                await ContactStoreRepository.addContactFromApiUser(
                   widget.user,
                   widget.phoneNumber,
                 );

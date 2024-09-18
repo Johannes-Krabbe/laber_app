@@ -3,7 +3,7 @@ import 'package:laber_app/api/models/types/public_user.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/store/types/contact.dart';
 
-class ContactRepository {
+class ContactStoreRepository {
   static Future<List<Contact>> getAllContacts() async {
     final isar = await getIsar();
     final contacts = isar.contacts.where().findAll();

@@ -1,24 +1,36 @@
 import 'package:isar/isar.dart';
 import 'package:laber_app/isar.dart';
-import 'package:laber_app/store/repositories/device_repository.dart';
+import 'package:laber_app/services/chat_service.dart';
+import 'package:laber_app/services/contact_service.dart';
+import 'package:laber_app/store/repositories/contact_repository.dart';
+import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/types/raw_message.dart';
 
 class RawMessageStoreRepository {
   Future<void> saveRawMessage(RawMessage rawMessage) async {
-    final device =
-        await DeviceStoreRepository().getByApiId(rawMessage.senderDeviceId);
+    final authStore = await AuthStateStoreService.readFromSecureStorage();
+    final meUser = authStore!.meUser;
+    final contactId = rawMessage.senderUserId == meUser.id
+        ? rawMessage.recipientUserId
+        : rawMessage.senderUserId;
 
-    if (device == null) {
-      throw Exception('Device not found');
+    var contact = await ContactStoreRepository.getContact(contactId);
+
+    contact ??= await ContactService.fetchContact(contactId);
+
+    if (contact != null) {
+      await ChatService.createChat(contactApiId: contactId);
+    } else {
+      throw Exception('Contact not found');
     }
 
-    final chat = device.chat.value;
+    final chat = contact.chat.value;
 
     if (chat == null) {
       throw Exception('Chat not found');
     }
-    
-    if(await getByUniqueId(rawMessage.uniqueId) != null) {
+
+    if (await getByUniqueId(rawMessage.uniqueId) != null) {
       return;
     }
 

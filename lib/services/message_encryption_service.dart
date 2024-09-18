@@ -3,17 +3,17 @@ import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:laber_app/store/repositories/device_repository.dart';
+import 'package:laber_app/store/secure/account_device_store_service.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 
-import 'package:laber_app/store/types/device.dart';
 import 'package:laber_app/store/types/raw_message.dart';
 import 'package:laber_app/types/message/api_message.dart';
 
 class MessageEncryptionService {
-  Future<ApiMessage> encryptMessage({
-    required RawMessage message,
-    required Device device,
-  }) async {
+  Future<ApiMessage> encryptMessage(
+      {required RawMessage message,
+      required String secret,
+      required String apiRecipientDeviceId}) async {
     final meDevice =
         (await AuthStateStoreService.readFromSecureStorage())?.meDevice;
     if (meDevice == null) {
@@ -22,7 +22,6 @@ class MessageEncryptionService {
 
     final algorithm = FlutterChacha20.poly1305Aead();
 
-    final secret = device.secret;
     final secretKey = SecretKey(
       base64Decode(secret),
     );
@@ -49,7 +48,7 @@ class MessageEncryptionService {
     final apiMessage = ApiMessage(
       messageData: apiMessageData,
       apiSenderDeviceId: meDevice.id,
-      apiRecipientDeviceId: device.apiId,
+      apiRecipientDeviceId: apiRecipientDeviceId,
     );
 
     return apiMessage;
@@ -58,8 +57,8 @@ class MessageEncryptionService {
   Future<RawMessage> decryptMessage({
     required ApiMessage apiMessage,
   }) async {
-    final meDevice =
-        (await AuthStateStoreService.readFromSecureStorage())?.meDevice;
+    final authStateStore = await AuthStateStoreService.readFromSecureStorage();
+    final meDevice = authStateStore?.meDevice;
     if (meDevice == null) {
       throw Exception('Me device not found');
     }
@@ -73,14 +72,23 @@ class MessageEncryptionService {
 
     final algorithm = FlutterChacha20.poly1305Aead();
 
-    final device =
-        await DeviceStoreRepository().getByApiId(apiMessage.apiSenderDeviceId);
+    String secret;
 
-    if (device == null) {
-      throw Exception('Device not found');
+    final device =
+        await AccountDeviceStoreService.get(apiMessage.apiSenderDeviceId);
+
+    if (device != null) {
+      secret = device.secret;
+    } else {
+      final device = await DeviceStoreRepository()
+          .getByApiId(apiMessage.apiSenderDeviceId);
+
+      if (device == null) {
+        throw Exception('Device not found');
+      }
+      secret = device.secret;
     }
 
-    final secret = device.secret;
     final secretKey = SecretKey(
       base64Decode(secret),
     );

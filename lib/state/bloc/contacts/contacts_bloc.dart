@@ -22,7 +22,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
   _onRefetchAllContacts(
       RefetchAllContactsEvent event, Emitter<ContactsState> emit) async {
     emit(state.copyWith(state: ContactsStateEnum.loading));
-    final contacts = await ContactRepository.getAllContacts();
+    final contacts = await ContactStoreRepository.getAllContacts();
     emit(state.copyWith(state: ContactsStateEnum.success, contacts: contacts));
   }
 

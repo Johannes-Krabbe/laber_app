@@ -35,6 +35,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutAuthEvent>((event, emit) async {
       await _onLogout(event, emit);
     });
+    on<FetchMeAuthEvent>((event, emit) async {
+      await _onFetchMe(event, emit);
+    });
   }
 
   _onLogin(LoggedInAuthEvent event, Emitter<AuthState> emit) async {
@@ -49,8 +52,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   _onAppStarted(AppStartedAuthEvent event, Emitter<AuthState> emit) async {
-    final authStateStore =
-        await AuthStateStoreService.readFromSecureStorage();
+    final authStateStore = await AuthStateStoreService.readFromSecureStorage();
 
     if (authStateStore == null) {
       state.copyWith(
@@ -67,8 +69,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ClientMeUser.fromApiPrivateMeUser(response.body!.user!);
 
         if (clientMeUserFromApi != authStateStore.meUser) {
-          await AuthStateStoreService.saveToSecureStorage(
-              AuthStateStoreService(
+          await AuthStateStoreService.saveToSecureStorage(AuthStateStoreService(
             authStateStore.token,
             clientMeUserFromApi,
             authStateStore.meDevice,
@@ -105,5 +106,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await isar.devices.clear();
     });
     emit(state.copyWith(state: AuthStateEnum.loggedOut));
+  }
+
+  _onFetchMe(FetchMeAuthEvent event, Emitter<AuthState> emit) async {
+    final authStateStore = await AuthStateStoreService.readFromSecureStorage();
+
+    if (authStateStore == null) {
+      emit(state.copyWith(
+        state: AuthStateEnum.error,
+        error: 'Something went wrong',
+      ));
+      return;
+    }
+
+    var response = await AuthRepository().fetchMe(authStateStore.token);
+
+    if (response.status != 200) {
+      emit(state.copyWith(state: AuthStateEnum.loggedOut));
+      return;
+    }
+
+    final clientMeUserFromApi =
+        ClientMeUser.fromApiPrivateMeUser(response.body!.user!);
+
+    if (clientMeUserFromApi != authStateStore.meUser) {
+      await AuthStateStoreService.saveToSecureStorage(AuthStateStoreService(
+        authStateStore.token,
+        clientMeUserFromApi,
+        authStateStore.meDevice,
+      ));
+    }
+
+    emit(state.copyWith(
+      state: AuthStateEnum.loggedIn,
+      meUser: clientMeUserFromApi,
+      meDevice: authStateStore.meDevice,
+      token: authStateStore.token,
+    ));
+
+    return;
   }
 }

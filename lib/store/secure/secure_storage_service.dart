@@ -23,4 +23,5 @@ class SecureStorageService {
 
 enum SecureStorageKeys {
   authStateStore,
+  accountDeviceStore,
 }

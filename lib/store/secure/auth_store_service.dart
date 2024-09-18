@@ -3,7 +3,6 @@ import 'package:laber_app/types/client_me_device.dart';
 import 'package:laber_app/types/client_me_user.dart';
 import 'dart:convert';
 
-
 class AuthStateStoreService {
   final String token;
   final ClientMeUser meUser;
@@ -19,7 +18,8 @@ class AuthStateStoreService {
     });
   }
 
-  static Future<AuthStateStoreService?> fromJsonString(String jsonString) async {
+  static Future<AuthStateStoreService?> fromJsonString(
+      String jsonString) async {
     final Map<String, dynamic> json = jsonDecode(jsonString);
     return AuthStateStoreService(
       json['token'],
