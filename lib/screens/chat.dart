@@ -55,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _setupIsarListener() async {
     final isar = await getIsar();
     _messageSubscription = isar.rawMessages.watchLazy().listen((_) {
-      chatBloc.add(LoadChatEvent());
+      chatBloc.add(RawMessageChangeChatEvent());
     });
   }
 

@@ -22,14 +22,14 @@ class _TextMessageWidgetState extends State<TextMessageWidget> {
   late bool isMe;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     authBloc = context.read<AuthBloc>();
-    isMe = authBloc.state.meUser?.id == widget.message.senderUserId;
   }
 
   @override
   Widget build(BuildContext context) {
+    final isMe = authBloc.state.meUser?.id == widget.message.senderUserId;
     final borderRadius = isMe
         ? const BorderRadius.only(
             topLeft: Radius.circular(15),
