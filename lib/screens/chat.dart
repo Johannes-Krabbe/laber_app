@@ -9,6 +9,7 @@ import 'package:laber_app/components/message/base_message_widget.dart';
 import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/screens/chat_info.dart';
+import 'package:laber_app/services/message_recieve_service.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:laber_app/state/bloc/chat_bloc.dart';
 import 'package:laber_app/state/types/chat_state.dart';
@@ -285,6 +286,13 @@ class ChatHead extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(width: 5),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () async {
+                    await MessageRecieveService().processNew();
+                  },
                 ),
                 const SizedBox(width: 10),
               ],
