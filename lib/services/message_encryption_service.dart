@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:laber_app/store/repositories/device_repository.dart';
-import 'package:laber_app/store/secure/account_device_store_service.dart';
+import 'package:laber_app/store/secure/self_device_store_service.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 
 import 'package:laber_app/store/types/raw_message.dart';
@@ -75,7 +75,7 @@ class MessageEncryptionService {
     String secret;
 
     final device =
-        await AccountDeviceStoreService.get(apiMessage.apiSenderDeviceId);
+        await SelfDeviceStoreService.get(apiMessage.apiSenderDeviceId);
 
     if (device != null) {
       secret = device.secret;

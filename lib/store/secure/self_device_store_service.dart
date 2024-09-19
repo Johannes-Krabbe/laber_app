@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:laber_app/store/secure/secure_storage_service.dart';
 
-class AccountDeviceStoreService {
-  static store(AccountDeviceStore accountDeviceStore) async {
+class SelfDeviceStoreService {
+  static store(SelfDeviceStore accountDeviceStore) async {
     final secureStorage = SecureStorageService();
 
     final devices = await getAll();
@@ -26,7 +26,7 @@ class AccountDeviceStoreService {
     }
   }
 
-  static Future<List<AccountDeviceStore>?> getAll() async {
+  static Future<List<SelfDeviceStore>?> getAll() async {
     final secureStorage = SecureStorageService();
 
     final jsonString = await secureStorage.read(
@@ -39,16 +39,16 @@ class AccountDeviceStoreService {
 
     final deviceStrings = jsonDecode(jsonString);
 
-    final List<AccountDeviceStore> devices = [];
+    final List<SelfDeviceStore> devices = [];
 
     for (var deviceString in deviceStrings) {
-      devices.add(AccountDeviceStore.fromJsonString(deviceString));
+      devices.add(SelfDeviceStore.fromJsonString(deviceString));
     }
 
     return devices;
   }
 
-  static Future<AccountDeviceStore?> get(String apiId) async {
+  static Future<SelfDeviceStore?> get(String apiId) async {
     final devices = await getAll();
 
     if (devices == null) {
@@ -67,11 +67,11 @@ class AccountDeviceStoreService {
   }
 }
 
-class AccountDeviceStore {
+class SelfDeviceStore {
   final String apiId;
   final String secret;
 
-  AccountDeviceStore({required this.apiId, required this.secret});
+  SelfDeviceStore({required this.apiId, required this.secret});
 
   String toJsonString() {
     return jsonEncode({
@@ -80,9 +80,9 @@ class AccountDeviceStore {
     });
   }
 
-  static AccountDeviceStore fromJsonString(String jsonString) {
+  static SelfDeviceStore fromJsonString(String jsonString) {
     final Map<String, dynamic> json = jsonDecode(jsonString);
-    return AccountDeviceStore(
+    return SelfDeviceStore(
       apiId: json['apiId'],
       secret: json['secret'],
     );

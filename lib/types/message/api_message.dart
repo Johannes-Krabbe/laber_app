@@ -68,4 +68,5 @@ class ApiMessageData {
 enum ApiMessageDataTypes {
   keyAgreement,
   applicationRawMessage,
+  selfNewChatNofication,
 }

@@ -51,12 +51,4 @@ class AuthStateStoreService {
 
     return AuthStateStoreService.fromJsonString(jsonString);
   }
-
-  static Future<void> deleteFromSecureStorage() async {
-    final secureStorage = SecureStorageService();
-
-    await secureStorage.delete(
-      SecureStorageKeys.authStateStore,
-    );
-  }
 }

@@ -108,11 +108,12 @@ enum RawMessageStatus {
   sent,
   failed,
   received,
+  none,
 }
 
 enum RawMessageTypes {
-  initMessage,
   textMessage,
+  infoMessage,
   reaction,
 }
 
@@ -133,6 +134,25 @@ class TextMessageContent {
     final json = jsonDecode(jsonString);
     final text = json['text'];
     var content = TextMessageContent(text: text);
+    return content;
+  }
+}
+
+class InfoMessageContent {
+  String text;
+
+  InfoMessageContent({required this.text});
+
+  String toJsonString() {
+    return jsonEncode({
+      'text': text,
+    });
+  }
+
+  static InfoMessageContent fromJsonString(String jsonString) {
+    final json = jsonDecode(jsonString);
+    final text = json['text'];
+    var content = InfoMessageContent(text: text);
     return content;
   }
 }

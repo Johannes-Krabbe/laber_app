@@ -2,7 +2,6 @@ import 'dart:convert';
 
 enum EncryptedMessageDataTypes {
   keyAgreement,
-  message,
 }
 
 // === Agreement ===

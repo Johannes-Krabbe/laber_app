@@ -4,6 +4,7 @@ import 'package:laber_app/api/repositories/auth_repository.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
+import 'package:laber_app/store/secure/secure_storage_service.dart';
 import 'package:laber_app/types/client_me_user.dart';
 import 'package:laber_app/store/types/contact.dart';
 import 'package:laber_app/store/types/chat.dart';
@@ -92,7 +93,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   _onLogout(LogoutAuthEvent event, Emitter<AuthState> emit) async {
     // delete all data from secure storage
-    await AuthStateStoreService.deleteFromSecureStorage();
+    await SecureStorageService().deleteAll();
 
     // reset dio
     dioRefetchTokenFunction();

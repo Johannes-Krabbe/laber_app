@@ -1,5 +1,7 @@
 import 'package:laber_app/services/contact_service.dart';
+import 'package:laber_app/services/info_message_service.dart';
 import 'package:laber_app/services/key_agreement_service.dart';
+import 'package:laber_app/services/self/self_devices_service.dart';
 import 'package:laber_app/store/repositories/contact_repository.dart';
 import 'package:laber_app/store/types/contact.dart';
 
@@ -36,6 +38,8 @@ class ChatService {
       await contact.chat.save();
     });
 
+    await InfoMessageService().createChatInitializedMessage(chat);
+
     for (var deviceId in contact.deviceApiIds) {
       var exisitingDevices = chat.devices.where((device) {
         return device.apiId == deviceId;
@@ -68,7 +72,12 @@ class ChatService {
         await isar.chats.put(chat);
         await chat.devices.save();
       });
+
+      await InfoMessageService().initializeSecretCreation(device, chat);
     }
+
+    // Check that all self devices have a shared secret
+    await SelfDevicesService.initiateKeyAgreement();
   }
 
   /* ===
@@ -107,9 +116,8 @@ class ChatService {
       throw Exception('Device already exists');
     }
 
-    final result =
-        await KeyAgreementService.processInitializationMessage(
-            agreementMessageData);
+    final result = await KeyAgreementService.processInitializationMessage(
+        agreementMessageData);
 
     if (result == null) {
       throw Exception('Error processing initiation message');
@@ -135,5 +143,7 @@ class ChatService {
       await isar.devices.put(device);
       await device.chat.save();
     });
+
+    await InfoMessageService().createdSecretFromInitializationMessage(chat, device);
   }
 }

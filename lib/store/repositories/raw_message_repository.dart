@@ -18,10 +18,19 @@ class RawMessageStoreRepository {
 
     contact ??= await ContactService.fetchContact(contactId);
 
-    if (contact != null) {
-      await ChatService.createChat(contactApiId: contactId);
-    } else {
+    if (contact == null) {
       throw Exception('Contact not found');
+    }
+
+    if (contact.chat.value == null) {
+      await ChatService.createChat(contactApiId: contactId);
+
+      // refetch contact after chat creation
+      contact = await ContactStoreRepository.getContact(contactId);
+    }
+
+    if (contact == null || contact.chat.value == null) {
+      throw Exception('Contact not found or chat not found');
     }
 
     final chat = contact.chat.value;

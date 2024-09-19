@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
 import 'package:laber_app/components/blur_background.dart';
 import 'package:laber_app/components/button.dart';
-import 'package:laber_app/components/chat_message_widget.dart';
+import 'package:laber_app/components/message/base_message_widget.dart';
 import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/screens/chat_info.dart';
@@ -139,7 +139,7 @@ class _ChatScreenState extends State<ChatScreen> {
             reverse: true,
             itemCount: chat.sortedParsedMessages.length,
             itemBuilder: (context, index) {
-              return MessageWidget(
+              return BaseMessageWidget(
                 message: chat.sortedParsedMessages[index],
               );
             });

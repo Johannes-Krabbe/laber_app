@@ -4,10 +4,10 @@ import 'package:laber_app/services/chat_service.dart';
 import 'package:laber_app/services/key_agreement_service.dart';
 import 'package:laber_app/services/message_encryption_service.dart';
 import 'package:laber_app/store/repositories/raw_message_repository.dart';
-import 'package:laber_app/store/secure/account_device_store_service.dart';
 import 'dart:convert';
 
 import 'package:laber_app/store/secure/auth_store_service.dart';
+import 'package:laber_app/store/secure/self_device_store_service.dart';
 import 'package:laber_app/types/message/api_message.dart';
 import 'package:laber_app/types/message/message_data.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
@@ -59,7 +59,7 @@ class MessageRecieveService {
                 throw Exception('Initiator is me');
               }
 
-              final existingDevice = await AccountDeviceStoreService.get(
+              final existingDevice = await SelfDeviceStoreService.get(
                 agreementMessageData.initiatorDeviceId,
               );
 
@@ -78,8 +78,8 @@ class MessageRecieveService {
               }
 
               // Save the device
-              await AccountDeviceStoreService.store(
-                AccountDeviceStore(
+              await SelfDeviceStoreService.store(
+                SelfDeviceStore(
                   secret:
                       await CryptoUtil.secretKeyToString(result.sharedSecret),
                   apiId: agreementMessageData.initiatorDeviceId,

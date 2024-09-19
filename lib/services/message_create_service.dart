@@ -2,7 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/services/message_encryption_service.dart';
 import 'package:laber_app/store/repositories/outgoing_message_repository.dart';
-import 'package:laber_app/store/secure/account_device_store_service.dart';
+import 'package:laber_app/store/secure/self_device_store_service.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/types/contact.dart';
 import 'package:laber_app/store/types/raw_message.dart';
@@ -71,7 +71,7 @@ class MessageCreateService {
       );
     }
 
-    final meDevices = (await AccountDeviceStoreService.getAll()) ?? [];
+    final meDevices = (await SelfDeviceStoreService.getAll()) ?? [];
 
     for (var device in meDevices) {
       final apiMessage = await MessageEncryptionService().encryptMessage(

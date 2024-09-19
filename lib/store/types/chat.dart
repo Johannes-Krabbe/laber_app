@@ -19,7 +19,8 @@ class Chat {
   // == helper methods ==
 
   @ignore
-  RawMessage? get latestMessage => messages.isNotEmpty ? sortedMessages.first : null;
+  RawMessage? get latestMessage =>
+      messages.isNotEmpty ? sortedMessages.first : null;
 
   @ignore
   List<RawMessage> get sortedMessages {
@@ -49,6 +50,17 @@ class Chat {
             senderUserId: rawMessage.senderUserId,
             unixTime: rawMessage.unixTime,
             type: ParsedMessageTypes.textMessage,
+            reactions: [],
+          ));
+          break;
+        case RawMessageTypes.infoMessage:
+          final content = InfoMessageContent.fromJsonString(rawMessage.content);
+          parsedMessages.add(ClientParsedMessage(
+            text: content.text,
+            uniqueId: rawMessage.uniqueId,
+            senderUserId: rawMessage.senderUserId,
+            unixTime: rawMessage.unixTime,
+            type: ParsedMessageTypes.infoMessage,
             reactions: [],
           ));
           break;
@@ -92,7 +104,7 @@ class ClientParsedMessage {
   });
 }
 
-enum ParsedMessageTypes { textMessage }
+enum ParsedMessageTypes { textMessage, infoMessage }
 
 class ClientReaction {
   final String emoji;
