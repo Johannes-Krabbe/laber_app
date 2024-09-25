@@ -44,11 +44,6 @@ dependencies:
   dio: ^5.5.0+1
   intl: ^0.19.0
   flutter_iconoir_ttf: ^0.1.1
-  equatable: ^2.0.5
-  flutter_svg: ^2.0.10+1
-  flutter_svg_provider: ^1.0.7
-  pretty_qr_code: ^3.3.0
-  share_plus: ^10.0.1
   crypto: ^3.0.5
   isar: ^3.1.0+1
   isar_flutter_libs: ^3.1.0+1

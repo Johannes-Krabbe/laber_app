@@ -1,9 +1,8 @@
 import 'dart:convert';
 
-import 'package:equatable/equatable.dart';
 import 'package:laber_app/api/models/types/private_user.dart';
 
-class ClientMeUser extends Equatable {
+class ClientMeUser {
   final String id;
   final String phoneNumber;
   final int unixCreatedAt;
