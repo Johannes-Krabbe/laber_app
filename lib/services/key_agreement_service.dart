@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:laber_app/api/repositories/device_repository.dart';
+import 'package:laber_app/api/repositories/api_device_repository.dart';
 import 'package:laber_app/store/repositories/outgoing_message_repository.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/types/device.dart';
@@ -22,7 +22,7 @@ class KeyAgreementService {
       })?> creteInitializationMessage(String deviceId) async {
     final authStore = await AuthStateStoreService.readFromSecureStorage();
 
-    var deviceRes = await DeviceRepository().getKeyBundle(deviceId);
+    var deviceRes = await ApiDeviceRepository().getKeyBundle(deviceId);
 
     if (deviceRes.status != 200) {
       // TODO error
@@ -105,7 +105,7 @@ class KeyAgreementService {
           AgreementMessageData agreementMessageData) async {
         
 
-    final apiDevice = await DeviceRepository()
+    final apiDevice = await ApiDeviceRepository()
         .getPublic(agreementMessageData.initiatorDeviceId);
 
     if (apiDevice.body == null) {

@@ -51,12 +51,12 @@ class _NameState extends State<Name> {
           bottom: true,
           child: Column(
             children: <Widget>[
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Welcome to Laber!',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: Text(
@@ -68,28 +68,35 @@ class _NameState extends State<Name> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
                   controller: usernameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Username',
                   ),
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
                   controller: nameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Display name',
                   ),
                 ),
               ),
               const Spacer(),
-              Text(authFlowBloc.state.error),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  authFlowBloc.state.error,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
               TextButton(
                 onPressed: () {
                   if (usernameController.text.isNotEmpty) {

@@ -28,8 +28,9 @@ abstract class ApiProvider {
 class ApiRepositoryResponse<B> {
   B? body;
   int status;
+  String? error;
 
-  ApiRepositoryResponse({this.body, required this.status});
+  ApiRepositoryResponse({this.body, required this.status, this.error});
 }
 
 class ApiRepositoryResponseError {
@@ -45,7 +46,6 @@ class AuthInterceptor extends Interceptor {
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
     if (token == null || refetchToken) {
-      print('refetchToken');
       var secureStorageToken =
           (await AuthStateStoreService.readFromSecureStorage())?.token;
       if (secureStorageToken?.isNotEmpty == true) {

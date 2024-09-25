@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:laber_app/api/api_errors.dart';
 import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/device/create.dart';
 import 'package:laber_app/api/models/responses/device/get_all.dart';
@@ -6,7 +7,7 @@ import 'package:laber_app/api/models/responses/device/get_ids.dart';
 import 'package:laber_app/api/models/responses/device/get_key_bundle.dart';
 import 'package:laber_app/api/models/responses/device/get_public.dart';
 
-class DeviceRepository extends ApiProvider {
+class ApiDeviceRepository extends ApiProvider {
   Future<ApiRepositoryResponse<DeviceCreateResponse>> create(
     String token, {
     required String deviceName,
@@ -33,15 +34,7 @@ class DeviceRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      if (e is DioException) {
-        return ApiRepositoryResponse<DeviceCreateResponse>(
-          body: DeviceCreateResponse.fromJson(e.response?.data ?? {}),
-          status: e.response?.statusCode ?? 500,
-        );
-      }
-      return ApiRepositoryResponse<DeviceCreateResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 
@@ -54,9 +47,7 @@ class DeviceRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<DeviceGetAllResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 
@@ -71,9 +62,7 @@ class DeviceRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<DeviceGetKeyBundleResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 
@@ -88,9 +77,7 @@ class DeviceRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<DeviceGetIdsResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 
@@ -104,9 +91,7 @@ class DeviceRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<DeviceGetPublicResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 }

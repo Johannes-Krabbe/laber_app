@@ -1,10 +1,11 @@
+import 'package:laber_app/api/api_errors.dart';
 import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/message/get_new.dart';
 import 'package:laber_app/api/models/responses/message/post_new.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
 import 'package:laber_app/store/types/outgoing_message.dart';
 
-class MessageRepository extends ApiProvider {
+class ApiMessageRepository extends ApiProvider {
   Future<ApiRepositoryResponse<MessageGetNewResponse>> getNew() async {
     try {
       final authStateStore =
@@ -22,9 +23,8 @@ class MessageRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<MessageGetNewResponse>(
-        status: 500,
-      );
+      return parseError(e);
+      
     }
   }
 
@@ -49,9 +49,7 @@ class MessageRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<MessagePostNewResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 }

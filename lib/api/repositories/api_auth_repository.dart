@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:laber_app/api/api_errors.dart';
 import 'package:laber_app/api/api_provider.dart';
 import 'package:laber_app/api/models/responses/auth/login_response.dart';
 import 'package:laber_app/api/models/responses/auth/me_response.dart';
 import 'package:laber_app/api/models/responses/auth/me_update_response.dart';
 import 'package:laber_app/api/models/responses/auth/verify_response.dart';
 
-class AuthRepository extends ApiProvider {
+class ApiAuthRepository extends ApiProvider {
   Future<ApiRepositoryResponse<AuthLoginResponse>> login(
       String phoneNumber) async {
     try {
@@ -21,9 +22,7 @@ class AuthRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<AuthLoginResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 
@@ -40,9 +39,7 @@ class AuthRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<AuthVerifyResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 
@@ -58,9 +55,7 @@ class AuthRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      return ApiRepositoryResponse<AuthMeResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 
@@ -104,13 +99,7 @@ class AuthRepository extends ApiProvider {
         status: response.statusCode!,
       );
     } catch (e) {
-      if (e is DioException) {
-        print(e.response?.data);
-      }
-      print(e);
-      return ApiRepositoryResponse<MeUpdateResponse>(
-        status: 500,
-      );
+      return parseError(e);
     }
   }
 }

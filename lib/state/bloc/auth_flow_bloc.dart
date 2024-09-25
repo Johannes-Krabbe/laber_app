@@ -1,7 +1,7 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:laber_app/api/repositories/auth_repository.dart';
-import 'package:laber_app/api/repositories/device_repository.dart';
+import 'package:laber_app/api/repositories/api_auth_repository.dart';
+import 'package:laber_app/api/repositories/api_device_repository.dart';
 import 'package:laber_app/state/types/auth_flow_state.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
@@ -88,7 +88,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       return;
     }
 
-    final res = await AuthRepository().login(event.phoneNumber.phoneNumber!);
+    final res = await ApiAuthRepository().login(event.phoneNumber.phoneNumber!);
 
     if (res.status == 200 || res.status == 201) {
       emit(state.copyWith(
@@ -99,7 +99,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       emit(
         state.copyWith(
             state: AuthFlowStateEnum.error,
-            error: res.body?.message ?? 'Invalid phone number, CODE:2'),
+            error: res.error ?? 'Invalid phone number, CODE:2'),
       );
     }
   }
@@ -112,7 +112,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       error: '',
     ));
 
-    final res = await AuthRepository()
+    final res = await ApiAuthRepository()
         .verify(state.phoneNumber!.phoneNumber!, event.otp);
 
     if ((res.status == 200 || res.status == 201) &&
@@ -126,7 +126,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
     } else {
       emit(state.copyWith(
           state: AuthFlowStateEnum.error,
-          error: res.body?.message ?? 'Invalid OTP'));
+          error: res.error ?? 'Invalid OTP'));
     }
   }
 
@@ -183,7 +183,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
 
     // --- Create Device ---
 
-    final res = await DeviceRepository().create(
+    final res = await ApiDeviceRepository().create(
       event.token,
       deviceName: event.deviceName,
       identityKey: base64PublicIdentityKey,
@@ -282,7 +282,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       emit(
         state.copyWith(
           state: AuthFlowStateEnum.error,
-          error: res.body?.message ?? 'Something went wrong!',
+          error: res.error ?? 'Something went wrong!',
         ),
       );
     }
@@ -305,14 +305,14 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       return;
     }
 
-    final res = await AuthRepository().updateMe(
+    final res = await ApiAuthRepository().updateMe(
       token: state.token,
       username: event.username,
       name: event.name,
     );
 
     if (res.status == 200 || res.status == 201) {
-      final meUserResponse = await AuthRepository().fetchMe(state.token!);
+      final meUserResponse = await ApiAuthRepository().fetchMe(state.token!);
 
       emit(
         state.copyWith(
@@ -325,7 +325,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       emit(
         state.copyWith(
           state: AuthFlowStateEnum.error,
-          error: res.body?.message ?? 'Something went wrong!',
+          error: res.error ?? 'Something went wrong!',
         ),
       );
     }
@@ -348,14 +348,14 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       return;
     }
 
-    final res = await AuthRepository().updateMe(
+    final res = await ApiAuthRepository().updateMe(
       token: state.token,
       usernameDiscoveryEnabled: event.switchUsernameDiscoveryValue,
       phoneNumberDiscoveryEnabled: event.switchPhonenumberDiscoveryValue,
     );
 
     if (res.status == 200 || res.status == 201) {
-      final meUserResponse = await AuthRepository().fetchMe(state.token!);
+      final meUserResponse = await ApiAuthRepository().fetchMe(state.token!);
 
       emit(
         state.copyWith(
@@ -368,7 +368,7 @@ class AuthFlowBloc extends Bloc<AuthFlowEvent, AuthFlowState> {
       emit(
         state.copyWith(
           state: AuthFlowStateEnum.error,
-          error: res.body?.message ?? 'Something went wrong!',
+          error: res.error ?? 'Something went wrong!',
         ),
       );
     }

@@ -1,6 +1,6 @@
 import 'package:isar/isar.dart';
-import 'package:laber_app/api/repositories/device_repository.dart';
-import 'package:laber_app/api/repositories/user_repository.dart';
+import 'package:laber_app/api/repositories/api_device_repository.dart';
+import 'package:laber_app/api/repositories/api_user_repository.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/store/repositories/contact_repository.dart';
 import 'package:laber_app/store/types/contact.dart';
@@ -34,7 +34,7 @@ class ContactService {
   static Future<Contact?> fetchContact(String apiId) async {
     var contact = await ContactStoreRepository.getContact(apiId);
 
-    final apiResponse = await UserRepository().getById(apiId);
+    final apiResponse = await ApiUserRepository().getById(apiId);
 
     if (apiResponse.status != 200) {
       print('Failed to fetch contact');
@@ -43,7 +43,7 @@ class ContactService {
 
     contact ??= Contact()..apiId = apiId;
 
-    var fetchDevicesRes = await DeviceRepository().getIds(contact.apiId);
+    var fetchDevicesRes = await ApiDeviceRepository().getIds(contact.apiId);
 
     if (fetchDevicesRes.status != 200) {
       return contact;
@@ -94,7 +94,7 @@ class ContactService {
 
     final hashedPhoneNumber = hashStringSha256(cleanedPhoneNumber);
 
-    final userRepository = UserRepository();
+    final userRepository = ApiUserRepository();
 
     final discoverResponse = await userRepository
         .discoverByPhoneNumber(hashedPhoneNumber.substring(0, 5));

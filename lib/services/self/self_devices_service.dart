@@ -1,4 +1,4 @@
-import 'package:laber_app/api/repositories/device_repository.dart';
+import 'package:laber_app/api/repositories/api_device_repository.dart';
 import 'package:laber_app/services/key_agreement_service.dart';
 import 'package:laber_app/store/secure/self_device_store_service.dart';
 import 'package:laber_app/utils/curve/crypto_util.dart';
@@ -7,7 +7,7 @@ class SelfDevicesService {
   // This function fetches the list of devices that belog to the self user, checks if there are any devices that dont have a shared device secret with the meDevice and initiates a key agreement with them
   static initiateKeyAgreement() async {
     // Fetch me
-    final selfDevicesRes = await DeviceRepository().getAll();
+    final selfDevicesRes = await ApiDeviceRepository().getAll();
 
     if (selfDevicesRes.status == 200 && selfDevicesRes.body?.devices != null) {
       // Iterate over the self devices

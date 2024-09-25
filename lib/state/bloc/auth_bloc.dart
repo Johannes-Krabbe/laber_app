@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/api/api_provider.dart';
-import 'package:laber_app/api/repositories/auth_repository.dart';
+import 'package:laber_app/api/repositories/api_auth_repository.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/state/types/auth_state.dart';
 import 'package:laber_app/store/secure/auth_store_service.dart';
@@ -63,7 +63,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
 
     if (authStateStore != null) {
-      var response = await AuthRepository().fetchMe(authStateStore.token);
+      var response = await ApiAuthRepository().fetchMe(authStateStore.token);
 
       if (response.status == 200) {
         final clientMeUserFromApi =
@@ -120,7 +120,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       return;
     }
 
-    var response = await AuthRepository().fetchMe(authStateStore.token);
+    var response = await ApiAuthRepository().fetchMe(authStateStore.token);
 
     if (response.status != 200) {
       emit(state.copyWith(state: AuthStateEnum.loggedOut));

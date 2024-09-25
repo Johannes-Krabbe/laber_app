@@ -1,5 +1,5 @@
 import 'package:laber_app/api/models/types/private_message.dart';
-import 'package:laber_app/api/repositories/message_repository.dart';
+import 'package:laber_app/api/repositories/api_message_repository.dart';
 import 'package:laber_app/services/chat_service.dart';
 import 'package:laber_app/services/key_agreement_service.dart';
 import 'package:laber_app/services/message_encryption_service.dart';
@@ -15,7 +15,7 @@ import 'package:laber_app/utils/curve/crypto_util.dart';
 class MessageRecieveService {
   // Can throw
   processNew() async {
-    final newMessages = await MessageRepository().getNew();
+    final newMessages = await ApiMessageRepository().getNew();
 
     if (newMessages.status != 200 || newMessages.body?.messages == null) {
       throw Exception("Could not fetch Messages");

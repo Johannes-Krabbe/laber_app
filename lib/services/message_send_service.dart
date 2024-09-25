@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:laber_app/api/repositories/message_repository.dart';
+import 'package:laber_app/api/repositories/api_message_repository.dart';
 import 'package:laber_app/isar.dart';
 import 'package:laber_app/store/repositories/outgoing_message_repository.dart';
 import 'package:laber_app/store/types/outgoing_message.dart';
@@ -67,7 +67,7 @@ class MessageSendService {
   }
 
   Future<void> sendMessage(OutgoingMessage message) async {
-    final messageRepository = MessageRepository();
+    final messageRepository = ApiMessageRepository();
     try {
       final messagePostRes = await messageRepository.postNew(message);
       if (messagePostRes.status != 201) {

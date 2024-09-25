@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/services/self/self_devices_service.dart';
 import 'package:laber_app/state/types/devices_state.dart';
-import 'package:laber_app/api/repositories/device_repository.dart';
+import 'package:laber_app/api/repositories/api_device_repository.dart';
 
 sealed class DevicesEvent {}
 
@@ -21,7 +21,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
       FetchDevicesDevicesEvent event, Emitter<DevicesState> emit) async {
     emit(state.copyWith(state: DevicesStateEnum.loading));
 
-    var allDevices = await DeviceRepository().getAll();
+    var allDevices = await ApiDeviceRepository().getAll();
     if (event.artificialDelay) {
       await Future.delayed(const Duration(seconds: 1));
     }

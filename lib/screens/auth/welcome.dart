@@ -49,7 +49,7 @@ class _WelcomeState extends State<Welcome> {
           const Spacer(),
           TextButton(
             onPressed: () async {
-              await SecureStorageService().deleteAll();
+              authBloc.add(LogoutAuthEvent());
             },
             child: Container(
               decoration: BoxDecoration(
@@ -57,7 +57,7 @@ class _WelcomeState extends State<Welcome> {
               ),
               padding: const EdgeInsets.all(10.0),
               child: const Text(
-                'Reset secure storage',
+                'Reset local storage',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
