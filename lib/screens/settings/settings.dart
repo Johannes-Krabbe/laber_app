@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laber_app/components/blur_background.dart';
-import 'package:laber_app/components/button.dart';
 import 'package:laber_app/components/profile_picture.dart';
 import 'package:laber_app/screens/settings/devices.dart';
-import 'package:laber_app/screens/settings/qr_code.dart';
 import 'package:laber_app/state/bloc/auth_bloc.dart';
 import 'package:flutter_iconoir_ttf/flutter_iconoir_ttf.dart';
 
@@ -106,15 +104,6 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                              context: context, builder: (_) => QrCode());
-                        },
-                        icon: const Icon(
-                          IconoirIconsBold.qrCode,
                         ),
                       ),
                     ],
