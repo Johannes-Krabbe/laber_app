@@ -22,7 +22,7 @@ class DevicesState {
     );
   }
 
-  getSortedDevices (String logedInDeviceId) {
+  List<ApiPrivateDevice> getSortedDevices (String logedInDeviceId) {
     List<ApiPrivateDevice> devices = [];
 
     for (var device in this.devices) {

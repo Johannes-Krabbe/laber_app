@@ -132,7 +132,14 @@ class _DevicesState extends State<Devices> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Created at: 27.04.2021',
+                                  'Created at: ${device.createdAtString}',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  'Remaining onetime Prekeys: ${device.oneTimePreKeys?.length.toString() ?? "NOT FOUND"}',
                                   style: TextStyle(
                                     color: Colors.grey[400],
                                     fontSize: 12,

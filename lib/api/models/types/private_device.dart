@@ -1,12 +1,16 @@
+import 'package:intl/intl.dart';
+
 class ApiPrivateDevice {
   String? id;
   String? deviceName;
+  int? unixCreatedAt;
   ApiSignedPreKey? signedPreKey;
   List<ApiOneTimePreKey>? oneTimePreKeys;
 
   ApiPrivateDevice({
     this.id,
     this.deviceName,
+    this.unixCreatedAt,
     this.signedPreKey,
     this.oneTimePreKeys,
   });
@@ -14,6 +18,7 @@ class ApiPrivateDevice {
   ApiPrivateDevice.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     deviceName = json['deviceName'];
+    unixCreatedAt = json['unixCreatedAt'];
     if (json['signedPreKey'] != null) {
       signedPreKey = ApiSignedPreKey.fromJson(json['signedPreKey']);
     }
@@ -25,6 +30,14 @@ class ApiPrivateDevice {
     } else {
       oneTimePreKeys = [];
     }
+  }
+
+  String get createdAtString {
+    if (unixCreatedAt == null) {
+      return 'NOT FOUND';
+    }
+    final time = DateTime.fromMillisecondsSinceEpoch(unixCreatedAt!);
+    return DateFormat('dd.MM.yyyy HH:mm').format(time);
   }
 }
 
