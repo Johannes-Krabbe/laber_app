@@ -27,3 +27,4 @@ I would recommend reading the documents in the order they are numbered to get a 
 - [05-KeyPairs.md](./05-KeyPairs.md)
 - [06-KeyAgreement.md](./06-KeyAgreement.md)
 - [07-Messaging.md](./07-Messaging.md)
+- [08-ThreadModel.md](./08-ThreadModel.md)
