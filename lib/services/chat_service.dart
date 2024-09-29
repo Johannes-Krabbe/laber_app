@@ -14,7 +14,7 @@ import 'package:laber_app/utils/curve/crypto_util.dart';
 class ChatService {
   /* ===
   === Initiator function ===
-  These function is used when the user wants to create a chat
+  This function is used when the user wants to create a chat
   === */
   static Future<void> createChat({required String contactApiId}) async {
     var contact = await ContactStoreRepository.getContact(contactApiId);
@@ -82,7 +82,7 @@ class ChatService {
 
   /* ===
   === Recipient function ===
-  These function is used when the user recieves a initiation message that is not created by the user (me)
+  This function is used when the user recieves a initiation message that is not created by the user (me)
   === */
 
   static Future<void> createChatFromInitiationMessage(
