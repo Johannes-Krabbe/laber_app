@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart' as cr;
 import 'package:ed25519_edwards/ed25519_edwards.dart';
 // ignore: implementation_imports
 import 'package:ed25519_edwards/src/edwards25519.dart';
-import 'package:laber_app/utils/curve/ed25519/util.dart';
+import 'package:laber_app/utils/curve/xeddsa/util.dart';
 
 Uint8List sign(Uint8List privateKey, Uint8List message, Uint8List random) {
   final A = ExtendedGroupElement();
