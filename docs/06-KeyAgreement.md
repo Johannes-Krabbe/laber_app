@@ -35,8 +35,8 @@ When receiving the Initialization message from `D1`, `D2` can retrieve `D2_IK` a
 
 With these keys and the same calculations shown above, `D2` can arrive at the same SK that `D1` previously calculated.
 
-From this point onward, `D1` and `D2` can have an encrypted chat as described in [messaging.md]().
+From this point onward, `D1` and `D2` can have an encrypted chat as described in [07-Messaging.md](./07-Messaging.md).
 
 
 ## Visualization
-![image](https://raw.githubusercontent.com/Johannes-Krabbe/laber_app/refs/heads/main/docs/assets/KeyAgreement.png)
+![image](./assets/KeyAgreement.png)

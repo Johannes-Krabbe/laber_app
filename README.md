@@ -26,4 +26,4 @@ Follow these steps to run the Laber app on an iOS simulator:
 For more information refer to the official [flutter documentation](https://docs.flutter.dev/).
 
 ## Documentation
-You can find all application specific Documentation in the `docs/` folder. It is recommended that you start with the [00-General.md](https://github.com/Johannes-Krabbe/laber_app/blob/main/docs/00-General.md) file to get an general understanding of the app and an overview over the documentation.
+You can find all application specific Documentation in the `docs/` folder. It is recommended that you start with the [00-General.md](./docs/00-General.md) file to get an general understanding of the app and an overview over the documentation.
